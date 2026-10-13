@@ -1,0 +1,35 @@
+{
+  "checked_at": "2026-10-12T12:27:31.227848+00:00",
+  "scope": "Remote HTTP machine contract, fixtures and structural conformance; not Go/wire parity, signature, authorization, invocation ledger, cancellation or live service tests",
+  "checks": [
+    {
+      "id": "remote_generated",
+      "command": "C:\\Python\\Python313\\python.exe docs/architecture/build_remote_contract.py --check",
+      "exit_code": 0,
+      "stdout": "PASS: remote contract matches design source",
+      "stderr": ""
+    },
+    {
+      "id": "design_tests",
+      "command": "C:\\Python\\Python313\\python.exe -m unittest discover -s docs/architecture -p test_*.py",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "..........................\n----------------------------------------------------------------------\nRan 26 tests in 2.258s\n\nOK"
+    },
+    {
+      "id": "remote_openapi",
+      "command": "E:\\ai\\memorys\\.local\\openapi-review-env\\Scripts\\python.exe -c \"import json; from openapi_spec_validator import validate; validate(json.load(open('docs/architecture/openapi/modules.v1.json',encoding='utf-8'))); print('PASS: remote OpenAPI 3.1.1, 17 operations')\"",
+      "exit_code": 0,
+      "stdout": "PASS: remote OpenAPI 3.1.1, 17 operations",
+      "stderr": ""
+    }
+  ],
+  "source_fingerprints": {
+    "docs/architecture/build_remote_contract.py": "8f970444d421d7fea1b12e6518e6e64ae73f6a47ff5dec1a77789d2696b8969f",
+    "docs/architecture/remote_wire_validation.py": "a197e4674ced82908a5adb16512dd34c8793748ea1dc36f8d9aeb823c9ae03ab",
+    "docs/architecture/test_remote_contract.py": "33f5206f65b4cb76d963aae1dd887a44b6097642c158057d32a422e849f53263",
+    "docs/architecture/REMOTE_MODULES.md": "736ff7b2ddaf40cdb20f92bb954e7af733abc47344c8d54f3b957158526d1556",
+    "docs/architecture/openapi/modules.v1.json": "cebad900748e245ad533549b84b3d79e782d3f6c63a4b75374390c9b468ec326"
+  },
+  "document_integrity": "pass: links, fences, embedded JSON and table columns; not rendering or anchor verification"
+}

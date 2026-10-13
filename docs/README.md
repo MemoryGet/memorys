@@ -1,0 +1,50 @@
+# AI Knowledge OS 设计文档
+
+查看 [总进度图](PROGRESS.md)：当前处于架构设计与契约基础验证，业务闭环和真实组件验收仍待实施。
+
+当前阶段：架构设计。默认采用 Go 模块化单体、Vue 管理界面、PostgreSQL 权威元数据、Redis 任务投递、本地原件存储和云模型；这些都是实现选择，不能进入产品契约。
+
+| 阅读顺序 | 文档 | 回答的问题 |
+|---|---|---|
+| 1 | [总体方案](AI_Knowledge_OS_开发计划与模块化架构.md) | 产品目标与总体模块划分 |
+| 2 | [详细架构](architecture/DESIGN.md) | 依赖方向、数据归属、发布一致性与部署 |
+| 3 | [契约规范](architecture/CONTRACTS.md) | 标准对象、模块端口、注册配置、错误、事件、REST/MCP |
+| 3.1 | [一致性与迁移协议](architecture/CONSISTENCY.md) | 并发发布、后端代际、授权时序、租约与迁移日志 |
+| 3.2 | [模块装配协议](architecture/MODULE_PROTOCOL.md) | 能力清单 Schema、依赖绑定、生命周期与接入清单 |
+| 3.2.1 | [装配内核与接入边界](architecture/KERNEL_RUNTIME.md) | 内部计划、工厂注入、超时回收与正式部署归一化门槛 |
+| 3.2.1.1 | [受控构建锁](architecture/BUILD_LOCK.md) | 部署/清单/制品/保留策略摘要及持久化代际启动核对 |
+| 3.2.2 | [复合引擎契约](architecture/COMPOSITE_CONTRACT.md) | 统一准备/检索端口、整体替换约束与独立通道扩展 |
+| 3.2.3 | [远程模块协议](architecture/REMOTE_MODULES.md) | 17项HTTP操作、身份/Grant、二进制/流、结果未知与取消规则 |
+| 3.2.4 | [解析远程映射](architecture/PARSER_WIRE_MAPPING.md) | 实际Go类型与wire字段、精度/联合内容边界及7组Schema往返 |
+| 3.2.5 | [检索链路远程映射](architecture/RETRIEVAL_WIRE_MAPPING.md) | 嵌入/检索/重排的完整字段、向量dtype、过滤与候选来源约束 |
+| 3.2.6 | [索引远程映射](architecture/INDEX_WIRE_MAPPING.md) | 准备/验证/删除、attempt/fencing、可信期望与私有映射 |
+| 3.2.7 | [文件远程映射](architecture/BLOB_WIRE_MAPPING.md) | 上传metadata、读取/删除、关联头、EOF/长度/哈希与取消边界 |
+| 3.2.8 | [远程错误映射](architecture/ERROR_WIRE_MAPPING.md) | 封闭错误码、安全模板、关联ID与未知结果/重试边界 |
+| 3.2.9 | [生成与事件映射](architecture/GENERATION_WIRE_MAPPING.md) | 请求/预算、五类事件、证据白名单、完整正文与唯一终态 |
+| 3.2.10 | [状态与取消映射](architecture/CONTROL_WIRE_MAPPING.md) | 控制/原请求关联、15类结果、六种状态与停止确认边界 |
+| 3.2.11 | [远程映射覆盖表](architecture/REMOTE_MAPPING_COVERAGE.md) | 17操作逐项数据证据、二进制/SSE边界和D-03运行缺口 |
+| 3.2.12 | [SSE接收与HTTP验证](architecture/SSE_TRANSPORT.md) | 帧边界/预算、逐批闸门、有界读取与取消关闭的本地网络证据 |
+| 3.3 | [逻辑数据模型](architecture/DATA_MODEL.md) | 记录关系、唯一约束、事务矩阵、冻结与回收 |
+| 3.3.1 | [保留与回收契约](architecture/RETENTION_CONTRACT.md) | 保留期限、回退保护、幂等、保留锁与物理删除闸门 |
+| 3.3.2 | [元数据导出契约](architecture/EXPORT_CONTRACT.md) | 权威记录库存、清单/分段摘要、快照水位和隔离导入闸门 |
+| 3.3.3 | [迁移日志与水位](architecture/JOURNAL_PROTOCOL.md) | 完整事务、提交屏障、前驱游标链和原子重放 |
+| 3.3.4 | [KB迁移状态机](architecture/MIGRATION_STATE.md) | 切换/重启/恢复写入、取消与回退、租约和窗口守卫 |
+| 3.3.5 | [原件复制与映射](architecture/BLOB_COPY.md) | 权威文件库存、流式字节核验、稳定BlobRef与物理映射切换 |
+| 3.4 | [管理界面契约](architecture/MANAGEMENT_INTERFACE.md) | 管理页面、命令API、权限、异步与冲突体验 |
+| 3.4.1 | [管理OpenAPI草案](architecture/openapi/management.v1.json) | 26项管理命令/查询、类型化DTO与乐观锁输入 |
+| 3.5 | [伙伴OpenAPI草案](architecture/openapi/partner.v1.json) | 四项伙伴接口DTO、认证、引用、反馈与流事件 |
+| 3.6 | [标准内容格式](architecture/CONTENT_FORMAT.md) | 表格/图片/音频载荷、检索投影和来源坐标 |
+| 3.6.1 | [冻结编码与哈希](architecture/FROZEN_CONTENT.md) | 精确字节规则、冻结字段、两级哈希及跨语言金标 |
+| 4 | [选型与决策](architecture/DECISIONS.md) | 默认方案、替代方案、WeKnora 边界及待验证事项 |
+| 4.1 | [WeKnora适配器](architecture/WEKNORA_ADAPTER.md) | 固定源码证据、文本投影、候选隔离和使用门槛 |
+| 4.2 | [MCP适配器](architecture/MCP_ADAPTER.md) | 协议/SDK基线、OAuth与服务身份、工具映射和互操作验收 |
+| 5 | [验证与实施顺序](architecture/VALIDATION.md) | 如何证明可替换、权限安全、召回和性能达标 |
+| 6 | [实施状态](IMPLEMENTATION_STATUS.md) | 文档、代码和实测分别完成了什么 |
+| 7 | [需求覆盖与证据审查](architecture/REQUIREMENTS_AUDIT.md) | 原始20个模块、五类成果和验收条件的覆盖与缺口 |
+| 8 | [架构验收报告](architecture/ACCEPTANCE_REVIEW.md) | 2026-10-12逐项判定、13项检查证据、契约冻结缺口与关闭标准 |
+
+详细规范对总体方案中的简写作进一步约束；实现发现冲突时应更新决策和契约版本，不能让适配器自行改变产品语义。
+
+设计原则：**固定业务语义，替换技术实现；平台持有权威数据，外部组件提供能力。**“每个模块可替换”不意味着任意组件都能直接互换。替代实现必须通过对应契约与能力门槛，有状态模块还必须通过迁移和回退验证。
+
+已有 GitHub 调研见 [组件调研](../AI_Knowledge_OS_GitHub选型调研_2026-10-11.md)。调研结论与实际适配验证分开记录，尚未实测的能力不能写作生产承诺。

@@ -1,0 +1,65 @@
+{
+  "checked_at": "2026-10-12T13:11:02.770968+00:00",
+  "scope": "Parser actual Go DTO/wire mappings with independent before/after schemas; no actual parser, grant, authorization, media, publication or network validation",
+  "checks": [
+    {
+      "id": "go_tests",
+      "command": "E:\\ai\\memorys\\.tools\\go\\bin\\go.exe test -count=1 -cover ./...",
+      "exit_code": 0,
+      "stdout": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.823s\tcoverage: 81.5% of statements\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.772s\tcoverage: 91.7% of statements\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.507s\tcoverage: 92.6% of statements\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t0.498s\tcoverage: 90.1% of statements\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.025s\tcoverage: 88.4% of statements",
+      "stderr": ""
+    },
+    {
+      "id": "go_vet",
+      "command": "E:\\ai\\memorys\\.tools\\go\\bin\\go.exe vet ./...",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "id": "design_tests",
+      "command": "C:\\Python\\Python313\\python.exe -m unittest discover -s docs/architecture -p test_*.py",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "..........................\n----------------------------------------------------------------------\nRan 26 tests in 2.473s\n\nOK"
+    },
+    {
+      "id": "parser_wire_mapping",
+      "command": "C:\\Python\\Python313\\python.exe docs/architecture/check_parser_wire_mapping.py",
+      "exit_code": 0,
+      "stdout": "PASS: 7 typed parser request/result round trips, before/after schemas, exact large integers/nanoseconds and mismatched invocation rejection\nNo parser execution, access grants, source/media validation or network behavior tested",
+      "stderr": ""
+    },
+    {
+      "id": "remote_generated",
+      "command": "C:\\Python\\Python313\\python.exe docs/architecture/build_remote_contract.py --check",
+      "exit_code": 0,
+      "stdout": "PASS: remote contract matches design source",
+      "stderr": ""
+    },
+    {
+      "id": "remote_openapi",
+      "command": "E:\\ai\\memorys\\.local\\openapi-review-env\\Scripts\\python.exe -c \"import json; from openapi_spec_validator import validate; validate(json.load(open('docs/architecture/openapi/modules.v1.json',encoding='utf-8'))); print('PASS: remote OpenAPI 3.1.1, 17 operations')\"",
+      "exit_code": 0,
+      "stdout": "PASS: remote OpenAPI 3.1.1, 17 operations",
+      "stderr": ""
+    }
+  ],
+  "source_fingerprints": {
+    "pkg/modulewire/codec.go": "3f09375748ff8b61de83b172d6f4e69054f631fc8aa5a62edb68b63249a926f7",
+    "pkg/modulewire/content.go": "6e9c14bd7694cd8bda2eee09856bd835198cfb482bd753a3ae7de8e29cc80090",
+    "pkg/modulewire/parser.go": "b9acd49ac633f4e9f6fec518f5a2a709d956aff867c11a050e763083b093100c",
+    "pkg/modulewire/parser_test.go": "37b947c5197fbef659b7a154df5ce06dd9453c7a1e2678779fc74981793528fe",
+    "pkg/modulewire/rejections_test.go": "2d63495f20abd119a7611eb6fb1f0b7b1ab8501350dda5138757c20e1cb1cba0",
+    "pkg/modulewire/types.go": "edaa05137cfe8c423643699fbda9c3cf0411f933286aeeeaa1170e9e1979d66b",
+    "cmd/architecture-parser-wire/main.go": "78224f6c4ab267d18888fb6432190880fa792cabb75c55e865ad706df8d1af55",
+    "cmd/architecture-parser-wire/main_test.go": "fe5efdeade9dd38ea44af5565b2492e17222976274fdaae6f6622925b8276853",
+    "docs/architecture/check_parser_wire_mapping.py": "b36abc5dcb19aac1bdd18814200491f7e9e4eb2eae96c1fc8a75db3a790c93f7",
+    "docs/architecture/build_remote_contract.py": "ee4d9747fafc867c7618274e9ad34f599ba960ecba16ae47f9d92d3c0ea9b255",
+    "docs/architecture/remote_wire_validation.py": "56925c450d066d317491ae5acbc8c6e7dadd5e3d5824df18cc8d2dcaf0f57d71",
+    "docs/architecture/PARSER_WIRE_MAPPING.md": "6e6ad67865eb5c1f3216801d84a403d2e64bc00415de0d74cf4b2879d9e91294",
+    "docs/architecture/openapi/modules.v1.json": "8de9f3d6efa5946dabc09658e4a6a9aaee1e6ba9cfb127ac43bf2ba779baae75",
+    "docs/architecture/examples/frozen-content-golden.v1.json": "90b0533071f279b001bb148472dd6da2a1cebd4623badc368e4a9af4c93b0630"
+  },
+  "document_integrity": "pass: local links, table columns, fences and embedded JSON; not anchors or rendering"
+}

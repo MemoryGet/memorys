@@ -1,0 +1,37 @@
+{
+  "recorded_at": "2026-10-12T14:22:10.403805+00:00",
+  "scope": "Offline retention policy structure and arithmetic, existing Python contract regression; no deletion, database, real backend or migration execution",
+  "checks": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "docs/architecture",
+        "-p",
+        "test_*.py"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ".................................\n----------------------------------------------------------------------\nRan 33 tests in 2.315s\n\nOK\n"
+    },
+    {
+      "command": [
+        "python",
+        "docs/architecture/check_deployment_design.py"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: deployment schema, structural fixture, 23 rejected configurations\nFixture provider is unimplemented. Graph, policies, epochs and live modules not certified.\n",
+      "stderr": ""
+    }
+  ],
+  "sources": {
+    "docs/architecture/RETENTION_CONTRACT.md": "8b18585e135fe2b0688b733a8de7f54ceb5cd7ce7f5f70bd75efba976a36d5d1",
+    "docs/architecture/schemas/retention-policy.v1.schema.json": "a661a5efd6b9086ea0b921efc269e53605eeb0bbaa1f3295ecdbf482c2bdec49",
+    "docs/architecture/examples/design-retention-policy.json": "2145a0862afa321da8a4c9877f38513b30a4000d18907553a852a673baf38a05",
+    "docs/architecture/retention_validation.py": "35c4adcf40f08dc3c6512993e3ef293c885896deaf18f0b9821528e44addf9b0",
+    "docs/architecture/test_retention_contract.py": "b897f9503253780f2ef5bae18ea88ba601239a42907511b1163d84e99a463520"
+  }
+}

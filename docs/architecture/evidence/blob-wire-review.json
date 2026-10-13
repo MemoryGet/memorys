@@ -1,0 +1,52 @@
+{
+  "recorded_at": "2026-10-12T15:03:54.603835+00:00",
+  "sources": {
+    "pkg/modulewire/blob.go": "37868cd2569ea0d0584172a24e16cbf1ea51f6e7c9b9dcc7afc651af86e8e696",
+    "pkg/modulewire/blob_stream.go": "b9af6c1a46a214ca75e272c253fb3be63259b01a1d94a591e985c97ec612037e",
+    "pkg/modulewire/blob_test.go": "4157e88f62ec5c2f2256c3bef379048992fd78eebca70f0c0812f0cc5cbdcf53",
+    "cmd/architecture-parser-wire/blob.go": "71a3513637412de4cb06708137bbd8f29d0d16a7969a8d02ec9dbe92040a2e8a",
+    "cmd/architecture-parser-wire/main.go": "c9895321a879f1ddcd1b50344b8f6ea83429c846ab180a2b31e6dcc9f274ee07",
+    "docs/architecture/check_blob_wire_mapping.py": "c141b8d4d6d542f2ae458ed158f0a14a7964aa142b7ff6ab8ed8adfcf14b4e95",
+    "docs/architecture/BLOB_WIRE_MAPPING.md": "161b73e8f6ce2e1024670aeee8a6095c3f28ba3b3d3e1fef41e1e7fd248447f7"
+  },
+  "document_check": "local links and fences passed",
+  "scope": "Actual Go Blob DTO mapping, local stream/header checks and offline schema roundtrips. No HTTP/multipart adapter, current authorization/Grant, actual storage, blocked-read cancellation or deletion.",
+  "checks": [
+    {
+      "name": "go vet",
+      "chunk_id": "ae64f0",
+      "wall_time_seconds": 2.1721648,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "name": "Python contract regression",
+      "chunk_id": "42ed57",
+      "wall_time_seconds": 5.1524305,
+      "exit_code": 0,
+      "original_token_count": 48,
+      "output": ".......................................................................................\r\n----------------------------------------------------------------------\r\nRan 87 tests in 4.770s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Blob Go/schema mappings",
+      "chunk_id": "5116e7",
+      "wall_time_seconds": 2.6614467,
+      "exit_code": 0,
+      "original_token_count": 64,
+      "output": "PASS: 3 actual Go Blob put/open/delete metadata mappings, exact >2^53 size, independent before/after schemas and 3 invalid request/result rejections\r\nNo multipart or binary transport, storage, grant, current authorization, cancellation or deletion proof\r\n"
+    }
+  ],
+  "go_tests": {
+    "command": "go test -count=1 ./...",
+    "exit_code": 0,
+    "evidence_origin": "exec_command output observed earlier in this turn",
+    "packages": [
+      "cmd/architecture-parser-wire",
+      "pkg/canonical",
+      "pkg/contracts",
+      "pkg/kernel",
+      "pkg/modulewire"
+    ]
+  }
+}

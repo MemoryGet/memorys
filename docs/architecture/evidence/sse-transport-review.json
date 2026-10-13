@@ -1,0 +1,45 @@
+{
+  "recorded_at": "2026-10-13T00:01:00.950740+00:00",
+  "sources": {
+    "pkg/moduletransport/answer_stream.go": "82a53d72d800fa6de9a0b826164240169851c8b0139d6644968c18f906ae108a",
+    "pkg/moduletransport/answer_stream_test.go": "b60209e4052af0a665d14ad0503aa4649b66baf9d8cebb7f410d9c52e18b48ba",
+    "pkg/moduletransport/terminal_test.go": "d1f757add2d62be34932c6cb613c596ffa262c9c6c264135c96324a6da334c59",
+    "docs/architecture/SSE_TRANSPORT.md": "689d66e5ee93a11c1fe2ead09f67ecc5e5739e13b1a4b0b10752e7b191e1e597"
+  },
+  "scope": "Eight SSE consumption tests, including three real localhost net/http scenarios for flushing, cancellation, deadline and sink closure; gates are synthetic callbacks. No model, TLS/service identity, grant, real policy, persistent ledger, backend stop or token/cost/performance evidence.",
+  "standard_source": "https://html.spec.whatwg.org/multipage/server-sent-events.html#parsing-an-event-stream",
+  "checks": [
+    {
+      "name": "Go regression",
+      "chunk_id": "6ff6e1",
+      "wall_time_seconds": 2.8580434,
+      "exit_code": 0,
+      "original_token_count": 88,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.669s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.678s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.651s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.008s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t1.566s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.411s\n"
+    },
+    {
+      "name": "SSE scenarios",
+      "chunk_id": "a67b6a",
+      "wall_time_seconds": 3.3017709,
+      "exit_code": 0,
+      "original_token_count": 271,
+      "output": "=== RUN   TestSSELineEndingsBOMCommentsAndMultilineJSON\n--- PASS: TestSSELineEndingsBOMCommentsAndMultilineJSON (0.00s)\n=== RUN   TestSSERejectsTruncationTypeMismatchAndPostTerminalEvents\n--- PASS: TestSSERejectsTruncationTypeMismatchAndPostTerminalEvents (0.00s)\n=== RUN   TestSSEAccessSinkAndByteLimitsFailClosed\n--- PASS: TestSSEAccessSinkAndByteLimitsFailClosed (0.00s)\n=== RUN   TestSSEHeadersAndMandatoryGateDeadline\n--- PASS: TestSSEHeadersAndMandatoryGateDeadline (0.00s)\n=== RUN   TestActualHTTPChunkBoundariesAndGateRevocation\n--- PASS: TestActualHTTPChunkBoundariesAndGateRevocation (0.00s)\n=== RUN   TestActualHTTPBlockedReadCancelledAndSinkFailureClosesPeer\n--- PASS: TestActualHTTPBlockedReadCancelledAndSinkFailureClosesPeer (0.05s)\n=== RUN   TestActualHTTPDeadlineEndsSilentPeerAndErrorTerminalIsNotSuccess\n--- PASS: TestActualHTTPDeadlineEndsSilentPeerAndErrorTerminalIsNotSuccess (0.10s)\n=== RUN   TestTerminalWaitsForEOFAndFreshAccessGate\n--- PASS: TestTerminalWaitsForEOFAndFreshAccessGate (0.00s)\nPASS\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t1.982s\n"
+    },
+    {
+      "name": "go vet",
+      "chunk_id": "a6af16",
+      "wall_time_seconds": 0.9545281,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "name": "Python regression",
+      "chunk_id": "5c3e52",
+      "wall_time_seconds": 4.7306989999999995,
+      "exit_code": 0,
+      "original_token_count": 48,
+      "output": ".......................................................................................\r\n----------------------------------------------------------------------\r\nRan 87 tests in 4.318s\r\n\r\nOK\r\n"
+    }
+  ]
+}

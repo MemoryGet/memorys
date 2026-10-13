@@ -1,0 +1,101 @@
+{
+  "openapi": "3.1.1",
+  "info": {"title": "AI Knowledge OS partner API", "version": "1.0.0", "description": "Architecture contract; endpoints are not implemented. Authentication creates a Principal; every operation independently authorizes resources. Body identity fields are forbidden."},
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "servers": [{"url": "/api/v1/knowledge-os"}],
+  "security": [{"BearerAuth": []}, {"ServiceKey": []}],
+  "paths": {
+    "/search": {"post": {
+      "operationId": "knowledge_search", "summary": "Search authorized published evidence",
+      "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/SearchRequest"}}}},
+      "responses": {"200": {"description": "Valid empty results are allowed", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/SearchResult"}}}}, "default": {"$ref": "#/components/responses/Error"}}
+    }},
+    "/read": {"post": {
+      "operationId": "knowledge_read", "summary": "Read standard content under current authorization",
+      "description": "Historical revisions require explicit history permission. Revoked/deleted content remains unavailable. Cursor is bound to subject and snapshot.",
+      "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ReadRequest"}}}},
+      "responses": {"200": {"description": "Content page", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ReadResult"}}}}, "default": {"$ref": "#/components/responses/Error"}}
+    }},
+    "/ask": {"post": {
+      "operationId": "knowledge_ask", "summary": "Answer using authorized cited evidence",
+      "description": "stream=false yields JSON; stream=true yields SSE. Reflection is bounded by the selected server profile, at most two additional retrieval rounds and 30 seconds total. MCP v1 returns the final object, not SSE.",
+      "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/AskRequest"}}}},
+      "responses": {"200": {"description": "JSON result or SSE frames. SSE data is JSON satisfying AnswerEvent; authorization is rechecked before each output batch.", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/AskResult"}}, "text/event-stream": {"schema": {"type": "string"}, "x-event-data-schema": {"$ref": "#/components/schemas/AnswerEvent"}}}}, "default": {"$ref": "#/components/responses/Error"}}
+    }},
+    "/feedback": {"post": {
+      "operationId": "knowledge_feedback", "summary": "Record feedback; never directly approve or publish",
+      "description": "Exactly one target: citation or target_request_id. A request_id is not a credential: ownership or delegated feedback permission is required. Idempotency key is scoped by space, subject and action; different content with the same key conflicts.",
+      "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/FeedbackRequest"}}}},
+      "responses": {"200": {"description": "Feedback accepted or replayed; proposal processing may continue asynchronously", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/FeedbackResult"}}}}, "default": {"$ref": "#/components/responses/Error"}}
+    }}
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {"type": "http", "scheme": "bearer", "description": "Verified user/service/delegation token; not caller-supplied role claims"},
+      "ServiceKey": {"type": "apiKey", "in": "header", "name": "X-API-Key", "description": "Independent machine Principal with explicit KB scope; does not impersonate users"}
+    },
+    "responses": {"Error": {"description": "Safe error envelope; 400 invalid argument, 401 unauthenticated, 403 forbidden, 404 hidden/missing resource, 409 conflict/snapshot changed, 422 domain validation, 429 rate limit, 500 internal, 503 unavailable, 504 deadline", "headers": {"Retry-After": {"description": "Optional non-negative retry delay in seconds", "schema": {"type": "integer", "minimum": 0}}}, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}}},
+    "schemas": {
+      "ID": {"type": "string", "minLength": 1, "maxLength": 200},
+      "IDList": {"type": "array", "maxItems": 1000, "uniqueItems": true, "items": {"$ref": "#/components/schemas/ID"}, "description": "Omitted KB list means permitted KBs; an explicit empty list means no KBs, never unrestricted access"},
+      "SearchRequest": {"type": "object", "additionalProperties": false, "required": ["query", "space_id"], "properties": {"query": {"type": "string", "minLength": 1, "maxLength": 10000}, "space_id": {"$ref": "#/components/schemas/ID"}, "kb_ids": {"$ref": "#/components/schemas/IDList"}, "top_k": {"type": "integer", "minimum": 1, "maximum": 100, "default": 10}}},
+      "ReadRequest": {"type": "object", "additionalProperties": false, "required": ["document_id"], "properties": {"document_id": {"$ref": "#/components/schemas/ID"}, "revision_id": {"$ref": "#/components/schemas/ID"}, "block_ids": {"$ref": "#/components/schemas/IDList"}, "cursor": {"type": "string", "minLength": 1, "maxLength": 4096}}},
+      "AskRequest": {"type": "object", "additionalProperties": false, "required": ["question", "space_id"], "properties": {"question": {"type": "string", "minLength": 1, "maxLength": 10000}, "space_id": {"$ref": "#/components/schemas/ID"}, "kb_ids": {"$ref": "#/components/schemas/IDList"}, "reflection": {"type": "boolean", "description": "May disable reflection; enabling is subject to server policy"}, "stream": {"type": "boolean", "default": false}}},
+      "FeedbackRequest": {
+        "type": "object", "additionalProperties": false, "required": ["space_id", "kind", "comment", "idempotency_key"],
+        "properties": {"space_id": {"$ref": "#/components/schemas/ID"}, "citation": {"$ref": "#/components/schemas/Citation"}, "target_request_id": {"$ref": "#/components/schemas/ID"}, "kind": {"enum": ["incorrect", "missing", "outdated", "helpful", "other"]}, "comment": {"type": "string", "minLength": 1, "maxLength": 10000}, "idempotency_key": {"type": "string", "minLength": 1, "maxLength": 200}},
+        "oneOf": [{"required": ["citation"], "not": {"required": ["target_request_id"]}}, {"required": ["target_request_id"], "not": {"required": ["citation"]}}]
+      },
+      "SourceAnchor": {
+        "type": "object", "additionalProperties": false, "required": ["kind", "locator"],
+        "properties": {"kind": {"enum": ["original", "revision"]}, "blob_id": {"$ref": "#/components/schemas/ID"}, "revision_block_id": {"$ref": "#/components/schemas/ID"}, "locator": {"$ref": "#/components/schemas/Locator"}, "derived_from": {"type": "array", "items": {"$ref": "#/components/schemas/OriginalAnchor"}}},
+        "oneOf": [{"properties": {"kind": {"const": "original"}}, "required": ["blob_id"], "not": {"required": ["revision_block_id"]}}, {"properties": {"kind": {"const": "revision"}}, "required": ["revision_block_id"], "not": {"required": ["blob_id"]}}]
+      },
+      "OriginalAnchor": {"type": "object", "additionalProperties": false, "required": ["blob_id", "locator"], "properties": {"blob_id": {"$ref": "#/components/schemas/ID"}, "locator": {"$ref": "#/components/schemas/Locator"}}},
+      "Locator": {
+        "type": "object", "additionalProperties": false, "required": ["precision"],
+        "properties": {"precision": {"enum": ["exact", "coarse"]}, "page": {"type": "integer", "minimum": 1}, "slide": {"type": "integer", "minimum": 1}, "worksheet": {"type": "string", "minLength": 1}, "cell_range": {"type": "string", "minLength": 1}, "paragraph_path": {"type": "array", "minItems": 1, "items": {"type": "integer", "minimum": 0}}, "char_start": {"type": "integer", "minimum": 0}, "char_end": {"type": "integer", "minimum": 0}, "bbox": {"$ref": "#/components/schemas/BoundingBox"}},
+        "dependentRequired": {"char_start": ["char_end"], "char_end": ["char_start"], "cell_range": ["worksheet"], "bbox": ["page"]},
+        "description": "Character ranges are Unicode codepoint half-open ranges; semantic validation requires end >= start and bounds within canonical content. Coarse positioning is explicit."
+      },
+      "Citation": {"type": "object", "additionalProperties": false, "required": ["document_id", "revision_id", "block_id", "source_anchor"], "properties": {"document_id": {"$ref": "#/components/schemas/ID"}, "revision_id": {"$ref": "#/components/schemas/ID"}, "block_id": {"$ref": "#/components/schemas/ID"}, "source_anchor": {"$ref": "#/components/schemas/SourceAnchor"}}},
+      "Evidence": {"type": "object", "additionalProperties": false, "required": ["citation", "source_excerpt", "rank"], "properties": {"citation": {"$ref": "#/components/schemas/Citation"}, "source_excerpt": {"type": "string"}, "rank": {"type": "integer", "minimum": 1}}},
+      "Timings": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0}, "description": "Stage names mapped to milliseconds; no content or secret values"},
+      "Degradation": {"type": "object", "additionalProperties": false, "required": ["capability", "reason"], "properties": {"capability": {"type": "string"}, "reason": {"enum": ["unavailable", "deadline", "policy_disabled"]}}},
+      "Trace": {"type": "object", "required": ["request_id", "profile_version", "profile_digest", "timings", "degraded"], "properties": {"request_id": {"$ref": "#/components/schemas/ID"}, "profile_version": {"type": "integer", "minimum": 1}, "profile_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "timings": {"$ref": "#/components/schemas/Timings"}, "degraded": {"type": "array", "items": {"$ref": "#/components/schemas/Degradation"}}}},
+      "SearchResult": {"allOf": [{"$ref": "#/components/schemas/Trace"}, {"type": "object", "required": ["evidence"], "properties": {"evidence": {"type": "array", "maxItems": 100, "items": {"$ref": "#/components/schemas/Evidence"}}}}], "unevaluatedProperties": false},
+      "BoundingBox": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number", "minimum": 0, "maximum": 1}, "description": "[left, top, right, bottom], normalized to a page in its canonical displayed orientation. Semantic checks require left < right and top < bottom."},
+      "BlobRef": {"type": "object", "additionalProperties": false, "required": ["id", "sha256", "size", "media_type"], "properties": {"id": {"$ref": "#/components/schemas/ID"}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "size": {"type": "integer", "minimum": 0}, "media_type": {"type": "string", "minLength": 1}}, "description": "Logical reference; never a physical path or unauthenticated public URL"},
+      "TableCell": {
+        "type": "object", "additionalProperties": false, "required": ["row", "column", "row_span", "column_span", "text", "role"],
+        "properties": {"row": {"type": "integer", "minimum": 0}, "column": {"type": "integer", "minimum": 0}, "row_span": {"type": "integer", "minimum": 1}, "column_span": {"type": "integer", "minimum": 1}, "text": {"type": "string"}, "role": {"enum": ["data", "column_header", "row_header", "corner_header"]}, "formula": {"type": "string", "description": "Preserved source formula; platform clients must not execute it"}, "number_text": {"type": "string", "description": "Optional exact numeric representation, preserving precision; not binary float"}, "source_anchor": {"$ref": "#/components/schemas/SourceAnchor"}}
+      },
+      "TableContent": {"type": "object", "additionalProperties": false, "required": ["type", "row_count", "column_count", "cells"], "properties": {"type": {"const": "table"}, "row_count": {"type": "integer", "minimum": 1}, "column_count": {"type": "integer", "minimum": 1}, "cells": {"type": "array", "maxItems": 100000, "items": {"$ref": "#/components/schemas/TableCell"}}, "caption": {"type": "string"}}, "description": "Sparse cells allowed; absent means unknown, explicit empty text means known empty. Cells must be in bounds and merged rectangles must not overlap."},
+      "ImageContent": {"type": "object", "additionalProperties": false, "required": ["type", "blob"], "properties": {"type": {"const": "image"}, "blob": {"$ref": "#/components/schemas/BlobRef"}, "width": {"type": "integer", "minimum": 1}, "height": {"type": "integer", "minimum": 1}, "caption": {"type": "string"}, "ocr_text": {"type": "string"}}, "dependentRequired": {"width": ["height"], "height": ["width"]}},
+      "AudioSegment": {"type": "object", "additionalProperties": false, "required": ["start_ms", "end_ms", "text"], "properties": {"start_ms": {"type": "integer", "minimum": 0}, "end_ms": {"type": "integer", "minimum": 0}, "text": {"type": "string"}, "speaker_label": {"type": "string"}}, "description": "Half-open milliseconds; validate start <= end <= duration. Speaker labels are annotations, not identities."},
+      "AudioContent": {"type": "object", "additionalProperties": false, "required": ["type", "blob", "duration_ms", "segments"], "properties": {"type": {"const": "audio"}, "blob": {"$ref": "#/components/schemas/BlobRef"}, "duration_ms": {"type": "integer", "minimum": 0}, "segments": {"type": "array", "items": {"$ref": "#/components/schemas/AudioSegment"}}}},
+      "StructuredContent": {"oneOf": [{"$ref": "#/components/schemas/TableContent"}, {"$ref": "#/components/schemas/ImageContent"}, {"$ref": "#/components/schemas/AudioContent"}]},
+      "Block": {
+        "type": "object", "additionalProperties": false, "required": ["id", "revision_id", "kind", "text", "source_anchor"],
+        "properties": {"id": {"$ref": "#/components/schemas/ID"}, "revision_id": {"$ref": "#/components/schemas/ID"}, "kind": {"enum": ["text", "table", "image", "audio"]}, "text": {"type": "string"}, "source_anchor": {"$ref": "#/components/schemas/SourceAnchor"}, "structured_content": {"$ref": "#/components/schemas/StructuredContent"}},
+        "allOf": [
+          {"if": {"properties": {"kind": {"const": "text"}}}, "then": {"not": {"required": ["structured_content"]}}},
+          {"if": {"properties": {"kind": {"const": "table"}}}, "then": {"required": ["structured_content"], "properties": {"structured_content": {"$ref": "#/components/schemas/TableContent"}}}},
+          {"if": {"properties": {"kind": {"const": "image"}}}, "then": {"required": ["structured_content"], "properties": {"structured_content": {"$ref": "#/components/schemas/ImageContent"}}}},
+          {"if": {"properties": {"kind": {"const": "audio"}}}, "then": {"required": ["structured_content"], "properties": {"structured_content": {"$ref": "#/components/schemas/AudioContent"}}}}
+        ]
+      },
+      "ReadResult": {"allOf": [{"$ref": "#/components/schemas/Trace"}, {"type": "object", "required": ["document_id", "revision_id", "blocks", "citations"], "properties": {"document_id": {"$ref": "#/components/schemas/ID"}, "revision_id": {"$ref": "#/components/schemas/ID"}, "blocks": {"type": "array", "items": {"$ref": "#/components/schemas/Block"}}, "citations": {"type": "array", "items": {"$ref": "#/components/schemas/Citation"}}, "next_cursor": {"type": "string", "minLength": 1}}}], "unevaluatedProperties": false},
+      "AskResult": {"allOf": [{"$ref": "#/components/schemas/Trace"}, {"type": "object", "required": ["answer", "citations", "status"], "properties": {"answer": {"type": "string"}, "citations": {"type": "array", "items": {"$ref": "#/components/schemas/Citation"}}, "status": {"enum": ["answered", "insufficient_evidence"]}}}], "unevaluatedProperties": false},
+      "FeedbackResult": {"type": "object", "additionalProperties": false, "required": ["request_id", "feedback_id", "state"], "properties": {"request_id": {"$ref": "#/components/schemas/ID"}, "feedback_id": {"$ref": "#/components/schemas/ID"}, "state": {"enum": ["received", "processing", "proposed", "resolved", "rejected", "failed"]}, "draft_id": {"$ref": "#/components/schemas/ID"}}},
+      "Error": {"type": "object", "additionalProperties": false, "required": ["code", "safe_message", "retryable", "request_id"], "properties": {"code": {"enum": ["invalid_argument", "validation_failed", "unsupported_format", "unauthenticated", "forbidden", "not_found", "conflict", "publication_changed", "cursor_expired", "capability_missing", "contract_incompatible", "rate_limited", "deadline_exceeded", "dependency_unavailable", "internal"]}, "safe_message": {"type": "string"}, "retryable": {"type": "boolean"}, "request_id": {"$ref": "#/components/schemas/ID"}}},
+      "AnswerEvent": {"oneOf": [
+        {"type": "object", "additionalProperties": false, "required": ["type", "request_id"], "properties": {"type": {"const": "meta"}, "request_id": {"$ref": "#/components/schemas/ID"}}},
+        {"type": "object", "additionalProperties": false, "required": ["type", "text"], "properties": {"type": {"const": "answer_delta"}, "text": {"type": "string"}}},
+        {"type": "object", "additionalProperties": false, "required": ["type", "citation"], "properties": {"type": {"const": "citation"}, "citation": {"$ref": "#/components/schemas/Citation"}}},
+        {"type": "object", "additionalProperties": false, "required": ["type", "result"], "properties": {"type": {"const": "done"}, "result": {"$ref": "#/components/schemas/AskResult"}}},
+        {"type": "object", "additionalProperties": false, "required": ["type", "error"], "properties": {"type": {"const": "error"}, "error": {"$ref": "#/components/schemas/Error"}}}
+      ]}
+    }
+  }
+}

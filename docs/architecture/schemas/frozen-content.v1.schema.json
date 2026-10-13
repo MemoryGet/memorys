@@ -1,0 +1,522 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AKOS frozen content envelope V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "blocks",
+    "blobs"
+  ],
+  "properties": {
+    "format": {
+      "const": "akos.freeze/1"
+    },
+    "blocks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/FrozenBlock"
+      }
+    },
+    "blobs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/BlobRef"
+      }
+    }
+  },
+  "$defs": {
+    "AudioContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "blob",
+        "duration_ms",
+        "segments"
+      ],
+      "properties": {
+        "type": {
+          "const": "audio"
+        },
+        "blob": {
+          "$ref": "#/$defs/BlobRef"
+        },
+        "duration_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "segments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AudioSegment"
+          }
+        }
+      }
+    },
+    "AudioSegment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "start_ms",
+        "end_ms",
+        "text"
+      ],
+      "properties": {
+        "start_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "end_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "text": {
+          "type": "string"
+        },
+        "speaker_label": {
+          "type": "string"
+        }
+      },
+      "description": "Half-open milliseconds; validate start <= end <= duration. Speaker labels are annotations, not identities."
+    },
+    "BlobRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "sha256",
+        "size",
+        "media_type"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/ID"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "media_type": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "description": "Logical reference; never a physical path or unauthenticated public URL"
+    },
+    "BoundingBox": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "description": "[left, top, right, bottom], normalized to a page in its canonical displayed orientation. Semantic checks require left < right and top < bottom."
+    },
+    "FrozenBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "text",
+        "source_anchor",
+        "order"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/ID"
+        },
+        "kind": {
+          "enum": [
+            "text",
+            "table",
+            "image",
+            "audio"
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "source_anchor": {
+          "$ref": "#/$defs/SourceAnchor"
+        },
+        "structured_content": {
+          "$ref": "#/$defs/StructuredContent"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "text"
+              }
+            }
+          },
+          "then": {
+            "not": {
+              "required": [
+                "structured_content"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "table"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "structured_content"
+            ],
+            "properties": {
+              "structured_content": {
+                "$ref": "#/$defs/TableContent"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "image"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "structured_content"
+            ],
+            "properties": {
+              "structured_content": {
+                "$ref": "#/$defs/ImageContent"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "audio"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "structured_content"
+            ],
+            "properties": {
+              "structured_content": {
+                "$ref": "#/$defs/AudioContent"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ID": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "ImageContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "blob"
+      ],
+      "properties": {
+        "type": {
+          "const": "image"
+        },
+        "blob": {
+          "$ref": "#/$defs/BlobRef"
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "caption": {
+          "type": "string"
+        },
+        "ocr_text": {
+          "type": "string"
+        }
+      },
+      "dependentRequired": {
+        "width": [
+          "height"
+        ],
+        "height": [
+          "width"
+        ]
+      }
+    },
+    "Locator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "precision"
+      ],
+      "properties": {
+        "precision": {
+          "enum": [
+            "exact",
+            "coarse"
+          ]
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "slide": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "worksheet": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cell_range": {
+          "type": "string",
+          "minLength": 1
+        },
+        "paragraph_path": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "char_start": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "char_end": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "bbox": {
+          "$ref": "#/$defs/BoundingBox"
+        }
+      },
+      "dependentRequired": {
+        "char_start": [
+          "char_end"
+        ],
+        "char_end": [
+          "char_start"
+        ],
+        "cell_range": [
+          "worksheet"
+        ],
+        "bbox": [
+          "page"
+        ]
+      },
+      "description": "Character ranges are Unicode codepoint half-open ranges; semantic validation requires end >= start and bounds within canonical content. Coarse positioning is explicit."
+    },
+    "OriginalAnchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "blob_id",
+        "locator"
+      ],
+      "properties": {
+        "blob_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "locator": {
+          "$ref": "#/$defs/Locator"
+        }
+      }
+    },
+    "SourceAnchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "locator"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "original",
+            "revision"
+          ]
+        },
+        "blob_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "revision_block_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "locator": {
+          "$ref": "#/$defs/Locator"
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OriginalAnchor"
+          }
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "kind": {
+              "const": "original"
+            }
+          },
+          "required": [
+            "blob_id"
+          ],
+          "not": {
+            "required": [
+              "revision_block_id"
+            ]
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "revision"
+            }
+          },
+          "required": [
+            "revision_block_id"
+          ],
+          "not": {
+            "required": [
+              "blob_id"
+            ]
+          }
+        }
+      ]
+    },
+    "StructuredContent": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/TableContent"
+        },
+        {
+          "$ref": "#/$defs/ImageContent"
+        },
+        {
+          "$ref": "#/$defs/AudioContent"
+        }
+      ]
+    },
+    "TableCell": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "row",
+        "column",
+        "row_span",
+        "column_span",
+        "text",
+        "role"
+      ],
+      "properties": {
+        "row": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "column": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "row_span": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "column_span": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "text": {
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "data",
+            "column_header",
+            "row_header",
+            "corner_header"
+          ]
+        },
+        "formula": {
+          "type": "string",
+          "description": "Preserved source formula; platform clients must not execute it"
+        },
+        "number_text": {
+          "type": "string",
+          "description": "Optional exact numeric representation, preserving precision; not binary float"
+        },
+        "source_anchor": {
+          "$ref": "#/$defs/SourceAnchor"
+        }
+      }
+    },
+    "TableContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "row_count",
+        "column_count",
+        "cells"
+      ],
+      "properties": {
+        "type": {
+          "const": "table"
+        },
+        "row_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "column_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "cells": {
+          "type": "array",
+          "maxItems": 100000,
+          "items": {
+            "$ref": "#/$defs/TableCell"
+          }
+        },
+        "caption": {
+          "type": "string"
+        }
+      },
+      "description": "Sparse cells allowed; absent means unknown, explicit empty text means known empty. Cells must be in bounds and merged rectangles must not overlap."
+    }
+  }
+}

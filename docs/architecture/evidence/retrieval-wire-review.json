@@ -1,0 +1,81 @@
+{
+  "checked_at": "2026-10-12T13:47:22.913280+00:00",
+  "scope": "Embedder/retriever/reranker actual Go DTO and independent schema round trips; no live model/backend, authorization, permission prefilter, publication or network proof",
+  "checks": [
+    {
+      "id": "go_tests",
+      "command": "E:\\ai\\memorys\\.tools\\go\\bin\\go.exe test -count=1 -cover ./...",
+      "exit_code": 0,
+      "stdout": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.478s\tcoverage: 84.8% of statements\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.793s\tcoverage: 91.7% of statements\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.752s\tcoverage: 92.6% of statements\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t0.521s\tcoverage: 90.1% of statements\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.088s\tcoverage: 87.8% of statements",
+      "stderr": ""
+    },
+    {
+      "id": "go_vet",
+      "command": "E:\\ai\\memorys\\.tools\\go\\bin\\go.exe vet ./...",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "id": "design_tests",
+      "command": "C:\\Python\\Python313\\python.exe -m unittest discover -s docs/architecture -p test_*.py",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "..........................\n----------------------------------------------------------------------\nRan 26 tests in 2.552s\n\nOK"
+    },
+    {
+      "id": "retrieval_mapping",
+      "command": "C:\\Python\\Python313\\python.exe docs/architecture/check_retrieval_wire_mapping.py",
+      "exit_code": 0,
+      "stdout": "PASS: embedder/retriever/reranker actual Go/wire round trips, before/after schema and out-of-filter evidence rejection\nNo model execution, backend filtering, access grants, publication or network tests",
+      "stderr": ""
+    },
+    {
+      "id": "parser_mapping_regression",
+      "command": "C:\\Python\\Python313\\python.exe docs/architecture/check_parser_wire_mapping.py",
+      "exit_code": 0,
+      "stdout": "PASS: 7 typed parser request/result round trips, before/after schemas, exact large integers/nanoseconds and mismatched invocation rejection\nNo parser execution, access grants, source/media validation or network behavior tested",
+      "stderr": ""
+    },
+    {
+      "id": "remote_generated",
+      "command": "C:\\Python\\Python313\\python.exe docs/architecture/build_remote_contract.py --check",
+      "exit_code": 0,
+      "stdout": "PASS: remote contract matches design source",
+      "stderr": ""
+    },
+    {
+      "id": "remote_openapi",
+      "command": "E:\\ai\\memorys\\.local\\openapi-review-env\\Scripts\\python.exe -c \"import json; from openapi_spec_validator import validate; validate(json.load(open('docs/architecture/openapi/modules.v1.json',encoding='utf-8'))); print('PASS: remote OpenAPI 3.1.1, 17 operations')\"",
+      "exit_code": 0,
+      "stdout": "PASS: remote OpenAPI 3.1.1, 17 operations",
+      "stderr": ""
+    }
+  ],
+  "source_fingerprints": {
+    "pkg/modulewire/codec.go": "2882a023223223fe896f28e1e96324d76adff6a80085d560eb4699a53cef5d55",
+    "pkg/modulewire/content.go": "6e9c14bd7694cd8bda2eee09856bd835198cfb482bd753a3ae7de8e29cc80090",
+    "pkg/modulewire/embedding.go": "2b9817beb1e9303188c4504d1ae6bdf7819f7023d581df123b03835a956f1a8e",
+    "pkg/modulewire/invocation.go": "aae4ecf150b8a946d7f1d5a984a0092fe3c53feb5d7c9f2c2b8ca569722206a2",
+    "pkg/modulewire/parser.go": "b9acd49ac633f4e9f6fec518f5a2a709d956aff867c11a050e763083b093100c",
+    "pkg/modulewire/parser_test.go": "37b947c5197fbef659b7a154df5ce06dd9453c7a1e2678779fc74981793528fe",
+    "pkg/modulewire/rejections_test.go": "2d63495f20abd119a7611eb6fb1f0b7b1ab8501350dda5138757c20e1cb1cba0",
+    "pkg/modulewire/reranking.go": "708b913bb3b0cd7dd00f0594283dd0c82a07c9b0b9b640814b894a949a426b39",
+    "pkg/modulewire/retrieval.go": "3338777c668a494ef2d64b2e61666bd04bf5b13174ecfbdf30f2d7a2f0eb2308",
+    "pkg/modulewire/retrieval_rejections_test.go": "75a7532137f8f0b71a17027d412dc70fdaabc0c2a71e099496216d00005a129c",
+    "pkg/modulewire/retrieval_test.go": "73fa52ec175d5b661e2d9ea4cdbc3d159d092289f438061a63f3db05107b0a4a",
+    "pkg/modulewire/retrieval_types.go": "2e13c86c5957d49ae9e5ca36bd20a7e55a13c8b96f43f56fcc91ebf5a377d517",
+    "pkg/modulewire/retrieval_validation.go": "8aef6cfe8141b3ba4046eab71160440570e8713e510b67fe01dc79f638f4da78",
+    "pkg/modulewire/types.go": "edaa05137cfe8c423643699fbda9c3cf0411f933286aeeeaa1170e9e1979d66b",
+    "cmd/architecture-parser-wire/main.go": "8d0e4e9b1dc19df8539efadf753fd0ccfaec4fbc6cf2fff7d4da26530a2e2dee",
+    "cmd/architecture-parser-wire/main_test.go": "fe5efdeade9dd38ea44af5565b2492e17222976274fdaae6f6622925b8276853",
+    "cmd/architecture-parser-wire/retrieval.go": "f01d01cb2ba1872758611a13c5ef0c85ae309ecdd02943991296a1a69696907e",
+    "cmd/architecture-parser-wire/retrieval_test.go": "4f38005659c4e2e32676c35703e48da605756db7a65f65d205eb3e904f5c0d3d",
+    "docs/architecture/check_retrieval_wire_mapping.py": "cccc7d481b2a01cd92e0ae3a2249c5247c0f9f588979a914dc791ced84b81c89",
+    "docs/architecture/build_remote_contract.py": "d93bf174c49d4c21a4b5978934403cef585c2bc5d6494bff05c765e3344315e9",
+    "docs/architecture/remote_wire_validation.py": "56925c450d066d317491ae5acbc8c6e7dadd5e3d5824df18cc8d2dcaf0f57d71",
+    "docs/architecture/RETRIEVAL_WIRE_MAPPING.md": "af6020ea66ee71e2c21eb087fc00260dc8e3374ecbf77cd6f97baea1b22e66e9",
+    "docs/architecture/openapi/modules.v1.json": "988a4c8aa544cd949eac6f98e87150ce664180ebb88311fbf2c1d05e499f4fe7"
+  },
+  "document_integrity": "pass: local links, table columns, fences and JSON; not anchors/rendering"
+}

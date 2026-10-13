@@ -1,0 +1,76 @@
+{
+  "format": "akos.freeze/1",
+  "encoding": "AKOS-CJSON/1",
+  "cases": [
+    {
+      "name": "chinese_emoji_original",
+      "input_json": "{\"format\":\"akos.freeze/1\",\"blocks\":[{\"id\":\"block-1\",\"order\":0,\"kind\":\"text\",\"text\":\"中文😀\\n引文：<参数>，保留空格  \",\"source_anchor\":{\"kind\":\"original\",\"blob_id\":\"blob-pdf\",\"locator\":{\"precision\":\"exact\",\"page\":1,\"bbox\":[0.125,0,1,1]}}}],\"blobs\":[{\"id\":\"blob-pdf\",\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"size\":1000,\"media_type\":\"application/pdf\"}]}",
+      "canonical_json": "{\"blobs\":[{\"id\":\"blob-pdf\",\"media_type\":\"application/pdf\",\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"size\":1e3}],\"blocks\":[{\"id\":\"block-1\",\"kind\":\"text\",\"order\":0,\"source_anchor\":{\"blob_id\":\"blob-pdf\",\"kind\":\"original\",\"locator\":{\"bbox\":[125e-3,0,1e0,1e0],\"page\":1e0,\"precision\":\"exact\"}},\"text\":\"中文😀\\n引文：<参数>，保留空格  \"}],\"format\":\"akos.freeze/1\"}",
+      "hashes": {
+        "format": "akos.freeze/1",
+        "blocks_hash": "f724f14bcbcf7d5f329c3e6a6ccd54473c329d605f312e5abfad332b8e39fd08",
+        "content_hash": "125e5736fc97de3e64b7863d9f48f79ba153157903a44fb81aec07c4cc5eeab6"
+      }
+    },
+    {
+      "name": "manual_revision",
+      "input_json": "{\"format\":\"akos.freeze/1\",\"blocks\":[{\"id\":\"block-1\",\"order\":0,\"kind\":\"text\",\"text\":\"人工修订：数值为0.00000001。\",\"source_anchor\":{\"kind\":\"revision\",\"revision_block_id\":\"block-1\",\"locator\":{\"precision\":\"coarse\"},\"derived_from\":[{\"blob_id\":\"blob-pdf\",\"locator\":{\"precision\":\"exact\",\"page\":1}}]}}],\"blobs\":[{\"id\":\"blob-pdf\",\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"size\":1000,\"media_type\":\"application/pdf\"}]}",
+      "canonical_json": "{\"blobs\":[{\"id\":\"blob-pdf\",\"media_type\":\"application/pdf\",\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"size\":1e3}],\"blocks\":[{\"id\":\"block-1\",\"kind\":\"text\",\"order\":0,\"source_anchor\":{\"derived_from\":[{\"blob_id\":\"blob-pdf\",\"locator\":{\"page\":1e0,\"precision\":\"exact\"}}],\"kind\":\"revision\",\"locator\":{\"precision\":\"coarse\"},\"revision_block_id\":\"block-1\"},\"text\":\"人工修订：数值为0.00000001。\"}],\"format\":\"akos.freeze/1\"}",
+      "hashes": {
+        "format": "akos.freeze/1",
+        "blocks_hash": "3312ffa182d72aae86eda64b5bd1443eed13f67e20d5dc05a761df03d05a19fd",
+        "content_hash": "53b605d9f1a089cb29d3a47b2d5de3c989a2849e191e3b2d15159cfa8005ff7a"
+      }
+    },
+    {
+      "name": "line_feed",
+      "input_json": "{\"format\":\"akos.freeze/1\",\"blocks\":[{\"id\":\"block-1\",\"order\":0,\"kind\":\"text\",\"text\":\"第一行\\n第二行\",\"source_anchor\":{\"kind\":\"original\",\"blob_id\":\"blob-pdf\",\"locator\":{\"precision\":\"exact\",\"page\":1,\"bbox\":[0.125,0,1,1]}}}],\"blobs\":[{\"id\":\"blob-pdf\",\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"size\":1000,\"media_type\":\"application/pdf\"}]}",
+      "canonical_json": "{\"blobs\":[{\"id\":\"blob-pdf\",\"media_type\":\"application/pdf\",\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"size\":1e3}],\"blocks\":[{\"id\":\"block-1\",\"kind\":\"text\",\"order\":0,\"source_anchor\":{\"blob_id\":\"blob-pdf\",\"kind\":\"original\",\"locator\":{\"bbox\":[125e-3,0,1e0,1e0],\"page\":1e0,\"precision\":\"exact\"}},\"text\":\"第一行\\n第二行\"}],\"format\":\"akos.freeze/1\"}",
+      "hashes": {
+        "format": "akos.freeze/1",
+        "blocks_hash": "18a2c7041ffa8b1cddaa3f47dfb4f61547465a0f4cd149b0c0182af0b746c431",
+        "content_hash": "16b7149a0cdab773a2d56e41d296cbb4f6e5ae3c109389fb8928c353b3ea0382"
+      }
+    },
+    {
+      "name": "carriage_return_line_feed",
+      "input_json": "{\"format\":\"akos.freeze/1\",\"blocks\":[{\"id\":\"block-1\",\"order\":0,\"kind\":\"text\",\"text\":\"第一行\\r\\n第二行\",\"source_anchor\":{\"kind\":\"original\",\"blob_id\":\"blob-pdf\",\"locator\":{\"precision\":\"exact\",\"page\":1,\"bbox\":[0.125,0,1,1]}}}],\"blobs\":[{\"id\":\"blob-pdf\",\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"size\":1000,\"media_type\":\"application/pdf\"}]}",
+      "canonical_json": "{\"blobs\":[{\"id\":\"blob-pdf\",\"media_type\":\"application/pdf\",\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"size\":1e3}],\"blocks\":[{\"id\":\"block-1\",\"kind\":\"text\",\"order\":0,\"source_anchor\":{\"blob_id\":\"blob-pdf\",\"kind\":\"original\",\"locator\":{\"bbox\":[125e-3,0,1e0,1e0],\"page\":1e0,\"precision\":\"exact\"}},\"text\":\"第一行\\r\\n第二行\"}],\"format\":\"akos.freeze/1\"}",
+      "hashes": {
+        "format": "akos.freeze/1",
+        "blocks_hash": "71ea442a5ed0878ea66314d2a55263e61d93305d4e06ab5a57513e01dc4b258d",
+        "content_hash": "b18114498e264eb93a2f679ad405eb36b1f6600ef6675b37948fe7ea18e92224"
+      }
+    },
+    {
+      "name": "merged_table_omitted_caption",
+      "input_json": "{\"format\":\"akos.freeze/1\",\"blocks\":[{\"id\":\"block-1\",\"order\":0,\"kind\":\"table\",\"text\":\"参数\\n精度 0.00000001\",\"source_anchor\":{\"kind\":\"original\",\"blob_id\":\"blob-pdf\",\"locator\":{\"precision\":\"exact\",\"page\":1,\"bbox\":[0.125,0,1,1]}},\"structured_content\":{\"type\":\"table\",\"row_count\":2,\"column_count\":2,\"cells\":[{\"row\":0,\"column\":0,\"row_span\":1,\"column_span\":2,\"text\":\"参数\",\"role\":\"column_header\"},{\"row\":1,\"column\":0,\"row_span\":1,\"column_span\":1,\"text\":\"精度\",\"role\":\"row_header\"},{\"row\":1,\"column\":1,\"row_span\":1,\"column_span\":1,\"text\":\"0.00000001\",\"role\":\"data\",\"number_text\":\"0.00000001\"}]}}],\"blobs\":[{\"id\":\"blob-pdf\",\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"size\":1000,\"media_type\":\"application/pdf\"}]}",
+      "canonical_json": "{\"blobs\":[{\"id\":\"blob-pdf\",\"media_type\":\"application/pdf\",\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"size\":1e3}],\"blocks\":[{\"id\":\"block-1\",\"kind\":\"table\",\"order\":0,\"source_anchor\":{\"blob_id\":\"blob-pdf\",\"kind\":\"original\",\"locator\":{\"bbox\":[125e-3,0,1e0,1e0],\"page\":1e0,\"precision\":\"exact\"}},\"structured_content\":{\"cells\":[{\"column\":0,\"column_span\":2e0,\"role\":\"column_header\",\"row\":0,\"row_span\":1e0,\"text\":\"参数\"},{\"column\":0,\"column_span\":1e0,\"role\":\"row_header\",\"row\":1e0,\"row_span\":1e0,\"text\":\"精度\"},{\"column\":1e0,\"column_span\":1e0,\"number_text\":\"0.00000001\",\"role\":\"data\",\"row\":1e0,\"row_span\":1e0,\"text\":\"0.00000001\"}],\"column_count\":2e0,\"row_count\":2e0,\"type\":\"table\"},\"text\":\"参数\\n精度 0.00000001\"}],\"format\":\"akos.freeze/1\"}",
+      "hashes": {
+        "format": "akos.freeze/1",
+        "blocks_hash": "8b8e75a83d9d3544d0f2cde20a62ec36f3b087910bb6dd369e998f7c3bc8abdd",
+        "content_hash": "80174d3e72744418d70c4a49ea670f25c72475aa75dc76e8fa7bf36c2e5fe17a"
+      }
+    },
+    {
+      "name": "merged_table_empty_caption",
+      "input_json": "{\"format\":\"akos.freeze/1\",\"blocks\":[{\"id\":\"block-1\",\"order\":0,\"kind\":\"table\",\"text\":\"参数\\n精度 0.00000001\",\"source_anchor\":{\"kind\":\"original\",\"blob_id\":\"blob-pdf\",\"locator\":{\"precision\":\"exact\",\"page\":1,\"bbox\":[0.125,0,1,1]}},\"structured_content\":{\"type\":\"table\",\"row_count\":2,\"column_count\":2,\"cells\":[{\"row\":0,\"column\":0,\"row_span\":1,\"column_span\":2,\"text\":\"参数\",\"role\":\"column_header\"},{\"row\":1,\"column\":0,\"row_span\":1,\"column_span\":1,\"text\":\"精度\",\"role\":\"row_header\"},{\"row\":1,\"column\":1,\"row_span\":1,\"column_span\":1,\"text\":\"0.00000001\",\"role\":\"data\",\"number_text\":\"0.00000001\"}],\"caption\":\"\"}}],\"blobs\":[{\"id\":\"blob-pdf\",\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"size\":1000,\"media_type\":\"application/pdf\"}]}",
+      "canonical_json": "{\"blobs\":[{\"id\":\"blob-pdf\",\"media_type\":\"application/pdf\",\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"size\":1e3}],\"blocks\":[{\"id\":\"block-1\",\"kind\":\"table\",\"order\":0,\"source_anchor\":{\"blob_id\":\"blob-pdf\",\"kind\":\"original\",\"locator\":{\"bbox\":[125e-3,0,1e0,1e0],\"page\":1e0,\"precision\":\"exact\"}},\"structured_content\":{\"caption\":\"\",\"cells\":[{\"column\":0,\"column_span\":2e0,\"role\":\"column_header\",\"row\":0,\"row_span\":1e0,\"text\":\"参数\"},{\"column\":0,\"column_span\":1e0,\"role\":\"row_header\",\"row\":1e0,\"row_span\":1e0,\"text\":\"精度\"},{\"column\":1e0,\"column_span\":1e0,\"number_text\":\"0.00000001\",\"role\":\"data\",\"row\":1e0,\"row_span\":1e0,\"text\":\"0.00000001\"}],\"column_count\":2e0,\"row_count\":2e0,\"type\":\"table\"},\"text\":\"参数\\n精度 0.00000001\"}],\"format\":\"akos.freeze/1\"}",
+      "hashes": {
+        "format": "akos.freeze/1",
+        "blocks_hash": "b18286d0e8d02d8621cb4513245886726ce3fd8d6bd65a731fe893d22ba5ba10",
+        "content_hash": "30265f9dc9fac4246d3f1a4b357cf52201e5bf572b4eb6ec459d8907a1240606"
+      }
+    },
+    {
+      "name": "image_and_overlapping_audio",
+      "input_json": "{\"format\":\"akos.freeze/1\",\"blobs\":[{\"id\":\"blob-audio\",\"sha256\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"size\":200,\"media_type\":\"audio/wav\"},{\"id\":\"blob-image\",\"sha256\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"size\":100,\"media_type\":\"image/png\"}],\"blocks\":[{\"id\":\"block-image\",\"order\":0,\"kind\":\"image\",\"text\":\"可审核媒体投影\",\"source_anchor\":{\"kind\":\"original\",\"blob_id\":\"blob-image\",\"locator\":{\"precision\":\"coarse\"}},\"structured_content\":{\"width\":100,\"height\":50,\"caption\":\"设备图片\",\"ocr_text\":\"型号A\",\"type\":\"image\",\"blob\":{\"id\":\"blob-image\",\"sha256\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"size\":100,\"media_type\":\"image/png\"}}},{\"id\":\"block-audio\",\"order\":1,\"kind\":\"audio\",\"text\":\"可审核媒体投影\",\"source_anchor\":{\"kind\":\"original\",\"blob_id\":\"blob-audio\",\"locator\":{\"precision\":\"coarse\"}},\"structured_content\":{\"duration_ms\":2000,\"segments\":[{\"start_ms\":0,\"end_ms\":1500,\"text\":\"故障说明\",\"speaker_label\":\"甲\"},{\"start_ms\":500,\"end_ms\":1800,\"text\":\"重叠语音\",\"speaker_label\":\"乙\"}],\"type\":\"audio\",\"blob\":{\"id\":\"blob-audio\",\"sha256\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"size\":200,\"media_type\":\"audio/wav\"}}}]}",
+      "canonical_json": "{\"blobs\":[{\"id\":\"blob-audio\",\"media_type\":\"audio/wav\",\"sha256\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"size\":2e2},{\"id\":\"blob-image\",\"media_type\":\"image/png\",\"sha256\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"size\":1e2}],\"blocks\":[{\"id\":\"block-image\",\"kind\":\"image\",\"order\":0,\"source_anchor\":{\"blob_id\":\"blob-image\",\"kind\":\"original\",\"locator\":{\"precision\":\"coarse\"}},\"structured_content\":{\"blob\":{\"id\":\"blob-image\",\"media_type\":\"image/png\",\"sha256\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"size\":1e2},\"caption\":\"设备图片\",\"height\":5e1,\"ocr_text\":\"型号A\",\"type\":\"image\",\"width\":1e2},\"text\":\"可审核媒体投影\"},{\"id\":\"block-audio\",\"kind\":\"audio\",\"order\":1e0,\"source_anchor\":{\"blob_id\":\"blob-audio\",\"kind\":\"original\",\"locator\":{\"precision\":\"coarse\"}},\"structured_content\":{\"blob\":{\"id\":\"blob-audio\",\"media_type\":\"audio/wav\",\"sha256\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"size\":2e2},\"duration_ms\":2e3,\"segments\":[{\"end_ms\":15e2,\"speaker_label\":\"甲\",\"start_ms\":0,\"text\":\"故障说明\"},{\"end_ms\":18e2,\"speaker_label\":\"乙\",\"start_ms\":5e2,\"text\":\"重叠语音\"}],\"type\":\"audio\"},\"text\":\"可审核媒体投影\"}],\"format\":\"akos.freeze/1\"}",
+      "hashes": {
+        "format": "akos.freeze/1",
+        "blocks_hash": "1b9c9865941fc26ee0dd9293ba5d1a600c0b4d0a60f751ae2a79d044f91a6536",
+        "content_hash": "5d6a2c6fe708ea14fd07e9546e9089287f067074b0f53096798f0a2301295bcd"
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+.tools/
+.local/
+.env
+.env.*
+!.env.example
+coverage.out
+*.test
+*.exe
+node_modules/
+frontend/dist/
+__pycache__/
+*.pyc

@@ -1,0 +1,108 @@
+{
+  "recorded_at": "2026-10-12T23:46:00.144222+00:00",
+  "sources": {
+    "pkg/modulewire/control.go": "7674f46bacea3d023c36aac6af74af8c913cd8e5f44bd727b3b51dc55f869722",
+    "pkg/modulewire/control_results.go": "e404597d1d9a54eb0705b1e3d35fc290d76762c7eccc03eaa6c2aa39080ab50d",
+    "pkg/modulewire/control_test.go": "3be2c547093166ec4b04acfc9d09dae611b07887b886de869afb542aa43bb78d",
+    "pkg/modulewire/codec.go": "1f08fb4a0c854c2472c64aa517ac7b5fcbf635329bb4a259bda7c4e436b71daa",
+    "cmd/architecture-parser-wire/control.go": "d4e7f5bb8f33f66e2f95ba11828763a2f28313d992652a52109e8109c7bff032",
+    "cmd/architecture-parser-wire/main.go": "9c2a37925082e13dcd986be6c519188f3bd12489601501d3964ce725b19f7dd4",
+    "cmd/architecture-parser-wire/retrieval.go": "51aa802842bdd39f60040264042c27165d8522a791d29de4c7de38d1c211abc9",
+    "docs/architecture/check_control_wire_mapping.py": "8bd81be29bf4db5877d07593526feb88bffe0fd8dbfd0b3b46c607fbb80326d0",
+    "docs/architecture/check_composite_search_wire.py": "7b583d38908599bc89f5291c13398c67860cb0ffaab5b9fd7c897f56effa9c09",
+    "docs/architecture/CONTROL_WIRE_MAPPING.md": "9db8c6f563492f87b1f4f20e57b9134e7f70a607c9ad9b650709b1d6ffd51efd",
+    "docs/architecture/REMOTE_MAPPING_COVERAGE.md": "6d9128d975f83ac0f7bcaf849e19dca42d941efc9837f23b3a8ea963f134f11f",
+    "docs/architecture/openapi/modules.v1.json": "60dd1a89006e89c5fe647fb43548e6990632ec21a0300c8b1f96516a3afc3775"
+  },
+  "scope": "Actual control DTOs, closed 15-business-result union, shared composite search and all remote-operation data samples. No persistent ledger, current authorization/Grant, operation-specific domain completeness, real HTTP/multipart/SSE, backend execution or confirmed cancellation.",
+  "checks": [
+    {
+      "name": "go tests",
+      "chunk_id": "eaaccd",
+      "wall_time_seconds": 1.568987,
+      "exit_code": 0,
+      "original_token_count": 72,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t1.457s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t1.451s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.958s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.457s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.932s\n"
+    },
+    {
+      "name": "go vet",
+      "chunk_id": "dae9f1",
+      "wall_time_seconds": 0.0000138,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "name": "Python regression",
+      "chunk_id": "9114a5",
+      "wall_time_seconds": 4.1744423,
+      "exit_code": 0,
+      "original_token_count": 48,
+      "output": ".......................................................................................\r\n----------------------------------------------------------------------\r\nRan 87 tests in 5.447s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "parser mapping",
+      "chunk_id": "4e2006",
+      "wall_time_seconds": 2.0433555,
+      "exit_code": 0,
+      "original_token_count": 58,
+      "output": "PASS: 7 typed parser request/result round trips, before/after schemas, exact large integers/nanoseconds and mismatched invocation rejection\r\nNo parser execution, access grants, source/media validation or network behavior tested\r\n"
+    },
+    {
+      "name": "retrieval mapping",
+      "chunk_id": "472775",
+      "wall_time_seconds": 1.8546186,
+      "exit_code": 0,
+      "original_token_count": 51,
+      "output": "PASS: embedder/retriever/reranker actual Go/wire round trips, before/after schema and out-of-filter evidence rejection\r\nNo model execution, backend filtering, access grants, publication or network tests\r\n"
+    },
+    {
+      "name": "index mapping",
+      "chunk_id": "c341bb",
+      "wall_time_seconds": 2.3149376999999998,
+      "exit_code": 0,
+      "original_token_count": 63,
+      "output": "PASS: 6 actual Go/wire index/composite prepare/verify/delete operations, independent before/after schemas and 3 rejected proof/binding mismatches\r\nNo real index build, Verify, lease ownership, authorization, deletion, publication or migration proof\r\n"
+    },
+    {
+      "name": "blob mapping",
+      "chunk_id": "37f338",
+      "wall_time_seconds": 2.1609906,
+      "exit_code": 0,
+      "original_token_count": 64,
+      "output": "PASS: 3 actual Go Blob put/open/delete metadata mappings, exact >2^53 size, independent before/after schemas and 3 invalid request/result rejections\r\nNo multipart or binary transport, storage, grant, current authorization, cancellation or deletion proof\r\n"
+    },
+    {
+      "name": "error mapping",
+      "chunk_id": "fd5582",
+      "wall_time_seconds": 2.9871236,
+      "exit_code": 0,
+      "original_token_count": 69,
+      "output": "PASS: actual Go safe-error projection for all 15 schema codes, independent before/after RemoteError schemas, 2 exact safe templates and 4 invalid identity/cause/code rejections\r\nNo provider classification, status ledger, HTTP policy, retry execution or authorization proof\r\n"
+    },
+    {
+      "name": "generation mapping",
+      "chunk_id": "15ddb8",
+      "wall_time_seconds": 2.9432386,
+      "exit_code": 0,
+      "original_token_count": 76,
+      "output": "PASS: actual Go generation request and all 5 event variants, 3 stream outcomes, exact >2^53 profile version, independent schemas and 7 rejected budget/sequence/reference/trace mutations\r\nNo model, SSE framing, current authorization, deadline enforcement, tokenizer or sink/network cancellation proof\r\n"
+    },
+    {
+      "name": "control mapping",
+      "chunk_id": "1a6b4c",
+      "wall_time_seconds": 3.4540493,
+      "exit_code": 0,
+      "original_token_count": 81,
+      "output": "PASS: 22 actual control status/cancel cases covering all 15 business result variants, 6 states, 2 cancellation responses, independent schemas and 7 invalid target/type/state/trace rejections\r\nNo ledger, current authorization, operation-specific result validation, real cancellation or confirmed backend termination proof\r\n"
+    },
+    {
+      "name": "composite search mapping",
+      "chunk_id": "cfef30",
+      "wall_time_seconds": 2.942507,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "PASS: composite search actual shared Go retrieval mapping, independent request/result schemas and foreign generation rejection\r\nNo composite backend, hybrid score behavior, filtering, grant, permission or replacement proof\r\n"
+    }
+  ]
+}

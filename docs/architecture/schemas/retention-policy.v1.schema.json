@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AI Knowledge OS retention policy V1 design contract",
+  "description": "Minimum retention and operational budgets in seconds. Passing this schema never authorizes deletion; authoritative references and retention holds must also be checked.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "policy_id", "policy_version", "rollback_window_seconds", "replay_budget_seconds", "recovery_margin_seconds", "journal_min_seconds", "original_min_seconds", "audit_min_seconds", "idempotency_min_seconds", "retry_window_seconds", "max_attempt_seconds", "cancel_settle_seconds", "orphan_grace_seconds"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "policy_id": {"type": "string", "pattern": "^[a-z][a-z0-9._-]*$", "maxLength": 100},
+    "policy_version": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807},
+    "rollback_window_seconds": {"$ref": "#/$defs/seconds"},
+    "replay_budget_seconds": {"$ref": "#/$defs/seconds"},
+    "recovery_margin_seconds": {"$ref": "#/$defs/seconds"},
+    "journal_min_seconds": {"$ref": "#/$defs/seconds"},
+    "original_min_seconds": {"$ref": "#/$defs/seconds"},
+    "audit_min_seconds": {"$ref": "#/$defs/seconds"},
+    "idempotency_min_seconds": {"$ref": "#/$defs/seconds"},
+    "retry_window_seconds": {"$ref": "#/$defs/seconds"},
+    "max_attempt_seconds": {"$ref": "#/$defs/seconds"},
+    "cancel_settle_seconds": {"$ref": "#/$defs/seconds"},
+    "orphan_grace_seconds": {"$ref": "#/$defs/seconds"}
+  },
+  "$defs": {"seconds": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807}}
+}

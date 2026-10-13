@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AI Knowledge OS module manifest V1",
+  "description": "Design contract. Structural validation does not certify a provider or its runtime behavior.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "module_id", "implementation_version", "contract_version", "capabilities", "dependencies", "config_schema", "health", "state_model", "migration_modes", "composite_groups"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "module_id": {"$ref": "#/$defs/identifier"},
+    "implementation_version": {"$ref": "#/$defs/releaseVersion"},
+    "contract_version": {"$ref": "#/$defs/contractVersion"},
+    "capabilities": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/capability"}},
+    "dependencies": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/dependency"}},
+    "config_schema": {"type": "object"},
+    "health": {
+      "type": "object", "additionalProperties": false,
+      "required": ["startup_timeout_ms", "runtime_timeout_ms", "supports_readiness"],
+      "properties": {
+        "startup_timeout_ms": {"type": "integer", "minimum": 1, "maximum": 300000},
+        "runtime_timeout_ms": {"type": "integer", "minimum": 1, "maximum": 30000},
+        "supports_readiness": {"const": true}
+      }
+    },
+    "state_model": {"enum": ["stateless", "derived", "authoritative"]},
+    "migration_modes": {"type": "array", "uniqueItems": true, "items": {"enum": ["rebuild", "export_import", "copy_verify"]}},
+    "composite_groups": {"type": "array", "items": {"$ref": "#/$defs/compositeGroup"}},
+    "limitations": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"state_model": {"const": "stateless"}}},
+      "then": {"properties": {"migration_modes": {"maxItems": 0}}},
+      "else": {"properties": {"migration_modes": {"minItems": 1}}}
+    },
+    {
+      "if": {"properties": {"state_model": {"const": "authoritative"}}},
+      "then": {"properties": {"migration_modes": {"contains": {"enum": ["export_import", "copy_verify"]}}}}
+    }
+  ],
+  "$defs": {
+    "identifier": {"type": "string", "minLength": 1, "maxLength": 100, "pattern": "^[a-z][a-z0-9._-]*$"},
+    "releaseVersion": {"type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"},
+    "contractVersion": {"type": "string", "pattern": "^[1-9][0-9]*\\.(0|[1-9][0-9]*)$"},
+    "capability": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "version", "features"],
+      "properties": {
+        "name": {"$ref": "#/$defs/identifier"},
+        "version": {"$ref": "#/$defs/contractVersion"},
+        "features": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}}
+      }
+    },
+    "dependency": {
+      "type": "object", "additionalProperties": false,
+      "required": ["slot", "capability", "major", "minimum_minor", "required_features", "optional"],
+      "properties": {
+        "slot": {"$ref": "#/$defs/identifier"},
+        "capability": {"$ref": "#/$defs/identifier"},
+        "major": {"type": "integer", "minimum": 1},
+        "minimum_minor": {"type": "integer", "minimum": 0},
+        "required_features": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "optional": {"type": "boolean"}
+      }
+    },
+    "compositeGroup": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "capabilities", "replacement_unit", "reason"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "capabilities": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "replacement_unit": {"const": "whole_group"},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

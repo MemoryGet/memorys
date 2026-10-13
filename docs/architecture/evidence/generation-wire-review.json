@@ -1,0 +1,62 @@
+{
+  "recorded_at": "2026-10-12T15:29:06.944055+00:00",
+  "sources": {
+    "pkg/modulewire/generation.go": "92c48a5b520f1119e2c355b5f457c5360e4afeb6e7f7dbbea4e298ab7849490a",
+    "pkg/modulewire/answer_sequence.go": "15fb7c909a248406fc0bf0f92b7efecb6d4c03843cdeb406c9696bd793b40568",
+    "pkg/modulewire/generation_test.go": "de03a4c065aa5d9b74ef6ba13f4eda1a8034e929a655ff88b5203e6784e919bf",
+    "pkg/modulewire/codec.go": "3c5e3e6563d1ae1aa785e777e73a24a4b207f618dd08b4cb187de72959b399a2",
+    "cmd/architecture-parser-wire/generation.go": "7972ff3a5d36788ef63f4935cf6df5d646459cd5785f7380a1023db3d25254d6",
+    "cmd/architecture-parser-wire/main.go": "47086189fd4251b8fcbb56f2d6f54414bdad8ccf0ab2a22f6674dba4f78ad5df",
+    "docs/architecture/check_generation_wire_mapping.py": "df8607cef3cccf327c30db156e6401dc2aaff9d28585058945418c3753a762e6",
+    "docs/architecture/GENERATION_WIRE_MAPPING.md": "5fb9e31f195406ef0a71cce2c7c3d0bbded776a27e3f39105f48f4d8aeeaae8a",
+    "docs/architecture/openapi/modules.v1.json": "60dd1a89006e89c5fe647fb43548e6990632ec21a0300c8b1f96516a3afc3775"
+  },
+  "document_check": "local links and fences passed",
+  "scope": "Actual Go generation DTO and five event-data variants, local sequential stream guards, independent schemas and mutation tests. No model execution, SSE framing/network, current access, tokenizer, deadline or sink cancellation.",
+  "checks": [
+    {
+      "name": "Generation Go tests",
+      "chunk_id": "0dfcc9",
+      "wall_time_seconds": 1.8347601999999998,
+      "exit_code": 0,
+      "original_token_count": 14,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t0.566s\n"
+    },
+    {
+      "name": "go vet",
+      "chunk_id": "480ff7",
+      "wall_time_seconds": 0.9339782,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "name": "Python regression",
+      "chunk_id": "342fa1",
+      "wall_time_seconds": 4.8492545,
+      "exit_code": 0,
+      "original_token_count": 48,
+      "output": ".......................................................................................\r\n----------------------------------------------------------------------\r\nRan 87 tests in 4.419s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Generation schema/Go roundtrips",
+      "chunk_id": "cc939f",
+      "wall_time_seconds": 2.473128,
+      "exit_code": 0,
+      "original_token_count": 76,
+      "output": "PASS: actual Go generation request and all 5 event variants, 3 stream outcomes, exact >2^53 profile version, independent schemas and 7 rejected budget/sequence/reference/trace mutations\r\nNo model, SSE framing, current authorization, deadline enforcement, tokenizer or sink/network cancellation proof\r\n"
+    }
+  ],
+  "go_tests": {
+    "command": "go test -count=1 ./...",
+    "exit_code": 0,
+    "evidence_origin": "exec_command output observed earlier in this turn before final test-only addition; affected package rerun captured above",
+    "packages": [
+      "cmd/architecture-parser-wire",
+      "pkg/canonical",
+      "pkg/contracts",
+      "pkg/kernel",
+      "pkg/modulewire"
+    ]
+  }
+}

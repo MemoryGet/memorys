@@ -1,0 +1,55 @@
+{
+  "recorded_at": "2026-10-12T14:47:23.141152+00:00",
+  "scope": "Offline KB backend migration state guard rules using synthetic facts; no real CAS/fencing, authorization, barrier, epoch cutover, restart, hold release or database/file migration",
+  "checks": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "docs/architecture",
+        "-p",
+        "test_*.py"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "............................................................................\n----------------------------------------------------------------------\nRan 76 tests in 4.145s\n\nOK\n"
+    },
+    {
+      "command": [
+        "python",
+        "docs/architecture/build_migration_state.py"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: migration state schema generation consistency\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "docs/architecture/build_journal_contract.py"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: journal schema generation consistency\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "docs/architecture/build_export_manifest.py"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: export manifest schema generation consistency\n",
+      "stderr": ""
+    }
+  ],
+  "sources": {
+    "docs/architecture/MIGRATION_STATE.md": "8b83e72bd0594089b08913455a3f14c7d58ad4eb6f7c595655a8480a40831330",
+    "docs/architecture/schemas/migration-state.v1.schema.json": "afbc465f2ee1b56d99164c9eb7d37684c7b6561b4eb53644f34c176653f13999",
+    "docs/architecture/build_migration_state.py": "9efd6fdf33069f8fbf0712ceb0af244c351a13c2b2dce2fc68d2270273475d7f",
+    "docs/architecture/migration_state_validation.py": "77bb05a33ed9bb23f7c55f9ccd1e1bee081e60ec1cd165103aa8ade055e31dd6",
+    "docs/architecture/test_migration_state.py": "a05fd8801e7444a27b4add7e9c4fa52a41179522ba0ef8210a42fc70cd6941de"
+  }
+}

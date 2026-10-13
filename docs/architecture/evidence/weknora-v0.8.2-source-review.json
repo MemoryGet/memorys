@@ -1,0 +1,39 @@
+{
+  "repository": "Tencent/WeKnora",
+  "requested_ref": "v0.8.2",
+  "resolved_commit": "3e8b0bfc80b845b2d4b2ed683994748741450a97",
+  "checked_at": "2026-10-12T00:30:23.456707+00:00",
+  "scope": "source/API review only; no runtime certification",
+  "sources": [
+    {
+      "path": "website-docs/04-api/02-api-knowledge.md",
+      "url": "https://raw.githubusercontent.com/Tencent/WeKnora/3e8b0bfc80b845b2d4b2ed683994748741450a97/website-docs/04-api/02-api-knowledge.md",
+      "sha256": "64162fc13a88538ba0da9a6968b839e48f9c00c1e923bef43d36d96ab398f5b5",
+      "bytes": 29756
+    },
+    {
+      "path": "website-docs/04-api/02-api-chunks.md",
+      "url": "https://raw.githubusercontent.com/Tencent/WeKnora/3e8b0bfc80b845b2d4b2ed683994748741450a97/website-docs/04-api/02-api-chunks.md",
+      "sha256": "af21df480f419ad6b6654bfd43cfdfb48d9ad86922a3e2ca19b871b0b26ccc78",
+      "bytes": 9480
+    },
+    {
+      "path": "internal/handler/chunk.go",
+      "url": "https://raw.githubusercontent.com/Tencent/WeKnora/3e8b0bfc80b845b2d4b2ed683994748741450a97/internal/handler/chunk.go",
+      "sha256": "37f6178f1c9b815536a416e012e452d1d730e2b815586a1f07aa5c18c89e4e72",
+      "bytes": 16867
+    },
+    {
+      "path": "internal/handler/knowledge.go",
+      "url": "https://raw.githubusercontent.com/Tencent/WeKnora/3e8b0bfc80b845b2d4b2ed683994748741450a97/internal/handler/knowledge.go",
+      "sha256": "2285b9cd20482314f0a8c657e4eb94aeaaa41b5b3e73c4c9b6685857edf6046c",
+      "bytes": 105954
+    },
+    {
+      "path": "internal/types/chunk.go",
+      "url": "https://raw.githubusercontent.com/Tencent/WeKnora/3e8b0bfc80b845b2d4b2ed683994748741450a97/internal/types/chunk.go",
+      "sha256": "c69fbd3338e040359b103b88863361a7f5a5b6b5047231da612573191a742bec",
+      "bytes": 9713
+    }
+  ]
+}

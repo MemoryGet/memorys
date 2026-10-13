@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "module_id": "reference-parser",
+  "implementation_version": "0.1.0",
+  "contract_version": "1.0",
+  "capabilities": [
+    {"name": "parser", "version": "1.0", "features": ["format.text", "source.revision", "cancellation"]}
+  ],
+  "dependencies": [
+    {"slot": "source_reader", "capability": "blob_store", "major": 1, "minimum_minor": 0, "required_features": ["stream.read"], "optional": false}
+  ],
+  "config_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["max_input_bytes"],
+    "properties": {"max_input_bytes": {"type": "integer", "minimum": 1, "maximum": 104857600}}
+  },
+  "health": {"startup_timeout_ms": 1000, "runtime_timeout_ms": 500, "supports_readiness": true},
+  "state_model": "stateless",
+  "migration_modes": [],
+  "composite_groups": [],
+  "limitations": ["Illustrative design fixture, not an implemented or certified parser."]
+}

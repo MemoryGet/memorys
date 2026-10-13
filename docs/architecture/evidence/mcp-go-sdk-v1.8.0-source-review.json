@@ -1,0 +1,33 @@
+{
+  "repository": "modelcontextprotocol/go-sdk",
+  "requested_ref": "v1.8.0",
+  "resolved_commit": "3f3b699b2b67e1ed033a63d6651671dab53c2d32",
+  "checked_at": "2026-10-12T00:42:28.890206+00:00",
+  "scope": "source design review only; SDK not integrated",
+  "sources": [
+    {
+      "path": "README.md",
+      "url": "https://raw.githubusercontent.com/modelcontextprotocol/go-sdk/3f3b699b2b67e1ed033a63d6651671dab53c2d32/README.md",
+      "sha256": "b139b8fe162c6b79a160d4b0c10ab73b56ed9ae437a7ef21c6d184d7e2e38bab",
+      "bytes": 6182
+    },
+    {
+      "path": "go.mod",
+      "url": "https://raw.githubusercontent.com/modelcontextprotocol/go-sdk/3f3b699b2b67e1ed033a63d6651671dab53c2d32/go.mod",
+      "sha256": "8679c6a4a8447d6d2d7e3ac99e922161ba1a0eaa881d7666d503cc473cdbc8a3",
+      "bytes": 480
+    },
+    {
+      "path": "LICENSE",
+      "url": "https://raw.githubusercontent.com/modelcontextprotocol/go-sdk/3f3b699b2b67e1ed033a63d6651671dab53c2d32/LICENSE",
+      "sha256": "af679003d933f045393a6a029f43da113f9ae364eac651d9ae268392985580f5",
+      "bytes": 12223
+    },
+    {
+      "path": "mcp/server.go",
+      "url": "https://raw.githubusercontent.com/modelcontextprotocol/go-sdk/3f3b699b2b67e1ed033a63d6651671dab53c2d32/mcp/server.go",
+      "sha256": "336ece58363ac561a61238243377cc9da3660c2c6282b99adb27b530a1aafc2e",
+      "bytes": 86380
+    }
+  ]
+}

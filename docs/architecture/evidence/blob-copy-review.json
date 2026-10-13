@@ -1,0 +1,55 @@
+{
+  "recorded_at": "2026-10-12T14:54:30.742793+00:00",
+  "scope": "Read-only local temporary file bytes versus independently supplied synthetic inventory, including 8 MiB streaming. No real storage adapter, copy, immutable object/binding proof, atomic mapping switch, restart or rollback",
+  "checks": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "docs/architecture",
+        "-p",
+        "test_*.py"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ".......................................................................................\n----------------------------------------------------------------------\nRan 87 tests in 4.144s\n\nOK\n"
+    },
+    {
+      "command": [
+        "python",
+        "docs/architecture/build_blob_copy_contract.py"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: blob copy schema generation consistency\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "docs/architecture/build_migration_state.py"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: migration state schema generation consistency\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "docs/architecture/build_export_manifest.py"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: export manifest schema generation consistency\n",
+      "stderr": ""
+    }
+  ],
+  "sources": {
+    "docs/architecture/BLOB_COPY.md": "42b6a07a133ddae73b2438ffb8732e4f49e1ffc1010227a56ce549567ad1b37b",
+    "docs/architecture/schemas/blob-copy.v1.schema.json": "ffb828c4e7bcc705555485de580b5379f51b158bea9202fd48d7206286513916",
+    "docs/architecture/build_blob_copy_contract.py": "fdffdfb9d2880351d21f8f285fa4f35d255c24cfac8ded5a29b3e61c32a34231",
+    "docs/architecture/blob_copy_validation.py": "b2355d73b80f57706cc490e4069f22db6998976842493c7d74304641b62ab56e",
+    "docs/architecture/test_blob_copy.py": "c0c71d48bc280eb2952d7db0e0843e93a67e7d5cea7922c7639a34398fea6d18"
+  }
+}

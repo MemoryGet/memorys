@@ -1,0 +1,53 @@
+{
+  "recorded_at": "2026-10-12T15:13:43.415884+00:00",
+  "sources": {
+    "pkg/modulewire/errors.go": "c0a907cd62aaa8e3bf2043185bda4abae8dd700ffd8770ce4798808c1cbdcd54",
+    "pkg/modulewire/errors_test.go": "85a7dd64774f97767dfba0710df70a1adc28cd4294a9c21965c7c944aaf1e4e6",
+    "cmd/architecture-parser-wire/errors.go": "ed30c724b1d58fbfbb01cad23939757de4e501fcfc513ac10c4458a685e66aae",
+    "cmd/architecture-parser-wire/main.go": "3988fb0f2fb595166e35a99a3bc61760ab5a4f2ccb027f455927be353b23f30d",
+    "docs/architecture/check_error_wire_mapping.py": "67ef221be02cb8c4a4d1d29529302926b9184aae48f63fe6f7b80142d979b47d",
+    "docs/architecture/ERROR_WIRE_MAPPING.md": "8a7b7a7be44fc92e521056eaa9fa090d1912489cf172c7d64c704a8044941fc7",
+    "docs/architecture/CONTRACTS.md": "96414d1095dfd8861990663320b2d6cc159d89c68d8831869fea07d9ebf3978f",
+    "docs/architecture/openapi/partner.v1.json": "b34eb00e387a866ecb3123ce53ed08f228df4d29d01a2932ad3d038be1035466"
+  },
+  "document_check": "local links and fences passed",
+  "scope": "Actual Go safe-error catalog projection for all 15 schema codes and independent DTO checks. No provider classification, HTTP/status/retry execution, ledger or authorization proof.",
+  "checks": [
+    {
+      "name": "go vet",
+      "chunk_id": "c56419",
+      "wall_time_seconds": 0.8339542,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "name": "Python regression",
+      "chunk_id": "bbc703",
+      "wall_time_seconds": 4.8953147999999995,
+      "exit_code": 0,
+      "original_token_count": 48,
+      "output": ".......................................................................................\r\n----------------------------------------------------------------------\r\nRan 87 tests in 4.502s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Error schema/Go projection",
+      "chunk_id": "2938f8",
+      "wall_time_seconds": 2.4965806,
+      "exit_code": 0,
+      "original_token_count": 69,
+      "output": "PASS: actual Go safe-error projection for all 15 schema codes, independent before/after RemoteError schemas, 2 exact safe templates and 4 invalid identity/cause/code rejections\r\nNo provider classification, status ledger, HTTP policy, retry execution or authorization proof\r\n"
+    }
+  ],
+  "go_tests": {
+    "command": "go test -count=1 ./...",
+    "exit_code": 0,
+    "evidence_origin": "exec_command output observed earlier in this turn",
+    "packages": [
+      "cmd/architecture-parser-wire",
+      "pkg/canonical",
+      "pkg/contracts",
+      "pkg/kernel",
+      "pkg/modulewire"
+    ]
+  }
+}

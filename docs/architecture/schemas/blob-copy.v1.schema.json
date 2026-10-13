@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AI Knowledge OS Blob copy manifest V1",
+  "description": "Byte-copy inventory only; source authority, actual storage bindings and atomic cutover require runtime verification.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "migration_id",
+    "kind",
+    "source_mapping_id",
+    "target_mapping_id",
+    "source_lock_sha256",
+    "target_lock_sha256",
+    "retention_hold_id",
+    "snapshot",
+    "objects"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "migration_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+      "maxLength": 200
+    },
+    "kind": {
+      "const": "blob_store_copy"
+    },
+    "source_mapping_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+      "maxLength": 200
+    },
+    "target_mapping_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+      "maxLength": 200
+    },
+    "source_lock_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "target_lock_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "retention_hold_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+      "maxLength": 200
+    },
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "snapshot_id",
+        "journal_stream_id",
+        "watermark",
+        "blob_writes"
+      ],
+      "properties": {
+        "snapshot_id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+          "maxLength": 200
+        },
+        "journal_stream_id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+          "maxLength": 200
+        },
+        "watermark": {
+          "type": "string",
+          "pattern": "^j1:[a-f0-9]{64}$"
+        },
+        "blob_writes": {
+          "const": "paused"
+        }
+      }
+    },
+    "objects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "entry_id",
+          "space_id",
+          "blob",
+          "source_binding_version",
+          "target_binding_version",
+          "target_binding_ref"
+        ],
+        "properties": {
+          "entry_id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+            "maxLength": 200
+          },
+          "space_id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+            "maxLength": 200
+          },
+          "blob": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "sha256",
+              "size",
+              "media_type"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+                "maxLength": 200
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "size": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9223372036854775807
+              },
+              "media_type": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255
+              }
+            }
+          },
+          "source_binding_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 18446744073709551615
+          },
+          "target_binding_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 18446744073709551615
+          },
+          "target_binding_ref": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+            "maxLength": 200
+          }
+        }
+      }
+    }
+  }
+}

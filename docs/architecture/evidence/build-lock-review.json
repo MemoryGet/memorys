@@ -1,0 +1,36 @@
+{
+  "recorded_at": "2026-10-12T14:26:44.643961+00:00",
+  "scope": "Offline synthetic local artifact consistency and contract regression only; no source attestation, runtime artifact, database epoch or backend validation",
+  "checks": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "docs/architecture",
+        "-p",
+        "test_*.py"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "...........................................\n----------------------------------------------------------------------\nRan 43 tests in 2.894s\n\nOK\n"
+    },
+    {
+      "command": [
+        "python",
+        "docs/architecture/check_deployment_design.py"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: deployment schema, structural fixture, 23 rejected configurations\nFixture provider is unimplemented. Graph, policies, epochs and live modules not certified.\n",
+      "stderr": ""
+    }
+  ],
+  "sources": {
+    "docs/architecture/BUILD_LOCK.md": "eb26491fbf7a7df59f2f0334648027e9f3c62e56ee27db2a9c0026940a7ac74a",
+    "docs/architecture/schemas/build-lock.v1.schema.json": "4be7fbc12dfb4155bd3fa36558ebc34403434394d1da7d4390d318b97f5f30e1",
+    "docs/architecture/check_build_lock.py": "c56738faf38f0e4985a12fe89996fb28f0170ef2ff33b43b08802125c1875d96",
+    "docs/architecture/test_build_lock.py": "04e6a175b2abfd89114f134ca3801db6e1fdb1b330b7653fee414b23080a4327"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "recorded_at": "2026-10-12T14:38:52.543210+00:00",
+  "scope": "Offline synthetic transaction hash chain, bounds, version and payload integrity only; no real commit schedule, trusted head, atomic replay receipt, database or cutover",
+  "checks": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "docs/architecture",
+        "-p",
+        "test_*.py"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "...............................................................\n----------------------------------------------------------------------\nRan 63 tests in 3.320s\n\nOK\n"
+    },
+    {
+      "command": [
+        "python",
+        "docs/architecture/build_journal_contract.py"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: journal schema generation consistency\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "docs/architecture/build_export_manifest.py"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: export manifest schema generation consistency\n",
+      "stderr": ""
+    }
+  ],
+  "sources": {
+    "docs/architecture/JOURNAL_PROTOCOL.md": "89e23ab194ea5e2fb8a65859394a98f1efd9fab84c6a94e91f7b20c94314798d",
+    "docs/architecture/schemas/journal-bundle.v1.schema.json": "e8a7a7742374dab90385951a08f2a73123018fd14aca6ba9f1fa064ded0d4810",
+    "docs/architecture/build_journal_contract.py": "7eeabd1762e9951f6c2ce3d53b370dad6cd26d6a4804c7f281b5fa8b7a217d53",
+    "docs/architecture/journal_validation.py": "a185e172527961fa2d37827395d614cfae7223e9bc3f1ca37db34817399365cb",
+    "docs/architecture/test_journal_contract.py": "ff54c67039e026349425bbc74a7886b5bd08e4f5eb7dd48a0b916111e9d9b0d2"
+  }
+}

@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "module_id": "unimplemented-reference",
+  "implementation_version": "0.1.0",
+  "contract_version": "1.0",
+  "capabilities": [
+    {
+      "name": "authenticator",
+      "version": "1.0",
+      "features": [
+        "channel.keyword",
+        "channel.vector",
+        "prefilter.space",
+        "prefilter.kb",
+        "prefilter.revision",
+        "prefilter.generation",
+        "stream.read"
+      ]
+    },
+    {
+      "name": "authorizer",
+      "version": "1.0",
+      "features": [
+        "channel.keyword",
+        "channel.vector",
+        "prefilter.space",
+        "prefilter.kb",
+        "prefilter.revision",
+        "prefilter.generation",
+        "stream.read"
+      ]
+    },
+    {
+      "name": "metadata_uow",
+      "version": "1.0",
+      "features": [
+        "channel.keyword",
+        "channel.vector",
+        "prefilter.space",
+        "prefilter.kb",
+        "prefilter.revision",
+        "prefilter.generation",
+        "stream.read"
+      ]
+    },
+    {
+      "name": "publication",
+      "version": "1.0",
+      "features": [
+        "channel.keyword",
+        "channel.vector",
+        "prefilter.space",
+        "prefilter.kb",
+        "prefilter.revision",
+        "prefilter.generation",
+        "stream.read"
+      ]
+    },
+    {
+      "name": "blob_store",
+      "version": "1.0",
+      "features": [
+        "channel.keyword",
+        "channel.vector",
+        "prefilter.space",
+        "prefilter.kb",
+        "prefilter.revision",
+        "prefilter.generation",
+        "stream.read"
+      ]
+    },
+    {
+      "name": "task_repository",
+      "version": "1.0",
+      "features": [
+        "channel.keyword",
+        "channel.vector",
+        "prefilter.space",
+        "prefilter.kb",
+        "prefilter.revision",
+        "prefilter.generation",
+        "stream.read"
+      ]
+    },
+    {
+      "name": "task_queue",
+      "version": "1.0",
+      "features": [
+        "channel.keyword",
+        "channel.vector",
+        "prefilter.space",
+        "prefilter.kb",
+        "prefilter.revision",
+        "prefilter.generation",
+        "stream.read"
+      ]
+    },
+    {
+      "name": "event_bus",
+      "version": "1.0",
+      "features": [
+        "channel.keyword",
+        "channel.vector",
+        "prefilter.space",
+        "prefilter.kb",
+        "prefilter.revision",
+        "prefilter.generation",
+        "stream.read"
+      ]
+    },
+    {
+      "name": "audit",
+      "version": "1.0",
+      "features": [
+        "channel.keyword",
+        "channel.vector",
+        "prefilter.space",
+        "prefilter.kb",
+        "prefilter.revision",
+        "prefilter.generation",
+        "stream.read"
+      ]
+    },
+    {
+      "name": "observer",
+      "version": "1.0",
+      "features": [
+        "channel.keyword",
+        "channel.vector",
+        "prefilter.space",
+        "prefilter.kb",
+        "prefilter.revision",
+        "prefilter.generation",
+        "stream.read"
+      ]
+    },
+    {
+      "name": "parser",
+      "version": "1.0",
+      "features": [
+        "channel.keyword",
+        "channel.vector",
+        "prefilter.space",
+        "prefilter.kb",
+        "prefilter.revision",
+        "prefilter.generation",
+        "stream.read"
+      ]
+    },
+    {
+      "name": "splitter",
+      "version": "1.0",
+      "features": [
+        "channel.keyword",
+        "channel.vector",
+        "prefilter.space",
+        "prefilter.kb",
+        "prefilter.revision",
+        "prefilter.generation",
+        "stream.read"
+      ]
+    },
+    {
+      "name": "embedder",
+      "version": "1.0",
+      "features": [
+        "channel.keyword",
+        "channel.vector",
+        "prefilter.space",
+        "prefilter.kb",
+        "prefilter.revision",
+        "prefilter.generation",
+        "stream.read"
+      ]
+    },
+    {
+      "name": "index_writer",
+      "version": "1.0",
+      "features": [
+        "channel.keyword",
+        "channel.vector",
+        "prefilter.space",
+        "prefilter.kb",
+        "prefilter.revision",
+        "prefilter.generation",
+        "stream.read"
+      ]
+    },
+    {
+      "name": "retriever",
+      "version": "1.0",
+      "features": [
+        "channel.keyword",
+        "channel.vector",
+        "prefilter.space",
+        "prefilter.kb",
+        "prefilter.revision",
+        "prefilter.generation",
+        "stream.read"
+      ]
+    },
+    {
+      "name": "fuser",
+      "version": "1.0",
+      "features": [
+        "channel.keyword",
+        "channel.vector",
+        "prefilter.space",
+        "prefilter.kb",
+        "prefilter.revision",
+        "prefilter.generation",
+        "stream.read"
+      ]
+    },
+    {
+      "name": "generator",
+      "version": "1.0",
+      "features": [
+        "channel.keyword",
+        "channel.vector",
+        "prefilter.space",
+        "prefilter.kb",
+        "prefilter.revision",
+        "prefilter.generation",
+        "stream.read"
+      ]
+    },
+    {
+      "name": "reranker",
+      "version": "1.0",
+      "features": [
+        "channel.keyword",
+        "channel.vector",
+        "prefilter.space",
+        "prefilter.kb",
+        "prefilter.revision",
+        "prefilter.generation",
+        "stream.read"
+      ]
+    },
+    {
+      "name": "reflection",
+      "version": "1.0",
+      "features": [
+        "channel.keyword",
+        "channel.vector",
+        "prefilter.space",
+        "prefilter.kb",
+        "prefilter.revision",
+        "prefilter.generation",
+        "stream.read"
+      ]
+    }
+  ],
+  "dependencies": [],
+  "config_schema": {
+    "type": "object",
+    "additionalProperties": false
+  },
+  "health": {
+    "startup_timeout_ms": 1000,
+    "runtime_timeout_ms": 500,
+    "supports_readiness": true
+  },
+  "state_model": "authoritative",
+  "migration_modes": [
+    "export_import"
+  ],
+  "composite_groups": []
+}

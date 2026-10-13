@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AI Knowledge OS journal complete-transaction bundle V1",
+  "description": "Hash chain and envelope only. Trusted head, actual commit order, typed payloads and atomic replay require runtime evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "journal_stream_id",
+    "from_cursor",
+    "through_cursor",
+    "hash_format",
+    "transactions"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "journal_stream_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+      "maxLength": 200
+    },
+    "from_cursor": {
+      "type": "string",
+      "pattern": "^j1:[a-f0-9]{64}$"
+    },
+    "through_cursor": {
+      "type": "string",
+      "pattern": "^j1:[a-f0-9]{64}$"
+    },
+    "hash_format": {
+      "const": "akos.journal/1"
+    },
+    "transactions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "transaction_id",
+          "journal_stream_id",
+          "previous_cursor",
+          "cursor",
+          "mutation_count",
+          "mutations"
+        ],
+        "properties": {
+          "transaction_id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+            "maxLength": 200
+          },
+          "journal_stream_id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+            "maxLength": 200
+          },
+          "previous_cursor": {
+            "type": "string",
+            "pattern": "^j1:[a-f0-9]{64}$"
+          },
+          "cursor": {
+            "type": "string",
+            "pattern": "^j1:[a-f0-9]{64}$"
+          },
+          "mutation_count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 18446744073709551615
+          },
+          "mutations": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "ordinal",
+                "operation_id",
+                "record_type",
+                "record_id",
+                "previous_version",
+                "new_version",
+                "effect",
+                "payload"
+              ],
+              "properties": {
+                "ordinal": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 18446744073709551615
+                },
+                "operation_id": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+                  "maxLength": 200
+                },
+                "record_type": {
+                  "enum": [
+                    "space",
+                    "knowledge_base",
+                    "principal",
+                    "identity_binding",
+                    "membership",
+                    "kb_grant",
+                    "authorization_policy",
+                    "document",
+                    "draft",
+                    "draft_block",
+                    "draft_blob",
+                    "revision",
+                    "block",
+                    "blob",
+                    "storage_binding",
+                    "revision_blob",
+                    "approval_request",
+                    "approval",
+                    "publication_operation",
+                    "publication_history",
+                    "backend_epoch",
+                    "generation_set",
+                    "index_generation",
+                    "backend_binding",
+                    "profile_snapshot",
+                    "job",
+                    "job_attempt",
+                    "outbox",
+                    "consumer_receipt",
+                    "idempotency_record",
+                    "audit_record",
+                    "feedback",
+                    "draft_proposal",
+                    "memory_record",
+                    "retention_hold",
+                    "purge_job",
+                    "migration_operation",
+                    "tombstone",
+                    "request_record",
+                    "invocation_record",
+                    "immutable_payload",
+                    "credential_reference",
+                    "retention_policy_snapshot"
+                  ]
+                },
+                "record_id": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+                  "maxLength": 200
+                },
+                "previous_version": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 18446744073709551615
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "new_version": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 18446744073709551615
+                },
+                "effect": {
+                  "enum": [
+                    "upsert",
+                    "tombstone"
+                  ]
+                },
+                "payload": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "entry_id",
+                    "sha256",
+                    "byte_length"
+                  ],
+                  "properties": {
+                    "entry_id": {
+                      "type": "string",
+                      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+                      "maxLength": 200
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{64}$"
+                    },
+                    "byte_length": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 18446744073709551615
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

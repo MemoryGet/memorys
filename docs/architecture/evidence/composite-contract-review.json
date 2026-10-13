@@ -1,0 +1,61 @@
+{
+  "checked_at": "2026-10-12T11:50:08.628939+00:00",
+  "scope": "D-01 contract mapping and hypothetical assembly; no deployment normalizer or live provider acceptance",
+  "checks": [
+    {
+      "id": "go_tests",
+      "command": "E:\\ai\\memorys\\.tools\\go\\bin\\go.exe test -count=1 -cover ./...",
+      "exit_code": 0,
+      "stdout": "ok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.438s\tcoverage: 92.6% of statements\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t0.467s\tcoverage: 90.1% of statements",
+      "stderr": ""
+    },
+    {
+      "id": "go_vet",
+      "command": "E:\\ai\\memorys\\.tools\\go\\bin\\go.exe vet ./...",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "id": "design_tests",
+      "command": "C:\\Python\\Python313\\python.exe -m unittest discover -s docs/architecture -p test_*.py",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ".............\n----------------------------------------------------------------------\nRan 13 tests in 2.041s\n\nOK"
+    },
+    {
+      "id": "assembly_semantics",
+      "command": "C:\\Python\\Python313\\python.exe docs/architecture/check_assembly_semantics.py",
+      "exit_code": 0,
+      "stdout": "PASS: 3 hypothetical assemblies, dependency order, 13 invalid assemblies, dependency cycle and composite split rejected\nNot covered: artifact locks, live health, backend layout, KB fanout, runtime identity or migrations.",
+      "stderr": ""
+    }
+  ],
+  "document_integrity": "pass: local file links, tables, fences and embedded JSON; no rendering or anchor checks",
+  "source_fingerprints": {
+    "docs/architecture/check_assembly_semantics.py": "6beda667f012e60d4c4970ef7440c27184bc3387568ca2031558e3e3d70abe1a",
+    "docs/architecture/COMPOSITE_CONTRACT.md": "e3c229e8e08fcbe3276e09a245c88906b671b4aaf3cd263ef18ab317512b4881",
+    "docs/architecture/test_composite_design.py": "b5d89f1bba845295b290cebcb1e17c347b5084b0906ef2dd9215287e03c58de6",
+    "pkg/contracts/async.go": "e1d05eaf473d1e99125d0d6bab9c316293ade279f18372f9a6bec734ab4101ff",
+    "pkg/contracts/content.go": "35df11eb5adf056b23df1ad8db9ce54ad9b2e36a6e52e0e4f425fb0ac33eaf04",
+    "pkg/contracts/core.go": "8d0535505a9df12d9af8e527320742c05e253d61f9e4d3f0554f869e3fba3abf",
+    "pkg/contracts/generation_validation.go": "ce226ff7222b75e02e246bc25af755ccf72957a7c05c1501dc9f3d2c1012f521",
+    "pkg/contracts/generation_validation_test.go": "72676d0dcf81fa6d6bdf8a47c607810715a09ae62e9ea23a523cd8f10293aad7",
+    "pkg/contracts/intelligence.go": "100c05fbce5003718e99e7feb648584a2100f2f22648e9ad5a770523ade73f8c",
+    "pkg/contracts/lifecycle.go": "f8934635162c19b3bba46eed5d4a6801535ae902ac20ce0288e107595dca7c76",
+    "pkg/contracts/persistence.go": "4d0eeef4d89f3a3169ede6d80a6fdbd9d3345e1634bc5022cd563ef39ad51954",
+    "pkg/contracts/ports.go": "2a85e9a9d63ea91ba733ae3e87e42cbc400ece9831c14d2391ba45122e707c42",
+    "pkg/contracts/profiles.go": "dfc72b8db0a09e1c3096aa13cc7e2fe7b13d436d3ab2120a04b068f9fa8de070",
+    "pkg/contracts/retrieval.go": "073ec7c4e25c762ee3c54dcfa22895d13c0018f3915af3a9b8841b214c75b5d0",
+    "pkg/kernel/composite_test.go": "048bb8726f582603f34b837f166a3561d05751b709f9eded87bc1c51f7593e69",
+    "pkg/kernel/config.go": "a133c94f23d672b54269d7fa07ab670c0685f23a7b09fc111f5a219f63a97dbf",
+    "pkg/kernel/config_test.go": "f9646547e1a8634dae10789dca24094a96ff37a4cd54593c6753eaa34b4acac5",
+    "pkg/kernel/json_validation.go": "3f84de0c6a513e195e988bf7c5c14b2cf3fe7745fa6e18cbd77e4cfd8f5419c4",
+    "pkg/kernel/lifecycle_test.go": "997ed1d048f8408cf582dae180140c910d05942abf7dd389e8f3275fb51617d7",
+    "pkg/kernel/ports.go": "fe5132b56768c2c2326aea35a52471de6eaa39be0f6d886654ead5d4ccd20684",
+    "pkg/kernel/preflight.go": "eff9882e4341d699a3d25fab642536439362a3ace4e377762d61d55a9c9561e0",
+    "pkg/kernel/registry_test.go": "44cecb761d2d859c14f5d82dead13304a9d0afde5219a4edd016768ea08cb561",
+    "pkg/kernel/runtime.go": "dd0874174a07be6ab78795fc794b1339f233dcb06901046f7982755ca2db4efd",
+    "pkg/kernel/types.go": "838061c91e06235037b76fca4a226a92a23c2d28652ae98b44f6976cea0e9d06"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "policy_id": "unimplemented-reference",
+  "policy_version": 1,
+  "rollback_window_seconds": 604800,
+  "replay_budget_seconds": 86400,
+  "recovery_margin_seconds": 86400,
+  "journal_min_seconds": 777600,
+  "original_min_seconds": 777600,
+  "audit_min_seconds": 31536000,
+  "idempotency_min_seconds": 86400,
+  "retry_window_seconds": 86400,
+  "max_attempt_seconds": 3600,
+  "cancel_settle_seconds": 300,
+  "orphan_grace_seconds": 3900
+}

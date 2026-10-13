@@ -1,0 +1,26 @@
+{
+  "checked_at": "2026-10-12T12:04:57.944893+00:00",
+  "validator": {
+    "name": "openapi-spec-validator",
+    "version": "0.9.0"
+  },
+  "scope": "OpenAPI structural conformance; no handler, SDK, authorization, migration or quality tests",
+  "specifications": [
+    {
+      "path": "openapi/partner.v1.json",
+      "sha256": "b34eb00e387a866ecb3123ce53ed08f228df4d29d01a2932ad3d038be1035466",
+      "openapi_version": "3.1.1",
+      "operations": 4,
+      "result": "pass",
+      "negative_control": "missing_info_rejected"
+    },
+    {
+      "path": "openapi/management.v1.json",
+      "sha256": "efb66ec065c047e7365309f3b6211df254826123c1b7e1ea7932d3c9426c3e31",
+      "openapi_version": "3.1.1",
+      "operations": 26,
+      "result": "pass",
+      "negative_control": "missing_info_rejected"
+    }
+  ]
+}

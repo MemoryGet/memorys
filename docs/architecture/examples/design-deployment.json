@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "build_lock_ref": "design-only-not-a-real-build-lock",
+  "modules": [
+    {
+      "instance_id": "design-fixture",
+      "provider": "unimplemented-reference",
+      "implementation_version": "0.1.0",
+      "contract": "1.0",
+      "settings": {},
+      "dependency_bindings": {}
+    }
+  ],
+  "bindings": {
+    "authenticator": {
+      "instance_id": "design-fixture",
+      "capability": "authenticator",
+      "contract": "1.0",
+      "required_features": []
+    },
+    "authorizer": {
+      "instance_id": "design-fixture",
+      "capability": "authorizer",
+      "contract": "1.0",
+      "required_features": []
+    },
+    "metadata_uow": {
+      "instance_id": "design-fixture",
+      "capability": "metadata_uow",
+      "contract": "1.0",
+      "required_features": []
+    },
+    "publication": {
+      "instance_id": "design-fixture",
+      "capability": "publication",
+      "contract": "1.0",
+      "required_features": []
+    },
+    "blob_store": {
+      "instance_id": "design-fixture",
+      "capability": "blob_store",
+      "contract": "1.0",
+      "required_features": []
+    },
+    "task_repository": {
+      "instance_id": "design-fixture",
+      "capability": "task_repository",
+      "contract": "1.0",
+      "required_features": []
+    },
+    "task_queue": {
+      "instance_id": "design-fixture",
+      "capability": "task_queue",
+      "contract": "1.0",
+      "required_features": []
+    },
+    "event_bus": {
+      "instance_id": "design-fixture",
+      "capability": "event_bus",
+      "contract": "1.0",
+      "required_features": []
+    },
+    "audit": {
+      "instance_id": "design-fixture",
+      "capability": "audit",
+      "contract": "1.0",
+      "required_features": []
+    },
+    "observer": {
+      "instance_id": "design-fixture",
+      "capability": "observer",
+      "contract": "1.0",
+      "required_features": []
+    }
+  },
+  "index_profiles": [
+    {
+      "id": "index",
+      "version": 1,
+      "mode": "independent",
+      "bindings": {
+        "parser": {
+          "instance_id": "design-fixture",
+          "capability": "parser",
+          "contract": "1.0",
+          "required_features": []
+        },
+        "splitter": {
+          "instance_id": "design-fixture",
+          "capability": "splitter",
+          "contract": "1.0",
+          "required_features": []
+        },
+        "embedder": {
+          "instance_id": "design-fixture",
+          "capability": "embedder",
+          "contract": "1.0",
+          "required_features": []
+        }
+      },
+      "index_routes": [
+        {
+          "route_id": "keyword-index",
+          "channels": [
+            "keyword"
+          ],
+          "binding": {
+            "instance_id": "design-fixture",
+            "capability": "index_writer",
+            "contract": "1.0",
+            "required_features": []
+          }
+        },
+        {
+          "route_id": "vector-index",
+          "channels": [
+            "vector"
+          ],
+          "binding": {
+            "instance_id": "design-fixture",
+            "capability": "index_writer",
+            "contract": "1.0",
+            "required_features": []
+          }
+        }
+      ],
+      "policy": {
+        "schema_version": 1,
+        "chunking": {
+          "strategy": "heading",
+          "max_codepoints": 1000,
+          "overlap_codepoints": 100
+        },
+        "embedding_spec": {
+          "provider_model": "design-fixture",
+          "model_revision": "fixture-1",
+          "dimension": 128,
+          "distance": "cosine",
+          "normalization": "l2",
+          "preprocess_version": "1.0"
+        },
+        "required_channels": [
+          "keyword",
+          "vector"
+        ],
+        "projection_format_version": "1.0"
+      }
+    }
+  ],
+  "query_profiles": [
+    {
+      "id": "query",
+      "version": 1,
+      "bindings": {
+        "fuser": {
+          "instance_id": "design-fixture",
+          "capability": "fuser",
+          "contract": "1.0",
+          "required_features": []
+        }
+      },
+      "retrieval_routes": [
+        {
+          "route_id": "keyword-recall",
+          "channels": [
+            "keyword"
+          ],
+          "binding": {
+            "instance_id": "design-fixture",
+            "capability": "retriever",
+            "contract": "1.0",
+            "required_features": []
+          },
+          "candidate_limit": 50,
+          "required": true
+        },
+        {
+          "route_id": "vector-recall",
+          "channels": [
+            "vector"
+          ],
+          "binding": {
+            "instance_id": "design-fixture",
+            "capability": "retriever",
+            "contract": "1.0",
+            "required_features": []
+          },
+          "candidate_limit": 50,
+          "required": true
+        }
+      ],
+      "reflection": {
+        "enabled": false,
+        "max_extra_rounds": 2,
+        "total_budget_ms": 30000
+      },
+      "policy": {
+        "schema_version": 1,
+        "candidate_limit": 100,
+        "answer_evidence_limit": 10,
+        "fusion": {
+          "method": "rrf",
+          "rank_constant": 60
+        },
+        "rerank": {
+          "enabled": false
+        },
+        "generation": {
+          "enabled": false,
+          "max_output_tokens": 2048
+        },
+        "timeouts": {
+          "retrieval_ms": 5000,
+          "rerank_ms": 3000,
+          "generation_ms": 20000
+        },
+        "optional_capabilities": []
+      }
+    }
+  ],
+  "pipeline_profiles": [
+    {
+      "id": "default",
+      "version": 1,
+      "index_profile_ref": {
+        "id": "index",
+        "version": 1
+      },
+      "query_profile_ref": {
+        "id": "query",
+        "version": 1
+      }
+    }
+  ]
+}

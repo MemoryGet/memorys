@@ -1,0 +1,4210 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "AKOS remote module contracts",
+    "version": "1.0.0",
+    "description": "Architecture contract; no handlers, service authentication or grant verifier implemented."
+  },
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "paths": {
+    "/modules/v1/parser/parse": {
+      "post": {
+        "operationId": "parser_parse",
+        "parameters": [
+          {
+            "name": "X-AKOS-Access-Grant",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "x-mutation": false,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/parser_parse_Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed operation; stream terminal rules apply",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/parser_parse_Response"
+                }
+              }
+            },
+            "headers": {
+              "X-AKOS-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              },
+              "X-AKOS-Invocation-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe module error; never a raw provider error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modules/v1/blob_store/put": {
+      "post": {
+        "operationId": "blob_store_put",
+        "parameters": [
+          {
+            "name": "X-AKOS-Access-Grant",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "x-mutation": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "metadata": {
+                    "$ref": "#/components/schemas/blob_store_put_Request"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "metadata",
+                  "file"
+                ]
+              },
+              "encoding": {
+                "metadata": {
+                  "contentType": "application/json"
+                },
+                "file": {
+                  "contentType": "application/octet-stream"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed operation; stream terminal rules apply",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/blob_store_put_Response"
+                }
+              }
+            },
+            "headers": {
+              "X-AKOS-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              },
+              "X-AKOS-Invocation-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe module error; never a raw provider error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modules/v1/blob_store/open": {
+      "post": {
+        "operationId": "blob_store_open",
+        "parameters": [
+          {
+            "name": "X-AKOS-Access-Grant",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "x-mutation": false,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/blob_store_open_Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed operation; stream terminal rules apply",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "headers": {
+              "X-AKOS-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              },
+              "X-AKOS-Invocation-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe module error; never a raw provider error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modules/v1/blob_store/delete": {
+      "post": {
+        "operationId": "blob_store_delete",
+        "parameters": [
+          {
+            "name": "X-AKOS-Access-Grant",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "x-mutation": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/blob_store_delete_Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed operation; stream terminal rules apply",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/blob_store_delete_Response"
+                }
+              }
+            },
+            "headers": {
+              "X-AKOS-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              },
+              "X-AKOS-Invocation-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe module error; never a raw provider error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modules/v1/embedder/embed": {
+      "post": {
+        "operationId": "embedder_embed",
+        "parameters": [
+          {
+            "name": "X-AKOS-Access-Grant",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "x-mutation": false,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/embedder_embed_Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed operation; stream terminal rules apply",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/embedder_embed_Response"
+                }
+              }
+            },
+            "headers": {
+              "X-AKOS-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              },
+              "X-AKOS-Invocation-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe module error; never a raw provider error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modules/v1/index_writer/prepare": {
+      "post": {
+        "operationId": "index_writer_prepare",
+        "parameters": [
+          {
+            "name": "X-AKOS-Access-Grant",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "x-mutation": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/index_writer_prepare_Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed operation; stream terminal rules apply",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/index_writer_prepare_Response"
+                }
+              }
+            },
+            "headers": {
+              "X-AKOS-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              },
+              "X-AKOS-Invocation-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe module error; never a raw provider error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modules/v1/index_writer/verify": {
+      "post": {
+        "operationId": "index_writer_verify",
+        "parameters": [
+          {
+            "name": "X-AKOS-Access-Grant",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "x-mutation": false,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/index_writer_verify_Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed operation; stream terminal rules apply",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/index_writer_verify_Response"
+                }
+              }
+            },
+            "headers": {
+              "X-AKOS-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              },
+              "X-AKOS-Invocation-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe module error; never a raw provider error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modules/v1/index_writer/delete": {
+      "post": {
+        "operationId": "index_writer_delete",
+        "parameters": [
+          {
+            "name": "X-AKOS-Access-Grant",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "x-mutation": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/index_writer_delete_Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed operation; stream terminal rules apply",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/index_writer_delete_Response"
+                }
+              }
+            },
+            "headers": {
+              "X-AKOS-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              },
+              "X-AKOS-Invocation-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe module error; never a raw provider error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modules/v1/retriever/search": {
+      "post": {
+        "operationId": "retriever_search",
+        "parameters": [
+          {
+            "name": "X-AKOS-Access-Grant",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "x-mutation": false,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/retriever_search_Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed operation; stream terminal rules apply",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/retriever_search_Response"
+                }
+              }
+            },
+            "headers": {
+              "X-AKOS-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              },
+              "X-AKOS-Invocation-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe module error; never a raw provider error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modules/v1/composite_ingest_search/prepare_projection": {
+      "post": {
+        "operationId": "composite_ingest_search_prepare_projection",
+        "parameters": [
+          {
+            "name": "X-AKOS-Access-Grant",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "x-mutation": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/composite_ingest_search_prepare_projection_Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed operation; stream terminal rules apply",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/composite_ingest_search_prepare_projection_Response"
+                }
+              }
+            },
+            "headers": {
+              "X-AKOS-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              },
+              "X-AKOS-Invocation-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe module error; never a raw provider error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modules/v1/composite_ingest_search/verify": {
+      "post": {
+        "operationId": "composite_ingest_search_verify",
+        "parameters": [
+          {
+            "name": "X-AKOS-Access-Grant",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "x-mutation": false,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/composite_ingest_search_verify_Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed operation; stream terminal rules apply",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/composite_ingest_search_verify_Response"
+                }
+              }
+            },
+            "headers": {
+              "X-AKOS-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              },
+              "X-AKOS-Invocation-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe module error; never a raw provider error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modules/v1/composite_ingest_search/delete": {
+      "post": {
+        "operationId": "composite_ingest_search_delete",
+        "parameters": [
+          {
+            "name": "X-AKOS-Access-Grant",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "x-mutation": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/composite_ingest_search_delete_Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed operation; stream terminal rules apply",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/composite_ingest_search_delete_Response"
+                }
+              }
+            },
+            "headers": {
+              "X-AKOS-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              },
+              "X-AKOS-Invocation-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe module error; never a raw provider error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modules/v1/composite_ingest_search/search": {
+      "post": {
+        "operationId": "composite_ingest_search_search",
+        "parameters": [
+          {
+            "name": "X-AKOS-Access-Grant",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "x-mutation": false,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/composite_ingest_search_search_Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed operation; stream terminal rules apply",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/composite_ingest_search_search_Response"
+                }
+              }
+            },
+            "headers": {
+              "X-AKOS-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              },
+              "X-AKOS-Invocation-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe module error; never a raw provider error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modules/v1/reranker/rerank": {
+      "post": {
+        "operationId": "reranker_rerank",
+        "parameters": [
+          {
+            "name": "X-AKOS-Access-Grant",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "x-mutation": false,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/reranker_rerank_Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed operation; stream terminal rules apply",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/reranker_rerank_Response"
+                }
+              }
+            },
+            "headers": {
+              "X-AKOS-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              },
+              "X-AKOS-Invocation-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe module error; never a raw provider error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modules/v1/generator/generate": {
+      "post": {
+        "operationId": "generator_generate",
+        "parameters": [
+          {
+            "name": "X-AKOS-Access-Grant",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "x-mutation": false,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/generator_generate_Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed operation; stream terminal rules apply",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                },
+                "x-event-data-schema": {
+                  "$ref": "#/components/schemas/AnswerEvent"
+                }
+              }
+            },
+            "headers": {
+              "X-AKOS-Request-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              },
+              "X-AKOS-Invocation-Id": {
+                "schema": {
+                  "$ref": "#/components/schemas/ID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe module error; never a raw provider error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modules/v1/control/status": {
+      "post": {
+        "operationId": "control_status",
+        "parameters": [
+          {
+            "name": "X-AKOS-Access-Grant",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/control_status_Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authorized invocation state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/control_status_Response"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unknown or unauthorized invocation is hidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modules/v1/control/cancel": {
+      "post": {
+        "operationId": "control_cancel",
+        "parameters": [
+          {
+            "name": "X-AKOS-Access-Grant",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/control_cancel_Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authorized invocation state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/control_cancel_Response"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unknown or unauthorized invocation is hidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "ServiceAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ServiceAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "ID": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200
+      },
+      "IDList": {
+        "type": "array",
+        "maxItems": 1000,
+        "uniqueItems": true,
+        "items": {
+          "$ref": "#/components/schemas/ID"
+        },
+        "description": "Omitted KB list means permitted KBs; an explicit empty list means no KBs, never unrestricted access"
+      },
+      "SearchRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "query",
+          "space_id"
+        ],
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 10000
+          },
+          "space_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "kb_ids": {
+            "$ref": "#/components/schemas/IDList"
+          },
+          "top_k": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 10
+          }
+        }
+      },
+      "ReadRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "document_id"
+        ],
+        "properties": {
+          "document_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "revision_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "block_ids": {
+            "$ref": "#/components/schemas/IDList"
+          },
+          "cursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        }
+      },
+      "AskRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "question",
+          "space_id"
+        ],
+        "properties": {
+          "question": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 10000
+          },
+          "space_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "kb_ids": {
+            "$ref": "#/components/schemas/IDList"
+          },
+          "reflection": {
+            "type": "boolean",
+            "description": "May disable reflection; enabling is subject to server policy"
+          },
+          "stream": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "FeedbackRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "space_id",
+          "kind",
+          "comment",
+          "idempotency_key"
+        ],
+        "properties": {
+          "space_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "citation": {
+            "$ref": "#/components/schemas/Citation"
+          },
+          "target_request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "kind": {
+            "enum": [
+              "incorrect",
+              "missing",
+              "outdated",
+              "helpful",
+              "other"
+            ]
+          },
+          "comment": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 10000
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "citation"
+            ],
+            "not": {
+              "required": [
+                "target_request_id"
+              ]
+            }
+          },
+          {
+            "required": [
+              "target_request_id"
+            ],
+            "not": {
+              "required": [
+                "citation"
+              ]
+            }
+          }
+        ]
+      },
+      "SourceAnchor": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "locator"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "original",
+              "revision"
+            ]
+          },
+          "blob_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "revision_block_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "locator": {
+            "$ref": "#/components/schemas/Locator"
+          },
+          "derived_from": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OriginalAnchor"
+            }
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "kind": {
+                "const": "original"
+              }
+            },
+            "required": [
+              "blob_id"
+            ],
+            "not": {
+              "required": [
+                "revision_block_id"
+              ]
+            }
+          },
+          {
+            "properties": {
+              "kind": {
+                "const": "revision"
+              }
+            },
+            "required": [
+              "revision_block_id"
+            ],
+            "not": {
+              "required": [
+                "blob_id"
+              ]
+            }
+          }
+        ]
+      },
+      "OriginalAnchor": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "blob_id",
+          "locator"
+        ],
+        "properties": {
+          "blob_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "locator": {
+            "$ref": "#/components/schemas/Locator"
+          }
+        }
+      },
+      "Locator": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "precision"
+        ],
+        "properties": {
+          "precision": {
+            "enum": [
+              "exact",
+              "coarse"
+            ]
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "slide": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "worksheet": {
+            "type": "string",
+            "minLength": 1
+          },
+          "cell_range": {
+            "type": "string",
+            "minLength": 1
+          },
+          "paragraph_path": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "char_start": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "char_end": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "bbox": {
+            "$ref": "#/components/schemas/BoundingBox"
+          }
+        },
+        "dependentRequired": {
+          "char_start": [
+            "char_end"
+          ],
+          "char_end": [
+            "char_start"
+          ],
+          "cell_range": [
+            "worksheet"
+          ],
+          "bbox": [
+            "page"
+          ]
+        },
+        "description": "Character ranges are Unicode codepoint half-open ranges; semantic validation requires end >= start and bounds within canonical content. Coarse positioning is explicit."
+      },
+      "Citation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "document_id",
+          "revision_id",
+          "block_id",
+          "source_anchor"
+        ],
+        "properties": {
+          "document_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "revision_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "block_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "source_anchor": {
+            "$ref": "#/components/schemas/SourceAnchor"
+          }
+        }
+      },
+      "Evidence": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "citation",
+          "source_excerpt",
+          "rank"
+        ],
+        "properties": {
+          "citation": {
+            "$ref": "#/components/schemas/Citation"
+          },
+          "source_excerpt": {
+            "type": "string"
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "Timings": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "number",
+          "minimum": 0
+        },
+        "description": "Stage names mapped to milliseconds; no content or secret values"
+      },
+      "Degradation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "capability",
+          "reason"
+        ],
+        "properties": {
+          "capability": {
+            "type": "string"
+          },
+          "reason": {
+            "enum": [
+              "unavailable",
+              "deadline",
+              "policy_disabled"
+            ]
+          }
+        }
+      },
+      "Trace": {
+        "type": "object",
+        "required": [
+          "request_id",
+          "profile_version",
+          "profile_digest",
+          "timings",
+          "degraded"
+        ],
+        "properties": {
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "profile_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "profile_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "timings": {
+            "$ref": "#/components/schemas/Timings"
+          },
+          "degraded": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Degradation"
+            }
+          }
+        }
+      },
+      "SearchResult": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Trace"
+          },
+          {
+            "type": "object",
+            "required": [
+              "evidence"
+            ],
+            "properties": {
+              "evidence": {
+                "type": "array",
+                "maxItems": 100,
+                "items": {
+                  "$ref": "#/components/schemas/Evidence"
+                }
+              }
+            }
+          }
+        ],
+        "unevaluatedProperties": false
+      },
+      "BoundingBox": {
+        "type": "array",
+        "minItems": 4,
+        "maxItems": 4,
+        "items": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "x-akos-numeric-representation": "float64-shortest-roundtrip"
+        },
+        "description": "[left, top, right, bottom], normalized to a page in its canonical displayed orientation. Semantic checks require left < right and top < bottom."
+      },
+      "BlobRef": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "sha256",
+          "size",
+          "media_type"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "media_type": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "description": "Logical reference; never a physical path or unauthenticated public URL"
+      },
+      "TableCell": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "row",
+          "column",
+          "row_span",
+          "column_span",
+          "text",
+          "role"
+        ],
+        "properties": {
+          "row": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "column": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "row_span": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "column_span": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "text": {
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "data",
+              "column_header",
+              "row_header",
+              "corner_header"
+            ]
+          },
+          "formula": {
+            "type": "string",
+            "description": "Preserved source formula; platform clients must not execute it"
+          },
+          "number_text": {
+            "type": "string",
+            "description": "Optional exact numeric representation, preserving precision; not binary float"
+          },
+          "source_anchor": {
+            "$ref": "#/components/schemas/SourceAnchor"
+          }
+        }
+      },
+      "TableContent": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "row_count",
+          "column_count",
+          "cells"
+        ],
+        "properties": {
+          "type": {
+            "const": "table"
+          },
+          "row_count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "column_count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "cells": {
+            "type": "array",
+            "maxItems": 100000,
+            "items": {
+              "$ref": "#/components/schemas/TableCell"
+            }
+          },
+          "caption": {
+            "type": "string"
+          }
+        },
+        "description": "Sparse cells allowed; absent means unknown, explicit empty text means known empty. Cells must be in bounds and merged rectangles must not overlap."
+      },
+      "ImageContent": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "blob"
+        ],
+        "properties": {
+          "type": {
+            "const": "image"
+          },
+          "blob": {
+            "$ref": "#/components/schemas/BlobRef"
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "caption": {
+            "type": "string"
+          },
+          "ocr_text": {
+            "type": "string"
+          }
+        },
+        "dependentRequired": {
+          "width": [
+            "height"
+          ],
+          "height": [
+            "width"
+          ]
+        }
+      },
+      "AudioSegment": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "start_ms",
+          "end_ms",
+          "text"
+        ],
+        "properties": {
+          "start_ms": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "end_ms": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "text": {
+            "type": "string"
+          },
+          "speaker_label": {
+            "type": "string"
+          }
+        },
+        "description": "Half-open milliseconds; validate start <= end <= duration. Speaker labels are annotations, not identities."
+      },
+      "AudioContent": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "blob",
+          "duration_ms",
+          "segments"
+        ],
+        "properties": {
+          "type": {
+            "const": "audio"
+          },
+          "blob": {
+            "$ref": "#/components/schemas/BlobRef"
+          },
+          "duration_ms": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "segments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AudioSegment"
+            }
+          }
+        }
+      },
+      "StructuredContent": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/TableContent"
+          },
+          {
+            "$ref": "#/components/schemas/ImageContent"
+          },
+          {
+            "$ref": "#/components/schemas/AudioContent"
+          }
+        ]
+      },
+      "Block": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "revision_id",
+          "kind",
+          "text",
+          "source_anchor"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "revision_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "kind": {
+            "enum": [
+              "text",
+              "table",
+              "image",
+              "audio"
+            ]
+          },
+          "text": {
+            "type": "string"
+          },
+          "source_anchor": {
+            "$ref": "#/components/schemas/SourceAnchor"
+          },
+          "structured_content": {
+            "$ref": "#/components/schemas/StructuredContent"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "text"
+                }
+              }
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "structured_content"
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "table"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "structured_content"
+              ],
+              "properties": {
+                "structured_content": {
+                  "$ref": "#/components/schemas/TableContent"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "image"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "structured_content"
+              ],
+              "properties": {
+                "structured_content": {
+                  "$ref": "#/components/schemas/ImageContent"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "audio"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "structured_content"
+              ],
+              "properties": {
+                "structured_content": {
+                  "$ref": "#/components/schemas/AudioContent"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ReadResult": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Trace"
+          },
+          {
+            "type": "object",
+            "required": [
+              "document_id",
+              "revision_id",
+              "blocks",
+              "citations"
+            ],
+            "properties": {
+              "document_id": {
+                "$ref": "#/components/schemas/ID"
+              },
+              "revision_id": {
+                "$ref": "#/components/schemas/ID"
+              },
+              "blocks": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Block"
+                }
+              },
+              "citations": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Citation"
+                }
+              },
+              "next_cursor": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        ],
+        "unevaluatedProperties": false
+      },
+      "AskResult": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Trace"
+          },
+          {
+            "type": "object",
+            "required": [
+              "answer",
+              "citations",
+              "status"
+            ],
+            "properties": {
+              "answer": {
+                "type": "string"
+              },
+              "citations": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Citation"
+                }
+              },
+              "status": {
+                "enum": [
+                  "answered",
+                  "insufficient_evidence"
+                ]
+              }
+            }
+          }
+        ],
+        "unevaluatedProperties": false
+      },
+      "FeedbackResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "request_id",
+          "feedback_id",
+          "state"
+        ],
+        "properties": {
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "feedback_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "state": {
+            "enum": [
+              "received",
+              "processing",
+              "proposed",
+              "resolved",
+              "rejected",
+              "failed"
+            ]
+          },
+          "draft_id": {
+            "$ref": "#/components/schemas/ID"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "safe_message",
+          "retryable",
+          "request_id"
+        ],
+        "properties": {
+          "code": {
+            "enum": [
+              "invalid_argument",
+              "validation_failed",
+              "unsupported_format",
+              "unauthenticated",
+              "forbidden",
+              "not_found",
+              "conflict",
+              "publication_changed",
+              "cursor_expired",
+              "capability_missing",
+              "contract_incompatible",
+              "rate_limited",
+              "deadline_exceeded",
+              "dependency_unavailable",
+              "internal"
+            ]
+          },
+          "safe_message": {
+            "type": "string"
+          },
+          "retryable": {
+            "type": "boolean"
+          },
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          }
+        }
+      },
+      "AnswerEvent": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "request_id"
+            ],
+            "properties": {
+              "type": {
+                "const": "meta"
+              },
+              "request_id": {
+                "$ref": "#/components/schemas/ID"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "text"
+            ],
+            "properties": {
+              "type": {
+                "const": "answer_delta"
+              },
+              "text": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "citation"
+            ],
+            "properties": {
+              "type": {
+                "const": "citation"
+              },
+              "citation": {
+                "$ref": "#/components/schemas/Citation"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "result"
+            ],
+            "properties": {
+              "type": {
+                "const": "done"
+              },
+              "result": {
+                "$ref": "#/components/schemas/AskResult"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "error"
+            ],
+            "properties": {
+              "type": {
+                "const": "error"
+              },
+              "error": {
+                "$ref": "#/components/schemas/Error"
+              }
+            }
+          }
+        ]
+      },
+      "Scope": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "scope_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "subject_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "action": {
+            "type": "string",
+            "minLength": 1
+          },
+          "space_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "kb_ids": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 100000,
+            "items": {
+              "$ref": "#/components/schemas/ID"
+            }
+          },
+          "policy_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{0,8}[1-9])?Z$"
+          }
+        },
+        "required": [
+          "scope_id",
+          "subject_id",
+          "action",
+          "space_id",
+          "kb_ids",
+          "policy_version",
+          "expires_at"
+        ]
+      },
+      "ModuleContext": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "invocation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "module_instance_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "contract_version": {
+            "const": "1.0"
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{0,8}[1-9])?Z$"
+          },
+          "profile_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/Scope"
+          }
+        },
+        "required": [
+          "request_id",
+          "invocation_id",
+          "module_instance_id",
+          "contract_version",
+          "deadline",
+          "profile_digest",
+          "scope"
+        ]
+      },
+      "Diagnostic": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "safe_message": {
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "info",
+              "warning",
+              "error"
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "safe_message",
+          "severity"
+        ]
+      },
+      "ParsedBlock": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "text",
+          "source_anchor",
+          "order"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "kind": {
+            "enum": [
+              "text",
+              "table",
+              "image",
+              "audio"
+            ]
+          },
+          "text": {
+            "type": "string"
+          },
+          "source_anchor": {
+            "$ref": "#/components/schemas/SourceAnchor"
+          },
+          "structured_content": {
+            "$ref": "#/components/schemas/StructuredContent"
+          },
+          "order": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "text"
+                }
+              }
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "structured_content"
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "table"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "structured_content"
+              ],
+              "properties": {
+                "structured_content": {
+                  "$ref": "#/components/schemas/TableContent"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "image"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "structured_content"
+              ],
+              "properties": {
+                "structured_content": {
+                  "$ref": "#/components/schemas/ImageContent"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "audio"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "structured_content"
+              ],
+              "properties": {
+                "structured_content": {
+                  "$ref": "#/components/schemas/AudioContent"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ParseInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "draft_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "input": {
+            "$ref": "#/components/schemas/BlobRef"
+          },
+          "format": {
+            "type": "string",
+            "minLength": 1
+          },
+          "options": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "languages": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "enable_ocr": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "languages",
+              "enable_ocr"
+            ]
+          }
+        },
+        "required": [
+          "draft_id",
+          "input",
+          "format",
+          "options"
+        ]
+      },
+      "ParseResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "blocks": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 100000,
+            "items": {
+              "$ref": "#/components/schemas/ParsedBlock"
+            }
+          },
+          "diagnostics": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 100000,
+            "items": {
+              "$ref": "#/components/schemas/Diagnostic"
+            }
+          },
+          "parser_version": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "blocks",
+          "diagnostics",
+          "parser_version"
+        ]
+      },
+      "BlobPutInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "expected_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "media_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "expected_sha256",
+          "size",
+          "media_type",
+          "idempotency_key"
+        ]
+      },
+      "BlobReadInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "blob": {
+            "$ref": "#/components/schemas/BlobRef"
+          }
+        },
+        "required": [
+          "blob"
+        ]
+      },
+      "EmbeddingSpec": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "provider_model",
+          "model_revision",
+          "dimension",
+          "distance",
+          "normalization",
+          "preprocess_version"
+        ],
+        "properties": {
+          "provider_model": {
+            "type": "string",
+            "minLength": 1
+          },
+          "model_revision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "dimension": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65536
+          },
+          "distance": {
+            "enum": [
+              "cosine",
+              "dot",
+              "euclidean"
+            ]
+          },
+          "normalization": {
+            "enum": [
+              "none",
+              "l2"
+            ]
+          },
+          "preprocess_version": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "Vector": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 65536,
+        "items": {
+          "type": "number",
+          "minimum": -3.4028234663852886e+38,
+          "maximum": 3.4028234663852886e+38,
+          "x-akos-numeric-representation": "float32-round-nearest-ties-even"
+        }
+      },
+      "EmbedInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "texts": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 10000,
+            "items": {
+              "type": "string"
+            }
+          },
+          "spec": {
+            "$ref": "#/components/schemas/EmbeddingSpec"
+          }
+        },
+        "required": [
+          "texts",
+          "spec"
+        ]
+      },
+      "EmbedResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "vectors": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/components/schemas/Vector"
+            }
+          },
+          "spec": {
+            "$ref": "#/components/schemas/EmbeddingSpec"
+          }
+        },
+        "required": [
+          "vectors",
+          "spec"
+        ]
+      },
+      "BlockSpan": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "block_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "char_start": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "char_end": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "block_id"
+        ],
+        "dependentRequired": {
+          "char_start": [
+            "char_end"
+          ],
+          "char_end": [
+            "char_start"
+          ]
+        }
+      },
+      "Chunk": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "revision_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "spans": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100000,
+            "items": {
+              "$ref": "#/components/schemas/BlockSpan"
+            }
+          },
+          "text": {
+            "type": "string"
+          },
+          "profile_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "id",
+          "revision_id",
+          "spans",
+          "text",
+          "profile_digest",
+          "content_hash"
+        ]
+      },
+      "Generation": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "kb_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "revision_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "channel": {
+            "enum": [
+              "keyword",
+              "vector",
+              "graph"
+            ]
+          },
+          "profile_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "backend_epoch_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "embedding_spec": {
+            "$ref": "#/components/schemas/EmbeddingSpec"
+          },
+          "state": {
+            "type": "string"
+          },
+          "backend_binding": {
+            "$ref": "#/components/schemas/BackendBinding"
+          },
+          "readiness": {
+            "$ref": "#/components/schemas/ReadinessProof"
+          }
+        },
+        "required": [
+          "id",
+          "kb_id",
+          "revision_id",
+          "channel",
+          "profile_digest",
+          "backend_epoch_id",
+          "state"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "channel": {
+                  "const": "vector"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "embedding_spec"
+              ]
+            }
+          }
+        ]
+      },
+      "IndexPrepareInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "generation_set_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "generations": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100000,
+            "items": {
+              "$ref": "#/components/schemas/Generation"
+            }
+          },
+          "operation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "attempt_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "fencing_token": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "chunks": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100000,
+            "items": {
+              "$ref": "#/components/schemas/Chunk"
+            }
+          },
+          "vectors": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 100000,
+            "items": {
+              "$ref": "#/components/schemas/Vector"
+            }
+          }
+        },
+        "required": [
+          "generation_set_id",
+          "generations",
+          "operation_id",
+          "attempt_id",
+          "fencing_token",
+          "chunks",
+          "vectors"
+        ]
+      },
+      "CompositePrepareInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "generation_set_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "generations": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100000,
+            "items": {
+              "$ref": "#/components/schemas/Generation"
+            }
+          },
+          "operation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "attempt_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "fencing_token": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "chunks": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100000,
+            "items": {
+              "$ref": "#/components/schemas/Chunk"
+            }
+          },
+          "projection_format_version": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]*\\.[0-9]+$"
+          }
+        },
+        "required": [
+          "generation_set_id",
+          "generations",
+          "operation_id",
+          "attempt_id",
+          "fencing_token",
+          "chunks",
+          "projection_format_version"
+        ]
+      },
+      "GenerationReadiness": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "generation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "channel": {
+            "enum": [
+              "keyword",
+              "vector",
+              "graph"
+            ]
+          },
+          "backend_epoch_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "chunk_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "embedding_spec_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "generation_id",
+          "channel",
+          "backend_epoch_id",
+          "chunk_count"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "channel": {
+                  "const": "vector"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "embedding_spec_digest"
+              ]
+            }
+          }
+        ]
+      },
+      "ReadinessProof": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "generation_set_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "attempt_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "content_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "profile_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "generations": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100000,
+            "items": {
+              "$ref": "#/components/schemas/GenerationReadiness"
+            }
+          }
+        },
+        "required": [
+          "generation_set_id",
+          "attempt_id",
+          "content_digest",
+          "profile_digest",
+          "generations"
+        ]
+      },
+      "RemoteGenerationBinding": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "generation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "opaque_backend_ref": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "generation_id",
+          "opaque_backend_ref"
+        ]
+      },
+      "BackendBinding": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "platform_resource_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "platform_resource_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "module_instance_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "backend_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "generation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "purpose": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "platform_resource_type",
+          "platform_resource_id",
+          "module_instance_id",
+          "backend_id",
+          "purpose"
+        ]
+      },
+      "PrepareResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "proof": {
+            "$ref": "#/components/schemas/ReadinessProof"
+          },
+          "bindings": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100000,
+            "items": {
+              "$ref": "#/components/schemas/RemoteGenerationBinding"
+            }
+          }
+        },
+        "required": [
+          "proof",
+          "bindings"
+        ]
+      },
+      "VerifyInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "proof": {
+            "$ref": "#/components/schemas/ReadinessProof"
+          }
+        },
+        "required": [
+          "proof"
+        ]
+      },
+      "DeleteInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "generation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "chunk_ids": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 100000,
+            "items": {
+              "$ref": "#/components/schemas/ID"
+            }
+          },
+          "mode": {
+            "enum": [
+              "generation",
+              "chunks"
+            ]
+          }
+        },
+        "required": [
+          "generation_id",
+          "chunk_ids",
+          "mode"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "mode": {
+                  "const": "generation"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "chunk_ids": {
+                  "maxItems": 0
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "chunk_ids": {
+                  "minItems": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Ack": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "completed": {
+            "const": true
+          }
+        },
+        "required": [
+          "completed"
+        ]
+      },
+      "PublicationFilter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "space_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "kb_ids": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 100000,
+            "items": {
+              "$ref": "#/components/schemas/ID"
+            }
+          },
+          "revision_ids": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 100000,
+            "items": {
+              "$ref": "#/components/schemas/ID"
+            }
+          },
+          "generation_ids": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 100000,
+            "items": {
+              "$ref": "#/components/schemas/ID"
+            }
+          },
+          "snapshot_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "space_id",
+          "kb_ids",
+          "revision_ids",
+          "generation_ids",
+          "snapshot_digest"
+        ]
+      },
+      "Query": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "vector": {
+            "$ref": "#/components/schemas/Vector"
+          },
+          "embedding_spec": {
+            "$ref": "#/components/schemas/EmbeddingSpec"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "dependentRequired": {
+          "vector": [
+            "embedding_spec"
+          ],
+          "embedding_spec": [
+            "vector"
+          ]
+        }
+      },
+      "RetrieveInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "query": {
+            "$ref": "#/components/schemas/Query"
+          },
+          "publication": {
+            "$ref": "#/components/schemas/PublicationFilter"
+          },
+          "generations": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100000,
+            "items": {
+              "$ref": "#/components/schemas/Generation"
+            }
+          },
+          "backend_epoch_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "route_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "channels": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "keyword",
+                "vector",
+                "graph"
+              ]
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000
+          }
+        },
+        "required": [
+          "query",
+          "publication",
+          "generations",
+          "backend_epoch_id",
+          "route_id",
+          "channels",
+          "limit"
+        ]
+      },
+      "Candidate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "citation": {
+            "$ref": "#/components/schemas/Citation"
+          },
+          "chunk_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "route_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "retriever_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "kb_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "score": {
+            "type": "number",
+            "x-akos-numeric-representation": "float64-shortest-roundtrip"
+          },
+          "score_kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "generation_ids": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100000,
+            "items": {
+              "$ref": "#/components/schemas/ID"
+            }
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "citation",
+          "chunk_id",
+          "route_id",
+          "retriever_id",
+          "kb_id",
+          "rank",
+          "score",
+          "score_kind",
+          "generation_ids",
+          "text"
+        ]
+      },
+      "RetrieveResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "candidates": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 1000,
+            "items": {
+              "$ref": "#/components/schemas/Candidate"
+            }
+          }
+        },
+        "required": [
+          "candidates"
+        ]
+      },
+      "RerankInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1
+          },
+          "candidates": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 1000,
+            "items": {
+              "$ref": "#/components/schemas/Candidate"
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000
+          }
+        },
+        "required": [
+          "query",
+          "candidates",
+          "limit"
+        ]
+      },
+      "RerankResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "evidence": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 1000,
+            "items": {
+              "$ref": "#/components/schemas/Evidence"
+            }
+          }
+        },
+        "required": [
+          "evidence"
+        ]
+      },
+      "GenerateInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "question": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1000,
+            "items": {
+              "$ref": "#/components/schemas/Evidence"
+            }
+          },
+          "budget": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "deadline": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{0,8}[1-9])?Z$"
+              },
+              "max_output_tokens": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 32768
+              },
+              "max_extra_rounds": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2
+              }
+            },
+            "required": [
+              "deadline",
+              "max_output_tokens",
+              "max_extra_rounds"
+            ]
+          }
+        },
+        "required": [
+          "question",
+          "evidence",
+          "budget"
+        ]
+      },
+      "RemoteError": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "invocation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "error": {
+            "$ref": "#/components/schemas/Error"
+          }
+        },
+        "required": [
+          "request_id",
+          "invocation_id",
+          "error"
+        ]
+      },
+      "BlobTransferSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "blob": {
+            "$ref": "#/components/schemas/BlobRef"
+          }
+        },
+        "required": [
+          "blob"
+        ]
+      },
+      "parser_parse_Request": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ModuleContext"
+          },
+          "input": {
+            "$ref": "#/components/schemas/ParseInput"
+          }
+        },
+        "required": [
+          "context",
+          "input"
+        ]
+      },
+      "parser_parse_Response": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "invocation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "result": {
+            "$ref": "#/components/schemas/ParseResult"
+          }
+        },
+        "required": [
+          "request_id",
+          "invocation_id",
+          "result"
+        ]
+      },
+      "blob_store_put_Request": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ModuleContext"
+          },
+          "input": {
+            "$ref": "#/components/schemas/BlobPutInput"
+          }
+        },
+        "required": [
+          "context",
+          "input"
+        ]
+      },
+      "blob_store_put_Response": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "invocation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "result": {
+            "$ref": "#/components/schemas/BlobRef"
+          }
+        },
+        "required": [
+          "request_id",
+          "invocation_id",
+          "result"
+        ]
+      },
+      "blob_store_open_Request": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ModuleContext"
+          },
+          "input": {
+            "$ref": "#/components/schemas/BlobReadInput"
+          }
+        },
+        "required": [
+          "context",
+          "input"
+        ]
+      },
+      "blob_store_delete_Request": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ModuleContext"
+          },
+          "input": {
+            "$ref": "#/components/schemas/BlobReadInput"
+          }
+        },
+        "required": [
+          "context",
+          "input"
+        ]
+      },
+      "blob_store_delete_Response": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "invocation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "result": {
+            "$ref": "#/components/schemas/Ack"
+          }
+        },
+        "required": [
+          "request_id",
+          "invocation_id",
+          "result"
+        ]
+      },
+      "embedder_embed_Request": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ModuleContext"
+          },
+          "input": {
+            "$ref": "#/components/schemas/EmbedInput"
+          }
+        },
+        "required": [
+          "context",
+          "input"
+        ]
+      },
+      "embedder_embed_Response": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "invocation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "result": {
+            "$ref": "#/components/schemas/EmbedResult"
+          }
+        },
+        "required": [
+          "request_id",
+          "invocation_id",
+          "result"
+        ]
+      },
+      "index_writer_prepare_Request": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ModuleContext"
+          },
+          "input": {
+            "$ref": "#/components/schemas/IndexPrepareInput"
+          }
+        },
+        "required": [
+          "context",
+          "input"
+        ]
+      },
+      "index_writer_prepare_Response": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "invocation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "result": {
+            "$ref": "#/components/schemas/PrepareResult"
+          }
+        },
+        "required": [
+          "request_id",
+          "invocation_id",
+          "result"
+        ]
+      },
+      "index_writer_verify_Request": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ModuleContext"
+          },
+          "input": {
+            "$ref": "#/components/schemas/VerifyInput"
+          }
+        },
+        "required": [
+          "context",
+          "input"
+        ]
+      },
+      "index_writer_verify_Response": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "invocation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "result": {
+            "$ref": "#/components/schemas/Ack"
+          }
+        },
+        "required": [
+          "request_id",
+          "invocation_id",
+          "result"
+        ]
+      },
+      "index_writer_delete_Request": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ModuleContext"
+          },
+          "input": {
+            "$ref": "#/components/schemas/DeleteInput"
+          }
+        },
+        "required": [
+          "context",
+          "input"
+        ]
+      },
+      "index_writer_delete_Response": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "invocation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "result": {
+            "$ref": "#/components/schemas/Ack"
+          }
+        },
+        "required": [
+          "request_id",
+          "invocation_id",
+          "result"
+        ]
+      },
+      "retriever_search_Request": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ModuleContext"
+          },
+          "input": {
+            "$ref": "#/components/schemas/RetrieveInput"
+          }
+        },
+        "required": [
+          "context",
+          "input"
+        ]
+      },
+      "retriever_search_Response": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "invocation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "result": {
+            "$ref": "#/components/schemas/RetrieveResult"
+          }
+        },
+        "required": [
+          "request_id",
+          "invocation_id",
+          "result"
+        ]
+      },
+      "composite_ingest_search_prepare_projection_Request": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ModuleContext"
+          },
+          "input": {
+            "$ref": "#/components/schemas/CompositePrepareInput"
+          }
+        },
+        "required": [
+          "context",
+          "input"
+        ]
+      },
+      "composite_ingest_search_prepare_projection_Response": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "invocation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "result": {
+            "$ref": "#/components/schemas/PrepareResult"
+          }
+        },
+        "required": [
+          "request_id",
+          "invocation_id",
+          "result"
+        ]
+      },
+      "composite_ingest_search_verify_Request": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ModuleContext"
+          },
+          "input": {
+            "$ref": "#/components/schemas/VerifyInput"
+          }
+        },
+        "required": [
+          "context",
+          "input"
+        ]
+      },
+      "composite_ingest_search_verify_Response": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "invocation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "result": {
+            "$ref": "#/components/schemas/Ack"
+          }
+        },
+        "required": [
+          "request_id",
+          "invocation_id",
+          "result"
+        ]
+      },
+      "composite_ingest_search_delete_Request": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ModuleContext"
+          },
+          "input": {
+            "$ref": "#/components/schemas/DeleteInput"
+          }
+        },
+        "required": [
+          "context",
+          "input"
+        ]
+      },
+      "composite_ingest_search_delete_Response": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "invocation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "result": {
+            "$ref": "#/components/schemas/Ack"
+          }
+        },
+        "required": [
+          "request_id",
+          "invocation_id",
+          "result"
+        ]
+      },
+      "composite_ingest_search_search_Request": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ModuleContext"
+          },
+          "input": {
+            "$ref": "#/components/schemas/RetrieveInput"
+          }
+        },
+        "required": [
+          "context",
+          "input"
+        ]
+      },
+      "composite_ingest_search_search_Response": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "invocation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "result": {
+            "$ref": "#/components/schemas/RetrieveResult"
+          }
+        },
+        "required": [
+          "request_id",
+          "invocation_id",
+          "result"
+        ]
+      },
+      "reranker_rerank_Request": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ModuleContext"
+          },
+          "input": {
+            "$ref": "#/components/schemas/RerankInput"
+          }
+        },
+        "required": [
+          "context",
+          "input"
+        ]
+      },
+      "reranker_rerank_Response": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "invocation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "result": {
+            "$ref": "#/components/schemas/RerankResult"
+          }
+        },
+        "required": [
+          "request_id",
+          "invocation_id",
+          "result"
+        ]
+      },
+      "generator_generate_Request": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ModuleContext"
+          },
+          "input": {
+            "$ref": "#/components/schemas/GenerateInput"
+          }
+        },
+        "required": [
+          "context",
+          "input"
+        ]
+      },
+      "InvocationResult": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "const": "parser_parse"
+              },
+              "value": {
+                "$ref": "#/components/schemas/ParseResult"
+              }
+            },
+            "required": [
+              "operation",
+              "value"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "const": "blob_store_put"
+              },
+              "value": {
+                "$ref": "#/components/schemas/BlobRef"
+              }
+            },
+            "required": [
+              "operation",
+              "value"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "const": "blob_store_open"
+              },
+              "value": {
+                "$ref": "#/components/schemas/BlobTransferSummary"
+              }
+            },
+            "required": [
+              "operation",
+              "value"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "const": "blob_store_delete"
+              },
+              "value": {
+                "$ref": "#/components/schemas/Ack"
+              }
+            },
+            "required": [
+              "operation",
+              "value"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "const": "embedder_embed"
+              },
+              "value": {
+                "$ref": "#/components/schemas/EmbedResult"
+              }
+            },
+            "required": [
+              "operation",
+              "value"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "const": "index_writer_prepare"
+              },
+              "value": {
+                "$ref": "#/components/schemas/PrepareResult"
+              }
+            },
+            "required": [
+              "operation",
+              "value"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "const": "index_writer_verify"
+              },
+              "value": {
+                "$ref": "#/components/schemas/Ack"
+              }
+            },
+            "required": [
+              "operation",
+              "value"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "const": "index_writer_delete"
+              },
+              "value": {
+                "$ref": "#/components/schemas/Ack"
+              }
+            },
+            "required": [
+              "operation",
+              "value"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "const": "retriever_search"
+              },
+              "value": {
+                "$ref": "#/components/schemas/RetrieveResult"
+              }
+            },
+            "required": [
+              "operation",
+              "value"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "const": "composite_ingest_search_prepare_projection"
+              },
+              "value": {
+                "$ref": "#/components/schemas/PrepareResult"
+              }
+            },
+            "required": [
+              "operation",
+              "value"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "const": "composite_ingest_search_verify"
+              },
+              "value": {
+                "$ref": "#/components/schemas/Ack"
+              }
+            },
+            "required": [
+              "operation",
+              "value"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "const": "composite_ingest_search_delete"
+              },
+              "value": {
+                "$ref": "#/components/schemas/Ack"
+              }
+            },
+            "required": [
+              "operation",
+              "value"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "const": "composite_ingest_search_search"
+              },
+              "value": {
+                "$ref": "#/components/schemas/RetrieveResult"
+              }
+            },
+            "required": [
+              "operation",
+              "value"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "const": "reranker_rerank"
+              },
+              "value": {
+                "$ref": "#/components/schemas/RerankResult"
+              }
+            },
+            "required": [
+              "operation",
+              "value"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "const": "generator_generate"
+              },
+              "value": {
+                "$ref": "#/components/schemas/AskResult"
+              }
+            },
+            "required": [
+              "operation",
+              "value"
+            ]
+          }
+        ]
+      },
+      "InvocationStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "target_invocation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "state": {
+            "enum": [
+              "running",
+              "uncertain",
+              "succeeded",
+              "failed",
+              "cancel_requested",
+              "cancelled"
+            ]
+          },
+          "result": {
+            "$ref": "#/components/schemas/InvocationResult"
+          },
+          "error": {
+            "$ref": "#/components/schemas/Error"
+          }
+        },
+        "required": [
+          "target_invocation_id",
+          "state"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "succeeded"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "result"
+              ],
+              "not": {
+                "required": [
+                  "error"
+                ]
+              }
+            },
+            "else": {
+              "not": {
+                "required": [
+                  "result"
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "failed"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "error"
+              ]
+            },
+            "else": {
+              "not": {
+                "required": [
+                  "error"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "CancelResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "target_invocation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "state": {
+            "enum": [
+              "cancel_requested",
+              "already_terminal"
+            ]
+          }
+        },
+        "required": [
+          "target_invocation_id",
+          "state"
+        ]
+      },
+      "control_status_Request": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ModuleContext"
+          },
+          "input": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "target_invocation_id": {
+                "$ref": "#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "target_invocation_id"
+            ]
+          }
+        },
+        "required": [
+          "context",
+          "input"
+        ]
+      },
+      "control_status_Response": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "invocation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "result": {
+            "$ref": "#/components/schemas/InvocationStatus"
+          }
+        },
+        "required": [
+          "request_id",
+          "invocation_id",
+          "result"
+        ]
+      },
+      "control_cancel_Request": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ModuleContext"
+          },
+          "input": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "target_invocation_id": {
+                "$ref": "#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "target_invocation_id"
+            ]
+          }
+        },
+        "required": [
+          "context",
+          "input"
+        ]
+      },
+      "control_cancel_Response": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "invocation_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "result": {
+            "$ref": "#/components/schemas/CancelResult"
+          }
+        },
+        "required": [
+          "request_id",
+          "invocation_id",
+          "result"
+        ]
+      }
+    }
+  }
+}

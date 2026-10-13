@@ -1,0 +1,224 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AI Knowledge OS KB backend migration record V1",
+  "description": "Persisted state design. CAS, current authorization, proof provenance and actual cutover require runtime verification.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "migration_id",
+    "space_id",
+    "kb_id",
+    "source_epoch_id",
+    "target_epoch_id",
+    "source_lock_sha256",
+    "target_lock_sha256",
+    "target_index_profile_digest",
+    "journal_stream_id",
+    "retention_hold_id",
+    "retention_policy_id",
+    "retention_policy_version",
+    "row_version",
+    "fencing_token",
+    "phase",
+    "content_writes_paused",
+    "snapshot_cursor",
+    "forward_checkpoint",
+    "cutover_cursor",
+    "rollback_checkpoint",
+    "rollback_cutover_cursor",
+    "resumed_at_seconds",
+    "rollback_until_seconds",
+    "retain_until_seconds"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "kb_backend"
+    },
+    "migration_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+      "maxLength": 200
+    },
+    "space_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+      "maxLength": 200
+    },
+    "kb_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+      "maxLength": 200
+    },
+    "source_epoch_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+      "maxLength": 200
+    },
+    "target_epoch_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+      "maxLength": 200
+    },
+    "source_lock_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "target_lock_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "target_index_profile_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "journal_stream_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+      "maxLength": 200
+    },
+    "retention_hold_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+      "maxLength": 200
+    },
+    "retention_policy_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+      "maxLength": 200
+    },
+    "retention_policy_version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 18446744073709551615
+    },
+    "row_version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 18446744073709551615
+    },
+    "fencing_token": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 18446744073709551615
+    },
+    "phase": {
+      "enum": [
+        "planned",
+        "quiescing",
+        "building",
+        "verifying",
+        "ready",
+        "cutover_committed",
+        "restart_verified",
+        "serving_retained",
+        "finalized",
+        "aborting",
+        "aborted",
+        "rollback_quiescing",
+        "rollback_ready",
+        "rollback_committed",
+        "rollback_restart_verified",
+        "rolled_back"
+      ]
+    },
+    "content_writes_paused": {
+      "type": "boolean"
+    },
+    "snapshot_cursor": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^j1:[a-f0-9]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "forward_checkpoint": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^j1:[a-f0-9]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "cutover_cursor": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^j1:[a-f0-9]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "rollback_checkpoint": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^j1:[a-f0-9]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "rollback_cutover_cursor": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^j1:[a-f0-9]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "resumed_at_seconds": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 253402300799
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "rollback_until_seconds": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 253402300799
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "retain_until_seconds": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 253402300799
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}
