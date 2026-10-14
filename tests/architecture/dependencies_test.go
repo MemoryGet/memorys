@@ -17,6 +17,22 @@ const module = "github.com/MemoryGet/memorys/"
 // Explicit package inventory: new packages need a reviewed dependency policy.
 // Tests/fakes can compose implementations; only non-test Go source is gated.
 var localDependencies = map[string][]string{
+	"cmd/architecture-pg-repositories": {"pkg/contracts", "pkg/postgres", "pkg/withdrawal", "pkg/cleanup", "pkg/adapters", "pkg/index"},
+	"pkg/cleanup":                      {"pkg/contracts", "pkg/canonical"},
+	"pkg/withdrawal":                   {"pkg/contracts", "pkg/canonical"},
+	"pkg/postgres":                     {"pkg/contracts", "pkg/indexsnapshot"},
+	"pkg/indexsnapshot":                {"pkg/contracts", "pkg/canonical"},
+	"pkg/adapters":                     {"pkg/canonical", "pkg/chunk", "pkg/contracts", "pkg/kernel", "pkg/parser", "pkg/cleanup", "pkg/index"},
+	"cmd/memorys-server":               {"pkg/api"},
+	"pkg/api":                          {"pkg/contracts", "pkg/ingestion"},
+	"pkg/chunk":                        {"pkg/contracts"},
+	"pkg/document":                     {"pkg/contracts"},
+	"pkg/index":                        {"pkg/contracts", "pkg/indexsnapshot"},
+	"pkg/ingestion":                    {"pkg/contracts", "pkg/document"},
+	"pkg/parser":                       {"pkg/contracts"},
+	"pkg/retrieval":                    {"pkg/contracts", "pkg/index"},
+	"pkg/storage":                      {"pkg/contracts"},
+
 	"cmd/architecture-graph-cleanup-digest": {"pkg/modulewire"},
 	"cmd/architecture-memory-record":        {"pkg/modulewire"},
 	"pkg/contracts":                         {},
@@ -39,6 +55,11 @@ var localDependencies = map[string][]string{
 }
 
 var purePackages = map[string]bool{
+	"pkg/indexsnapshot": true,
+	"pkg/cleanup":       true,
+	"pkg/withdrawal":    true,
+	"pkg/adapters":      true,
+	"pkg/chunk":         true, "pkg/document": true, "pkg/ingestion": true, "pkg/index": true, "pkg/parser": true, "pkg/retrieval": true,
 	"pkg/contracts": true, "pkg/canonical": true,
 	"pkg/retrievalplan": true, "pkg/reflection": true, "pkg/queryread": true,
 	"pkg/publicationprojection": true,
@@ -57,6 +78,9 @@ func allowedImport(owner, dependency string) bool {
 			}
 		}
 		return false
+	}
+	if owner == "cmd/architecture-pg-repositories" && dependency == "github.com/jackc/pgx/v5/stdlib" {
+		return true
 	}
 	if owner == "pkg/accessgrant" && dependency == "github.com/go-jose/go-jose/v4" {
 		return true // Isolated cryptographic implementation; never exposed in contracts.

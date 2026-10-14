@@ -33,7 +33,8 @@ class ArchitectureRunnerTests(unittest.TestCase):
     def test_inventory_covers_binary_fixtures_and_reviewed_lock(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
-            inputs = {"pkg/example/testdata/table.pdf": b"pdf sample",
+            inputs = {"docs/architecture/sql/contract.sql": b"SELECT 1;",
+                      "pkg/example/testdata/table.pdf": b"pdf sample",
                       "docs/architecture/examples/sample.bin": b"binary sample",
                       "docs/architecture/evidence/openapi-validation-requirements.txt": b"validator==0.9.0"}
             for name, data in inputs.items():

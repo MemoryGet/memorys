@@ -4,6 +4,52 @@
 
 ## 当前阶段：先完成架构设计
 
+2026-10-14补[同数据索引交接](architecture/INDEX_SNAPSHOT_TRANSFER.md)：标准完整投影/Owner/删除标记快照，Memory→PG→新Memory校验值一致，损坏/覆盖拒绝及实际SQL失败回滚。权威目录为fixture，全量平台迁移/切换和生产验收仍开放。
+
+2026-10-14补[索引清理双实现](architecture/INDEX_CLEANUP_BACKENDS.md)：标准删除/读回端口，通用适配器注入内存或PG；PG删除状态跨连接保留、旧快照写回被拒绝。完整IndexWriter/检索、同数据迁移/回退及数据库重启验证仍待完成。
+
+2026-10-14补[本地索引实际清理适配器](architecture/CLEANUP_NATIVE_INDEX.md)：标准执行器调用MemoryIndex.Delete，独立核验真实Owner/删除标记/记录数；PG任务链路加入实际删除与新代际隔离。权限仍fixture，重启持久化及成熟引擎/替换验收待完成。
+
+2026-10-14补[清理单项消费者](architecture/CLEANUP_WORKER.md)：固定效果身份、Lookup优先、独立租约/回执核验、执行准入及未知结果处理。真实PG存储和编排有探针；外部执行/准入仍fixture，完整消费者和生产验收未完成。
+
+2026-10-14补[清理任务持久化领取](architecture/CLEANUP_TASKS.md)：固定目标进度同事务创建、原子租约/fence与幂等终态、unknown拒绝自动重做；并发实库探针已加入。外部执行/对账、消费者及完整任务能力仍待验。
+
+2026-10-14补[来源登记/计划封存约束](architecture/POSTGRES_WITHDRAW_STORAGE.md#13-来源登记与计划封存约束)：登记必须匹配锁定的有效旧epoch；提交双向核对全部登记目标，封存后不允许追加。消费者、外部投影fencing、并发/恢复与完整WTX仍待验。
+
+2026-10-14补[撤回命令语义与准备器](architecture/WITHDRAW_COMMAND_SEMANTICS.md)：规范化摘要/域隔离、Go/Python金标、可信Verify门槛、独立平台ID及取消检查；PG应用已使用实际摘要。真实身份/文档权限与格式迁移仍待验。
+
+2026-10-14补[撤回应用编排与标准事务端口](architecture/POSTGRES_WITHDRAW_STORAGE.md#11-标准事务端口与撤回应用编排)：业务仅依赖contracts，真实SQL提供当前头/已登记目标，应用流程提交与历史重放已有探针。真实Prepare、完整PublicationService/UoW、登记fencing、迁移及生产准入仍待验。
+
+2026-10-14补[撤回审计原子写入](architecture/POSTGRES_WITHDRAW_STORAGE.md#10-撤回审计与原子性)：审计绑定不可变历史、禁止应用修改/删除；缺失/不匹配拒绝，审计故障全事务回滚。生产审计接口、角色/RLS、迁移日志与完整业务服务仍待验。
+
+2026-10-14补[命令预留/历史重放](architecture/POSTGRES_WITHDRAW_STORAGE.md#9-命令预留与历史重放)：预留与撤回同事务、已提交返回原历史、同键摘要冲突及pending拒绝重做。可信命令摘要编码、真实委托身份和完整应用服务仍待实现。
+
+2026-10-14补[撤回发布头CAS/outbox事务片段](architecture/POSTGRES_WITHDRAW_STORAGE.md#8-发布头-cas-与-outbox-原子提交)：同事务更新发布头、历史/清理计划、事件及命令状态；错误被忽略仍拒绝提交。完整UoW、真实权限、审计与业务闭环待验。
+
+2026-10-14补[清理计划多目标实际写入/回滚](architecture/POSTGRES_WITHDRAW_STORAGE.md#7-清理计划与多目标写入回滚)：History/Plan/两个目标真实插入读取、主动失败和第二目标外键错误全回滚；15.17/18.0均通过。仍使用合成种子，完整权威事务未实现。
+
+2026-10-14补[SQL取消/提交前复核](architecture/POSTGRES_WITHDRAW_STORAGE.md#6-验证后取消与提交前权限变化)：验证返回成功后仍检查父/操作context，提交前撤销回滚实际History INSERT；新增1项Go测试，15.17/18.0真实探针再次通过。IAM/RLS及完整治理闭环未接入。
+
+2026-10-14接入[Go History/Plan SQL片段](architecture/POSTGRES_WITHDRAW_STORAGE.md#5-postgresql-18与go仓储适配片段)：事务Scope/预算/关闭及真实读取、History写入回滚，15.17/18.0实际SQL+Go均通过，临时容器清理。18下载已完成；完整UoW/Auth/审计/outbox/业务bootstrap仍待实现。
+
+2026-10-14补[数据库运行器失败清理](architecture/POSTGRES_WITHDRAW_STORAGE.md)：创建后启动失败时按自身名称/标签清理、错标签及远程socket拒绝；3项Python测试通过，15.17实际路径再次通过。18下载会话94179仍存活；未重复启动，18验收仍未完成。
+
+2026-10-14新增[撤回SQL原型/真实数据库验证](architecture/POSTGRES_WITHDRAW_STORAGE.md)：实际PostgreSQL 15.17约束/回滚试验通过并清理临时容器。18.0标准镜像两次下载截断，同版Alpine下载仍在进行；Go UoW及完整WTX未完成。
+
+2026-10-14补[发布历史/清理计划Go契约](architecture/WITHDRAW_TRANSACTION.md#7-go契约草案与关系检查)：load/append事务端口、前后epoch/固定目标/绑定引用及关系/覆盖检查；3项Go测试通过。SQL、冻结目标定义、导出迁移及业务准入仍待实现，WTX保持开放。
+
+2026-10-14细化[权威撤回事务/派生清理](architecture/WITHDRAW_TRANSACTION.md)：核实缺少可读取历史仓储和固定清理目标，定义历史幂等、CAS/outbox、旧代际隔离和6项WTX门槛。仅实施规格；SQL事务/服务/消费者未实现。
+
+2026-10-14补[内存索引删除/旧任务阻止](architecture/MVP_QUALITY_REPAIR.md#内存索引删除与旧任务阻止)：代际唯一所属、指定代际/分块删除、重复操作及反复写入拒绝；3项Go测试通过。持久化fencing、权威撤回/outbox、重启恢复和真实索引仍待实现。
+
+2026-10-14补[本地可重试删除](architecture/MVP_QUALITY_REPAIR.md#本地删除记录与可重试清理)：独占安装删除记录、拒绝新读取、跨实例继续清理、损坏记录失败关闭及期限绑定；2项Go测试通过。平台撤回/索引传播、完整备份恢复及生产文件系统准入仍待验。
+
+2026-10-14补[本地上传幂等账本](architecture/MVP_QUALITY_REPAIR.md#本地上传幂等账本局部实现)：主体/动作/键及请求摘要绑定、跨实例重放、同键冲突、并发预留与未知结果拒绝重建；3项Go测试通过。自动恢复/清理、断电/进程退出、元数据事务及生产授权仍待验。
+
+2026-10-14接入[解析/分块受控工厂](architecture/MVP_QUALITY_REPAIR.md#解析与分块的受控工厂接入)：标准端口、显式Blob依赖、严格设置、关闭后拒绝旧引用；2项Go集成测试通过。两实例重绑定不等同异构引擎替换，正式部署/BuildLock/业务bootstrap仍待接入。
+
+2026-10-14修复当前新增MVP模块[质量问题](architecture/MVP_QUALITY_REPAIR.md)：统一BlobStore、真实原件解析、受限上传、带引用的前置过滤、稳定分块ID及依赖边界；新增9项Go回归。业务API要求可信Prepare/Verify，默认未配置时503；真实授权、元数据治理及完整运行验收仍待完成。
+
 2026-10-14完善[可替换证据核验模块设计](architecture/EVIDENCE_VERIFICATION_MODULES.md)：拆分内容/原件/索引/专用定位角色，固定路由及声明覆盖，明确音频引用字段缺口、版本迁移和6项EV运行门槛。仅设计，配置示例及专用端口未注册或实施。
 
 2026-10-14补[正文证据位置/摘录核验](architecture/CURRENT_CHECK_FLOW.md#11-正文证据定位与摘录核验)：同次读取实际双摘要后核验revision text块，exact按Unicode码点半开区间、coarse按连续子串；3项Go测试通过。原件/表格/媒体定位明确未支持，真实后端/输出接入仍待验。

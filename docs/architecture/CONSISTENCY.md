@@ -100,3 +100,8 @@ V1 内置授权状态与发布状态在同一个元数据存储读取一致快�
 | PAGE-01 | 翻页前授权/发布发生变化 | 拒绝过期游标，不返回旧快照内容 |
 
 这些场景应与 [基础验证清单](VALIDATION.md) 一并实现。当前只是可执行的验收定义，不能作为已经通过的测试记录。
+
+
+## 撤回事务实施规格
+
+[WITHDRAW_TRANSACTION](WITHDRAW_TRANSACTION.md)细化文档级撤回的历史结果、CleanupPlan、原子保存、outbox/消费者隔离及WTX-01至WTX-06。当前Go事务仓储缺少PublicationHistory的load/append，事件摘要不足以固定全部清理目标；本地删除不证明权威撤回闭环。记忆/缓存形成时的publication_epoch依赖也需补齐，不能只依赖静态Citation区分旧来源和重新发布。

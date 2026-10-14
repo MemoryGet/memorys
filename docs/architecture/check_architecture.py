@@ -21,7 +21,7 @@ def source_inventory(root=ROOT):
                 continue
             # Future binary/parser samples and Go testdata are inputs too;
             # do not limit fixture hashes to JSON or text extensions.
-            if p.suffix in {".go", ".py", ".json", ".txt", ".yaml", ".yml"} or "testdata" in parts or "examples" in parts:
+            if p.suffix in {".go", ".py", ".json", ".txt", ".yaml", ".yml", ".sql"} or "testdata" in parts or "examples" in parts:
                 paths.append(p)
     return {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
             for p in sorted(set(paths)) if p.is_file()}

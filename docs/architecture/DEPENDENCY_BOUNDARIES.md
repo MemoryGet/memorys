@@ -45,3 +45,33 @@ cmd/architecture-*为离线工具，各入口有精确依赖清单；它们不�
 
 
 2026-10-14登记pkg/contentverify：仅依赖contracts/canonical与标准库，作为标准冻结JSON摘要核验纯包，不允许数据库、HTTP、进程调用或供应商SDK。该登记不证明读取提供者或实际授权行为。
+
+2026-10-14登记MVP入口/API/存储/解析/草稿/分块/内存索引与检索包：HTTP在api、文件在storage，业务纯包通过contracts依赖访问；测试允许跨模块组合，正式装配/生产实现仍未验。
+
+2026-10-14登记pkg/adapters受控工厂：仅依赖contracts/kernel/canonical及parser/chunk本地实现，禁止直接HTTP/数据库/文件访问；实物文件操作仍通过BlobStore依赖。
+
+2026-10-14登记pkg/postgres数据库适配（仅contracts与标准库SQL），及cmd/architecture-pg-repositories离线驱动探针；仅后者允许pgx/stdlib，contracts/业务纯包不得依赖驱动。
+
+
+## 4. 事务仓储的替换边界
+
+Metadata、PublicationHistory、CleanupPlan、Idempotency、Audit、Outbox 和 MigrationJournal 保持独立业务端口，但同一次业务提交必须由同一个 UnitOfWork 提供事务句柄。部署时替换整个事务实现组合，并核对每个必要端口及事务能力；不能将多个独立连接/远程服务的成功响应当作共同原子提交。
+
+仓储实现可在事务组合内部替换或扩展，前提是参与同一底层事务并通过共同故障、幂等及迁移测试。远程审计平台可通过 outbox 消费权威审计副本；该投递和观测平台不能替代事务内的审计记录。若新组合无法提供全部必要端口，启动和相关业务必须拒绝准入。
+
+目前 pkg/postgres 的撤回片段已有历史/计划、CAS、命令预留、事件与撤回专用审计，但缺少完整元数据/审计通用端口、迁移日志、生产身份与部署装配，仍不能登记为完整 metadata_uow 提供者。
+
+
+2026-10-14登记 pkg/withdrawal：仅依赖 contracts 的撤回应用编排纯包，禁止SQL/HTTP/供应商SDK；离线PG探针在入口组合 withdrawal 与 postgres。标准 WithdrawalUnit 为进程内草案，完整生命周期及服务装配尚未验收。
+
+
+2026-10-14允许 pkg/withdrawal 依赖 canonical，用于撤回命令语义编码；仍禁止SQL、HTTP及供应商SDK。预留摘要由业务准备器计算，数据库适配器只保存/核对，不定义供应商摘要语义。
+
+
+2026-10-14登记pkg/cleanup：仅contracts/canonical，禁止SQL/HTTP/供应商SDK；离线PG入口组合存储与单项消费者。适配器解析、执行准入和实际回执核验保留明确独立端口，未提供生产后端。
+
+
+2026-10-14登记adapters对cleanup/index本地实现的依赖，用于标准CleanupExecutor适配；index.GenerationState只在实现/适配器内部使用，不进入contracts。离线PG入口可组合该实际本地实现，业务Worker仍只依赖contracts/canonical。
+
+
+2026-10-14登记indexsnapshot纯校验包（contracts/canonical），index及postgres通过该公共规范验证快照。业务端口只使用平台IndexProjection/IndexSnapshot；PG目录绑定与内存暂存恢复留在实现内，不放行SQL到纯包。

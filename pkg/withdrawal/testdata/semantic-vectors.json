@@ -1,0 +1,71 @@
+[
+  {
+    "name": "user",
+    "input": {
+      "DocumentID": "设备-甲",
+      "ExpectedEpoch": 1,
+      "Reason": "更正来源\n审核确认",
+      "Command": {
+        "Principal": {
+          "SubjectID": "actor",
+          "SubjectType": "user",
+          "Issuer": "identity",
+          "ClientID": ""
+        },
+        "Scope": {
+          "SubjectID": "actor",
+          "SpaceID": "space",
+          "KnowledgeBaseIDs": [
+            "kb"
+          ],
+          "Action": "publication.withdraw"
+        },
+        "Request": {
+          "ProfileDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "IdempotencyKey": "key"
+      }
+    },
+    "actor_bytes": "{\"client_id\":\"\",\"delegation\":null,\"format\":\"akos.withdraw.actor/1\",\"issuer\":\"identity\",\"subject_id\":\"actor\",\"subject_type\":\"user\"}",
+    "actor_digest": "2638fbbf96562f5dee5ce8fb027d08911a616ebde5a3d4ebba19154f19f5dea8",
+    "command_bytes": "{\"action\":\"publication.withdraw\",\"actor_digest\":\"2638fbbf96562f5dee5ce8fb027d08911a616ebde5a3d4ebba19154f19f5dea8\",\"document_id\":\"设备-甲\",\"expected_epoch\":\"1\",\"format\":\"akos.withdraw.command/1\",\"knowledge_base_id\":\"kb\",\"profile_digest\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"reason\":\"更正来源\\n审核确认\",\"space_id\":\"space\"}",
+    "command_digest": "e94f536168136fb3341737f746d0155403a68228b5ae7e8263322847e5143cca"
+  },
+  {
+    "name": "delegated-uint64",
+    "input": {
+      "DocumentID": "设备-甲",
+      "ExpectedEpoch": 18446744073709551614,
+      "Reason": "更正来源\n审核确认",
+      "Command": {
+        "Principal": {
+          "SubjectID": "actor",
+          "SubjectType": "service",
+          "Issuer": "identity",
+          "ClientID": "client",
+          "Delegation": {
+            "UserID": "用户甲",
+            "ClientID": "client",
+            "ProofReference": "proof-reference-1"
+          }
+        },
+        "Scope": {
+          "SubjectID": "actor",
+          "SpaceID": "space",
+          "KnowledgeBaseIDs": [
+            "kb"
+          ],
+          "Action": "publication.withdraw"
+        },
+        "Request": {
+          "ProfileDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "IdempotencyKey": "key"
+      }
+    },
+    "actor_bytes": "{\"client_id\":\"client\",\"delegation\":{\"client_id\":\"client\",\"user_id\":\"用户甲\"},\"format\":\"akos.withdraw.actor/1\",\"issuer\":\"identity\",\"subject_id\":\"actor\",\"subject_type\":\"service\"}",
+    "actor_digest": "e7a7107b1c0d5f422e522a1103e3f894ec1be57cf5c96288bd924f9c83fba9ba",
+    "command_bytes": "{\"action\":\"publication.withdraw\",\"actor_digest\":\"e7a7107b1c0d5f422e522a1103e3f894ec1be57cf5c96288bd924f9c83fba9ba\",\"document_id\":\"设备-甲\",\"expected_epoch\":\"18446744073709551614\",\"format\":\"akos.withdraw.command/1\",\"knowledge_base_id\":\"kb\",\"profile_digest\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"reason\":\"更正来源\\n审核确认\",\"space_id\":\"space\"}",
+    "command_digest": "aaba5bb4fe42e3ec8c8b3201a5f7bb4e20aaeda11d774ad53bbc6cec1c092f3c"
+  }
+]

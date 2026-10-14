@@ -1,0 +1,17 @@
+{
+  "scope": "PostgreSQL SQL constraint prototype only",
+  "passed": true,
+  "production_acceptance": false,
+  "sources": {
+    "docs\\architecture\\sql\\withdraw_contract_v1.sql": "051dce873967159c497de897ee2ff5e947844d453353a6332fcdd01f8598facb",
+    "docs\\architecture\\sql\\withdraw_contract_test.sql": "7a36e4bedfbec8d07091700a53d59c04c43bcc185c78610c8836dfbedda9e080"
+  },
+  "image": "postgres:15-alpine",
+  "container_removed": true,
+  "image_identity": "sha256:fceb6f86328c36f2438fae3b851b0cc57c4a7e69a58c866d9ce24281f2cf0c9c",
+  "server_version": "15.17",
+  "outputs": [
+    "BEGIN\nCREATE SCHEMA\nSET\nCREATE DOMAIN\nCREATE DOMAIN\nCREATE DOMAIN\nCREATE DOMAIN\nCREATE TABLE\nCREATE TABLE\nCREATE TABLE\nALTER TABLE\nALTER TABLE\nCREATE TABLE\nCREATE TABLE\nCREATE TABLE\nALTER TABLE\nCREATE TABLE\nCREATE TABLE\nCREATE TABLE\nCREATE INDEX\nCREATE TABLE\nCREATE FUNCTION\nCREATE TRIGGER\nCREATE FUNCTION\nCREATE TRIGGER\nCREATE FUNCTION\nCREATE TRIGGER\nCREATE TRIGGER\nCREATE TRIGGER\nCREATE TRIGGER\nCOMMIT\n",
+    "SET\nSET\nCREATE FUNCTION\n expect_error \n--------------\n \n(1 row)\n\n expect_error \n--------------\n \n(1 row)\n\n expect_error \n--------------\n \n(1 row)\n\nDO\nINSERT 0 1\nINSERT 0 1\nINSERT 0 1\nINSERT 0 1\nUPDATE 1\nINSERT 0 1\nCREATE FUNCTION\n expect_error \n--------------\n \n(1 row)\n\n expect_error \n--------------\n \n(1 row)\n\n expect_error \n--------------\n \n(1 row)\n\nDO\nBEGIN\n fixture_withdraw \n------------------\n \n(1 row)\n\nCOMMIT\nDO\n expect_error \n--------------\n \n(1 row)\n\n expect_error \n--------------\n \n(1 row)\n\n expect_error \n--------------\n \n(1 row)\n\n expect_error \n--------------\n \n(1 row)\n\n expect_error \n--------------\n \n(1 row)\n\nINSERT 0 1\n expect_error \n--------------\n \n(1 row)\n\n expect_error \n--------------\n \n(1 row)\n\n                      result                      \n--------------------------------------------------\n PASS: PostgreSQL withdrawal constraint prototype\n(1 row)\n\n"
+  ]
+}

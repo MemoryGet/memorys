@@ -225,3 +225,6 @@ Fuser及Candidate的多路来源增量见[排名融合契约](FUSION_CONTRACT.md
 ## 证据核验组合边界
 
 CurrentBackend是应用组合门面；冻结内容读取、原件完整性、索引实时核验及格式/定位专用核验须独立装配。正式专用端口、能力路由和远程操作尚待冻结；设计与6项EV运行门槛见[可替换证据核验模块](EVIDENCE_VERIFICATION_MODULES.md)。音频引用目前缺少时间定位字段，新增音频核验前须先补版本化引用契约，不把时间塞进供应商私有字符串。
+
+
+[发布历史/清理计划契约草案](../../pkg/contracts/publication_history.go)补充事务仓储的load/append端口及关系检查。正式外部DTO、SQL、导出模型/版本与模块业务特性尚待同步，不代表V1契约已冻结，详见[撤回事务](WITHDRAW_TRANSACTION.md#7-go契约草案与关系检查)。

@@ -79,3 +79,27 @@
 检索返回前的必需权威检查顺序见[当前复核应用编排](architecture/CURRENT_CHECK_FLOW.md)，含身份绑定、当前批准、真实Ready、最终版本检查及发送边界。
 
 [可替换证据核验模块](architecture/EVIDENCE_VERIFICATION_MODULES.md)：内容/原件/索引/多格式定位的分工、路由与替换验收。
+
+[新增模块质量修复记录](architecture/MVP_QUALITY_REPAIR.md)：检索过滤、真实文件解析、上传限制、引用、存储契约、分块ID与后续运行门槛。
+
+[权威撤回事务与派生清理](architecture/WITHDRAW_TRANSACTION.md)：历史幂等结果、固定清理目标、事务/outbox边界及6项WTX验收。
+
+[撤回存储约束与 PostgreSQL 验证](architecture/POSTGRES_WITHDRAW_STORAGE.md)：真实15.17证据、隔离原型和独立运行器。
+
+
+[撤回命令语义与准备器](architecture/WITHDRAW_COMMAND_SEMANTICS.md)：规范化摘要、跨语言金标及当前权限验证边界。
+
+
+[清理任务持久化与领取边界](architecture/CLEANUP_TASKS.md)：任务租约、旧消费者写回拒绝和外部效果恢复的验收范围。
+
+
+[可替换清理执行器与单项消费者](architecture/CLEANUP_WORKER.md)：固定效果身份、独立回执核验及后端接入边界。
+
+
+[本地索引实际清理适配器](architecture/CLEANUP_NATIVE_INDEX.md)：实际删除、独立效果核验和重启持久化的剩余边界。
+
+
+[索引清理双实现与持久化边界](architecture/INDEX_CLEANUP_BACKENDS.md)：统一清理接口、PG删除标记及替换验收范围。
+
+
+[同数据索引交接与回退试验](architecture/INDEX_SNAPSHOT_TRANSFER.md)：公共快照、双实现往返校验和迁移范围。

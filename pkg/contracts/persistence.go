@@ -112,13 +112,15 @@ type ConsumerReceiptRepository interface {
 // Repositories are scoped to a transaction and cannot escape its callback.
 // The implementation must enforce ownership and invalidate handles at completion.
 type TransactionRepositories struct {
-	Metadata         MetadataRepository
-	Tasks            TaskRepository
-	Audit            AuditRepository
-	Outbox           OutboxRepository
-	Idempotency      IdempotencyRepository
-	Journal          MigrationJournalRepository
-	ConsumerReceipts ConsumerReceiptRepository
+	Metadata           MetadataRepository
+	Tasks              TaskRepository
+	Audit              AuditRepository
+	Outbox             OutboxRepository
+	Idempotency        IdempotencyRepository
+	Journal            MigrationJournalRepository
+	ConsumerReceipts   ConsumerReceiptRepository
+	PublicationHistory PublicationHistoryRepository
+	CleanupPlans       CleanupPlanRepository
 }
 
 type UnitOfWork interface {
