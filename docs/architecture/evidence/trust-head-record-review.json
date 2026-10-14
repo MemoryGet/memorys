@@ -1,0 +1,57 @@
+{
+  "recorded_at": "2026-10-13T01:33:48.212413+00:00",
+  "sources": {
+    "pkg/contracts/trust.go": "fdca71624937f376ac36e1d80ed72dc58af3b0e90f9f23b6bb7e442d13330347",
+    "pkg/modulewire/trust_record.go": "392d992b26005f0542cd2e311be8fa935b685f0318365f3cb59517c4a053ec1c",
+    "cmd/architecture-trust-record/main.go": "f2a8c901611bb255ee8d1bad5326ef65217caa578eec0c7be0f0d966e48bfaa9",
+    "docs/architecture/build_trust_head.py": "d1c03dabb58600a7a17b0b7f5c2c3de92c31a0d24170030ed34d78b1300a8e82",
+    "docs/architecture/test_trust_head_record.py": "ad8a8edf74fd6347868b84ff00b5e02e36861e2e37e21d942a6c867a16383995",
+    "docs/architecture/export_validation.py": "55263a93be6d53d86e6055dac9f7841ab7095de6e1385db83293a63d3f01965d",
+    "docs/architecture/test_export_trust_inventory.py": "2aabd3a834fa02c22f02b1c8fef6881f086f51dd48ef9dc0ef4bd3b4e55afb95",
+    "docs/architecture/schemas/trust-head.v1.schema.json": "a9c79d2137091c653a73158fb3e498b20692f55469c613378a5bc31c4bc53a4d",
+    "docs/architecture/EXPORT_CONTRACT.md": "1b13a6a51642bce381c56ddf54f548910f53eb692f6ff6a32bec79ca78fadd6b"
+  },
+  "scope": "One typed metadata family: trust_head; three Python tests include compiled actual Go contracts codec before/after independent schema and canonical-byte comparison. Export now validates payload/record ID and reports typed counts. Full Go tests/vet and 147 Python tests pass. No other typed families, Journal typed replay, provenance/anchor or actual database/CAS/import proof.",
+  "checks": [
+    {
+      "name": "Trust head schema",
+      "chunk_id": "4f5e95",
+      "wall_time_seconds": 0.4638186,
+      "exit_code": 0,
+      "original_token_count": 14,
+      "output": "PASS: typed trust head schema generation consistency\r\n"
+    },
+    {
+      "name": "Trust head typed tests",
+      "chunk_id": "22ca59",
+      "wall_time_seconds": 3.6947468,
+      "exit_code": 0,
+      "original_token_count": 27,
+      "output": "...\r\n----------------------------------------------------------------------\r\nRan 3 tests in 3.287s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Go regression",
+      "chunk_id": "01b31f",
+      "wall_time_seconds": 4.9676352,
+      "exit_code": 0,
+      "original_token_count": 122,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.853s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t1.175s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.747s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.659s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t0.637s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t3.068s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.190s\n"
+    },
+    {
+      "name": "Go vet",
+      "chunk_id": "694c18",
+      "wall_time_seconds": 1.5567739,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "name": "Python regression",
+      "chunk_id": "a92fa6",
+      "wall_time_seconds": 8.8579946,
+      "exit_code": 0,
+      "original_token_count": 63,
+      "output": "...................................................................................................................................................\r\n----------------------------------------------------------------------\r\nRan 147 tests in 8.340s\r\n\r\nOK\r\n"
+    }
+  ]
+}

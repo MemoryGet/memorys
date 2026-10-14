@@ -84,6 +84,20 @@ def check_dependencies(modules, manifests):
     graph = {name: set() for name in modules}
     for name, module in modules.items():
         declarations = unique(manifests[name]["dependencies"], lambda d: d["slot"])
+        capabilities = unique(manifests[name]["capabilities"], lambda c: c["name"])
+        if "graph" in capabilities:
+            if "graph_projection_manager" in capabilities:
+                require(version(capabilities["graph_projection_manager"]["version"])[0] == 1,
+                        "Graph management contract incompatible")
+            else:
+                existing = declarations.get("projection_manager")
+                if existing:
+                    require(existing["capability"] == "graph_projection_manager" and existing["major"] == 1,
+                            "Graph management slot incompatible")
+                    declarations["projection_manager"] = {**existing, "optional": False}
+                else:
+                    declarations["projection_manager"] = {"slot": "projection_manager", "capability": "graph_projection_manager",
+                        "major": 1, "minimum_minor": 0, "required_features": [], "optional": False}
         bindings = module["dependency_bindings"]
         require(set(bindings) <= set(declarations), "Undeclared dependency slot")
         for slot, dep in declarations.items():
@@ -234,7 +248,7 @@ def fixtures():
     names = [*config["bindings"], "parser", "splitter", "embedder", "index_writer", "retriever", "fuser", "generator", "reranker", "reflection"]
     manifest = {
         "schema_version": 1, "module_id": "unimplemented-reference", "implementation_version": "0.1.0", "contract_version": "1.0",
-        "capabilities": [{"name": name, "version": "1.0", "features": ["channel.keyword", "channel.vector", "prefilter.space", "prefilter.kb", "prefilter.revision", "prefilter.generation", "stream.read"]} for name in names],
+        "capabilities": [{"name": name, "version": "1.0", "features": ["channel.keyword", "channel.vector", "prefilter.space", "prefilter.kb", "prefilter.revision", "prefilter.generation", "stream.read"] + (["snapshot.fixed_view", "lifecycle.scoped_read"] if name == "query_read_unit" else [])} for name in names],
         "dependencies": [], "config_schema": {"type": "object", "additionalProperties": False},
         "health": {"startup_timeout_ms": 1000, "runtime_timeout_ms": 500, "supports_readiness": True},
         "state_model": "authoritative", "migration_modes": ["export_import"], "composite_groups": [],

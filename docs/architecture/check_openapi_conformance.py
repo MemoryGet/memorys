@@ -18,7 +18,7 @@ def run(write_report=False):
     if tool_version != "0.9.0":
         raise SystemExit("Use the reviewed validator release: openapi-spec-validator==0.9.0")
     records = []
-    for filename in ["partner.v1.json", "management.v1.json"]:
+    for filename in ["partner.v1.json", "management.v1.json", "modules.v1.json"]:
         path = ROOT / "openapi" / filename
         raw = path.read_bytes()
         spec = json.loads(raw)

@@ -41,6 +41,7 @@ func init() {
 	register(contracts.BackendBinding{}, "PlatformResourceType:platform_resource_type PlatformResourceID:platform_resource_id ModuleInstanceID:module_instance_id BackendID:backend_id GenerationID:generation_id? Purpose:purpose")
 	register(contracts.ReadinessProof{}, "GenerationSetID:generation_set_id AttemptID:attempt_id ContentDigest:content_digest ProfileDigest:profile_digest Generations:generations")
 	register(contracts.GenerationReadiness{}, "GenerationID:generation_id Channel:channel BackendEpochID:backend_epoch_id ChunkCount:chunk_count EmbeddingSpecDigest:embedding_spec_digest?")
-	register(contracts.Candidate{}, "Citation:citation ChunkID:chunk_id RouteID:route_id RetrieverID:retriever_id KnowledgeBaseID:kb_id Rank:rank Score:score ScoreKind:score_kind GenerationIDs:generation_ids Text:text")
+	register(contracts.Candidate{}, "Citation:citation ChunkID:chunk_id RouteID:route_id RetrieverID:retriever_id KnowledgeBaseID:kb_id Rank:rank Score:score ScoreKind:score_kind GenerationIDs:generation_ids Text:text FusionOrigins:fusion_origins?")
+	register(contracts.FusionOrigin{}, "RouteID:route_id RetrieverID:retriever_id Rank:rank GenerationIDs:generation_ids")
 	register(contracts.Citation{}, "DocumentID:document_id RevisionID:revision_id BlockID:block_id Source:source_anchor")
 }

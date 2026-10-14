@@ -2,145 +2,692 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "AI Knowledge OS deployment configuration V1",
   "description": "Structural design schema. Registry, profile semantics and backend epoch validation are also mandatory.",
-  "type": "object", "additionalProperties": false,
-  "required": ["schema_version", "build_lock_ref", "modules", "bindings", "index_profiles", "query_profiles", "pipeline_profiles"],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "build_lock_ref",
+    "modules",
+    "bindings",
+    "index_profiles",
+    "query_profiles",
+    "pipeline_profiles"
+  ],
   "properties": {
-    "schema_version": {"const": 1},
-    "build_lock_ref": {"type": "string", "minLength": 1},
-    "modules": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/module"}},
-    "bindings": {
-      "type": "object", "additionalProperties": false,
-      "required": ["authenticator", "authorizer", "metadata_uow", "publication", "blob_store", "task_repository", "task_queue", "event_bus", "audit", "observer"],
-      "properties": {
-        "authenticator": {"$ref": "#/$defs/binding"}, "authorizer": {"$ref": "#/$defs/binding"},
-        "metadata_uow": {"$ref": "#/$defs/binding"}, "publication": {"$ref": "#/$defs/binding"},
-        "blob_store": {"$ref": "#/$defs/binding"}, "task_repository": {"$ref": "#/$defs/binding"},
-        "task_queue": {"$ref": "#/$defs/binding"}, "event_bus": {"$ref": "#/$defs/binding"},
-        "audit": {"$ref": "#/$defs/binding"}, "observer": {"$ref": "#/$defs/binding"}
+    "schema_version": {
+      "const": 1
+    },
+    "build_lock_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "modules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/module"
       }
     },
-    "index_profiles": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/indexProfile"}},
-    "query_profiles": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/queryProfile"}},
-    "pipeline_profiles": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/pipelineProfile"}}
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authenticator",
+        "authorizer",
+        "metadata_uow",
+        "publication",
+        "blob_store",
+        "task_repository",
+        "task_queue",
+        "event_bus",
+        "audit",
+        "observer",
+        "query_read_unit"
+      ],
+      "properties": {
+        "authenticator": {
+          "$ref": "#/$defs/binding"
+        },
+        "authorizer": {
+          "$ref": "#/$defs/binding"
+        },
+        "metadata_uow": {
+          "$ref": "#/$defs/binding"
+        },
+        "publication": {
+          "$ref": "#/$defs/binding"
+        },
+        "blob_store": {
+          "$ref": "#/$defs/binding"
+        },
+        "task_repository": {
+          "$ref": "#/$defs/binding"
+        },
+        "task_queue": {
+          "$ref": "#/$defs/binding"
+        },
+        "event_bus": {
+          "$ref": "#/$defs/binding"
+        },
+        "audit": {
+          "$ref": "#/$defs/binding"
+        },
+        "observer": {
+          "$ref": "#/$defs/binding"
+        },
+        "query_read_unit": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/binding"
+            },
+            {
+              "properties": {
+                "capability": {
+                  "const": "query_read_unit"
+                },
+                "required_features": {
+                  "allOf": [
+                    {
+                      "contains": {
+                        "const": "snapshot.fixed_view"
+                      }
+                    },
+                    {
+                      "contains": {
+                        "const": "lifecycle.scoped_read"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "index_profiles": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/indexProfile"
+      }
+    },
+    "query_profiles": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/queryProfile"
+      }
+    },
+    "pipeline_profiles": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/pipelineProfile"
+      }
+    }
   },
   "$defs": {
-    "id": {"type": "string", "maxLength": 100, "pattern": "^[a-z][a-z0-9._-]*$"},
-    "version": {"type": "integer", "minimum": 1},
-    "contract": {"type": "string", "pattern": "^[1-9][0-9]*\\.(0|[1-9][0-9]*)$"},
+    "id": {
+      "type": "string",
+      "maxLength": 100,
+      "pattern": "^[a-z][a-z0-9._-]*$"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "contract": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]*\\.(0|[1-9][0-9]*)$"
+    },
     "binding": {
-      "type": "object", "additionalProperties": false,
-      "required": ["instance_id", "capability", "contract", "required_features"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instance_id",
+        "capability",
+        "contract",
+        "required_features"
+      ],
       "properties": {
-        "instance_id": {"$ref": "#/$defs/id"}, "capability": {"$ref": "#/$defs/id"},
-        "contract": {"$ref": "#/$defs/contract"},
-        "required_features": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}
+        "instance_id": {
+          "$ref": "#/$defs/id"
+        },
+        "capability": {
+          "$ref": "#/$defs/id"
+        },
+        "contract": {
+          "$ref": "#/$defs/contract"
+        },
+        "required_features": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        }
       }
     },
     "module": {
-      "type": "object", "additionalProperties": false,
-      "required": ["instance_id", "provider", "implementation_version", "contract", "settings", "dependency_bindings"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instance_id",
+        "provider",
+        "implementation_version",
+        "contract",
+        "settings",
+        "dependency_bindings"
+      ],
       "properties": {
-        "instance_id": {"$ref": "#/$defs/id"}, "provider": {"$ref": "#/$defs/id"},
-        "implementation_version": {"type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"},
-        "contract": {"$ref": "#/$defs/contract"}, "settings": {"type": "object"},
-        "credential_ref": {"type": "string", "minLength": 1},
-        "dependency_bindings": {"type": "object", "propertyNames": {"$ref": "#/$defs/id"}, "additionalProperties": {"$ref": "#/$defs/binding"}}
+        "instance_id": {
+          "$ref": "#/$defs/id"
+        },
+        "provider": {
+          "$ref": "#/$defs/id"
+        },
+        "implementation_version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "contract": {
+          "$ref": "#/$defs/contract"
+        },
+        "settings": {
+          "type": "object"
+        },
+        "credential_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dependency_bindings": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "#/$defs/id"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/binding"
+          }
+        }
       }
     },
     "profileRef": {
-      "type": "object", "additionalProperties": false, "required": ["id", "version"],
-      "properties": {"id": {"$ref": "#/$defs/id"}, "version": {"$ref": "#/$defs/version"}}
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "version": {
+          "$ref": "#/$defs/version"
+        }
+      }
     },
     "indexProfile": {
-      "type": "object", "additionalProperties": false, "required": ["id", "version", "mode", "bindings", "index_routes", "policy"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "mode",
+        "bindings",
+        "index_routes",
+        "policy"
+      ],
       "properties": {
-        "id": {"$ref": "#/$defs/id"}, "version": {"$ref": "#/$defs/version"},
-        "mode": {"enum": ["independent", "composite_projection"]},
-        "bindings": {"type": "object", "minProperties": 1, "propertyNames": {"enum": ["parser", "splitter", "embedder", "composite_ingest_search"]}, "additionalProperties": {"$ref": "#/$defs/binding"}},
-        "index_routes": {"type": "array", "minItems": 1, "maxItems": 16, "items": {"$ref": "#/$defs/indexRoute"}},
-        "policy": {"$ref": "#/$defs/indexPolicy"}
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "version": {
+          "$ref": "#/$defs/version"
+        },
+        "mode": {
+          "enum": [
+            "independent",
+            "composite_projection"
+          ]
+        },
+        "bindings": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {
+            "enum": [
+              "parser",
+              "splitter",
+              "embedder",
+              "composite_ingest_search"
+            ]
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/binding"
+          }
+        },
+        "index_routes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/$defs/indexRoute"
+          }
+        },
+        "policy": {
+          "$ref": "#/$defs/indexPolicy"
+        }
       }
     },
     "queryProfile": {
-      "type": "object", "additionalProperties": false, "required": ["id", "version", "bindings", "retrieval_routes", "reflection", "policy"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "bindings",
+        "retrieval_routes",
+        "reflection",
+        "policy"
+      ],
       "properties": {
-        "id": {"$ref": "#/$defs/id"}, "version": {"$ref": "#/$defs/version"},
-        "bindings": {"type": "object", "required": ["fuser"], "propertyNames": {"enum": ["fuser", "reranker", "generator", "reflection", "memory", "graph"]}, "additionalProperties": {"$ref": "#/$defs/binding"}},
-        "retrieval_routes": {"type": "array", "minItems": 1, "maxItems": 16, "items": {"$ref": "#/$defs/retrievalRoute"}},
-        "reflection": {
-          "type": "object", "additionalProperties": false, "required": ["enabled", "max_extra_rounds", "total_budget_ms"],
-          "properties": {
-            "enabled": {"type": "boolean"}, "max_extra_rounds": {"type": "integer", "minimum": 0, "maximum": 2},
-            "total_budget_ms": {"type": "integer", "minimum": 1, "maximum": 30000}
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "version": {
+          "$ref": "#/$defs/version"
+        },
+        "bindings": {
+          "type": "object",
+          "required": [
+            "fuser"
+          ],
+          "propertyNames": {
+            "enum": [
+              "fuser",
+              "reranker",
+              "generator",
+              "reflection",
+              "memory",
+              "graph"
+            ]
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/binding"
           }
         },
-        "policy": {"$ref": "#/$defs/queryPolicy"}
+        "retrieval_routes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/$defs/retrievalRoute"
+          }
+        },
+        "reflection": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "max_extra_rounds",
+            "total_budget_ms",
+            "max_plan_queries"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "max_extra_rounds": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2
+            },
+            "total_budget_ms": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30000
+            },
+            "max_plan_queries": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4
+            }
+          }
+        },
+        "policy": {
+          "$ref": "#/$defs/queryPolicy"
+        }
       }
     },
-    "channelList": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["keyword", "vector", "graph"]}},
+    "channelList": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "keyword",
+          "vector",
+          "graph"
+        ]
+      }
+    },
     "indexRoute": {
-      "type": "object", "additionalProperties": false, "required": ["route_id", "channels", "binding"],
-      "properties": {"route_id": {"$ref": "#/$defs/id"}, "channels": {"$ref": "#/$defs/channelList"}, "binding": {"$ref": "#/$defs/binding"}}
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "route_id",
+        "channels",
+        "binding"
+      ],
+      "properties": {
+        "route_id": {
+          "$ref": "#/$defs/id"
+        },
+        "channels": {
+          "$ref": "#/$defs/channelList"
+        },
+        "binding": {
+          "$ref": "#/$defs/binding"
+        }
+      }
     },
     "retrievalRoute": {
-      "type": "object", "additionalProperties": false, "required": ["route_id", "channels", "binding", "candidate_limit", "required"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "route_id",
+        "channels",
+        "binding",
+        "candidate_limit",
+        "required"
+      ],
       "properties": {
-        "route_id": {"$ref": "#/$defs/id"}, "channels": {"$ref": "#/$defs/channelList"}, "binding": {"$ref": "#/$defs/binding"},
-        "candidate_limit": {"type": "integer", "minimum": 1, "maximum": 1000}, "required": {"type": "boolean"}
+        "route_id": {
+          "$ref": "#/$defs/id"
+        },
+        "channels": {
+          "$ref": "#/$defs/channelList"
+        },
+        "binding": {
+          "$ref": "#/$defs/binding"
+        },
+        "candidate_limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "required": {
+          "type": "boolean"
+        }
       }
     },
     "indexPolicy": {
-      "type": "object", "additionalProperties": false,
-      "required": ["schema_version", "chunking", "embedding_spec", "required_channels", "projection_format_version"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "chunking",
+        "embedding_spec",
+        "required_channels",
+        "projection_format_version"
+      ],
       "properties": {
-        "schema_version": {"const": 1},
+        "schema_version": {
+          "const": 1
+        },
         "chunking": {
-          "type": "object", "additionalProperties": false,
-          "required": ["strategy", "max_codepoints", "overlap_codepoints"],
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "strategy",
+            "max_codepoints",
+            "overlap_codepoints"
+          ],
           "properties": {
-            "strategy": {"enum": ["heading", "recursive", "parent_child"]},
-            "max_codepoints": {"type": "integer", "minimum": 1, "maximum": 100000},
-            "overlap_codepoints": {"type": "integer", "minimum": 0, "maximum": 100000},
-            "parent_max_codepoints": {"type": "integer", "minimum": 1, "maximum": 1000000}
+            "strategy": {
+              "enum": [
+                "heading",
+                "recursive",
+                "parent_child"
+              ]
+            },
+            "max_codepoints": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000
+            },
+            "overlap_codepoints": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100000
+            },
+            "parent_max_codepoints": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
+            }
           },
-          "allOf": [{"if": {"properties": {"strategy": {"const": "parent_child"}}}, "then": {"required": ["parent_max_codepoints"]}, "else": {"not": {"required": ["parent_max_codepoints"]}}}]
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "strategy": {
+                    "const": "parent_child"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "parent_max_codepoints"
+                ]
+              },
+              "else": {
+                "not": {
+                  "required": [
+                    "parent_max_codepoints"
+                  ]
+                }
+              }
+            }
+          ]
         },
         "embedding_spec": {
-          "type": "object", "additionalProperties": false,
-          "required": ["provider_model", "model_revision", "dimension", "distance", "normalization", "preprocess_version"],
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "provider_model",
+            "model_revision",
+            "dimension",
+            "distance",
+            "normalization",
+            "preprocess_version"
+          ],
           "properties": {
-            "provider_model": {"type": "string", "minLength": 1}, "model_revision": {"type": "string", "minLength": 1},
-            "dimension": {"type": "integer", "minimum": 1, "maximum": 65536},
-            "distance": {"enum": ["cosine", "dot", "euclidean"]}, "normalization": {"enum": ["none", "l2"]},
-            "preprocess_version": {"type": "string", "minLength": 1}
+            "provider_model": {
+              "type": "string",
+              "minLength": 1
+            },
+            "model_revision": {
+              "type": "string",
+              "minLength": 1
+            },
+            "dimension": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65536
+            },
+            "distance": {
+              "enum": [
+                "cosine",
+                "dot",
+                "euclidean"
+              ]
+            },
+            "normalization": {
+              "enum": [
+                "none",
+                "l2"
+              ]
+            },
+            "preprocess_version": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         },
-        "required_channels": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["keyword", "vector", "graph"]}},
-        "projection_format_version": {"$ref": "#/$defs/contract"}
+        "required_channels": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "keyword",
+              "vector",
+              "graph"
+            ]
+          }
+        },
+        "projection_format_version": {
+          "$ref": "#/$defs/contract"
+        }
       }
     },
     "queryPolicy": {
-      "type": "object", "additionalProperties": false,
-      "required": ["schema_version", "candidate_limit", "answer_evidence_limit", "fusion", "rerank", "generation", "timeouts", "optional_capabilities"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "candidate_limit",
+        "answer_evidence_limit",
+        "fusion",
+        "rerank",
+        "generation",
+        "timeouts",
+        "optional_capabilities"
+      ],
       "properties": {
-        "schema_version": {"const": 1},
-        "candidate_limit": {"type": "integer", "minimum": 1, "maximum": 1000},
-        "answer_evidence_limit": {"type": "integer", "minimum": 1, "maximum": 100},
-        "fusion": {"type": "object", "additionalProperties": false, "required": ["method", "rank_constant"], "properties": {"method": {"const": "rrf"}, "rank_constant": {"type": "integer", "minimum": 1, "maximum": 1000}}},
-        "rerank": {"type": "object", "additionalProperties": false, "required": ["enabled"], "properties": {"enabled": {"type": "boolean"}}},
-        "generation": {"type": "object", "additionalProperties": false, "required": ["enabled", "max_output_tokens"], "properties": {"enabled": {"type": "boolean"}, "max_output_tokens": {"type": "integer", "minimum": 1, "maximum": 32768}}},
-        "timeouts": {
-          "type": "object", "additionalProperties": false, "required": ["retrieval_ms", "rerank_ms", "generation_ms"],
-          "properties": {"retrieval_ms": {"type": "integer", "minimum": 1, "maximum": 30000}, "rerank_ms": {"type": "integer", "minimum": 1, "maximum": 30000}, "generation_ms": {"type": "integer", "minimum": 1, "maximum": 30000}}
+        "schema_version": {
+          "const": 1
         },
-        "optional_capabilities": {"type": "array", "uniqueItems": true, "items": {"enum": ["graph", "memory"]}}
+        "candidate_limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "answer_evidence_limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "fusion": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "rank_constant"
+          ],
+          "properties": {
+            "method": {
+              "const": "rrf"
+            },
+            "rank_constant": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000
+            }
+          }
+        },
+        "rerank": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          }
+        },
+        "generation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "max_output_tokens"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "max_output_tokens": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 32768
+            }
+          }
+        },
+        "timeouts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "retrieval_ms",
+            "rerank_ms",
+            "generation_ms"
+          ],
+          "properties": {
+            "retrieval_ms": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30000
+            },
+            "rerank_ms": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30000
+            },
+            "generation_ms": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30000
+            }
+          }
+        },
+        "optional_capabilities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "graph",
+              "memory"
+            ]
+          }
+        }
       }
     },
     "pipelineProfile": {
-      "type": "object", "additionalProperties": false, "required": ["id", "version", "index_profile_ref", "query_profile_ref"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "index_profile_ref",
+        "query_profile_ref"
+      ],
       "properties": {
-        "id": {"$ref": "#/$defs/id"}, "version": {"$ref": "#/$defs/version"},
-        "index_profile_ref": {"$ref": "#/$defs/profileRef"}, "query_profile_ref": {"$ref": "#/$defs/profileRef"}
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "version": {
+          "$ref": "#/$defs/version"
+        },
+        "index_profile_ref": {
+          "$ref": "#/$defs/profileRef"
+        },
+        "query_profile_ref": {
+          "$ref": "#/$defs/profileRef"
+        }
       }
     }
   }

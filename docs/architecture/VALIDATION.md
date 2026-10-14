@@ -99,7 +99,7 @@
 
 ## 7. OpenAPI规范校验证据
 
-两份OpenAPI另使用 [openapi-spec-validator](https://github.com/python-openapi/openapi-spec-validator) 0.9.0进行规范校验，结果见 [文件哈希与报告](evidence/openapi-conformance.json)。伙伴4项、管理26项操作均通过OpenAPI3.1.1检查；删除必需info字段的对照样例均被拒绝。
+三份OpenAPI统一使用 [openapi-spec-validator](https://github.com/python-openapi/openapi-spec-validator) 0.9.0进行规范校验，结果见 [文件哈希与报告](evidence/openapi-conformance.json)。伙伴4项、管理26项及远程模块17项操作均通过OpenAPI3.1.1检查；删除必需info字段的对照样例均被拒绝。
 
 因此第6节的两个自有结构脚本仍不等同规范校验器，但独立的规范校验步骤已有证据。响应语义、真实权限、上传、CAS、SSE/MCP运行行为和UI尚无证据。
 
@@ -122,3 +122,30 @@ python -m venv .local/openapi-review-env
 2026-10-12完整 `go test -cover ./...` 和 `go vet ./...` 通过，contracts语句覆盖率92.6%，kernel为89.6%。内核覆盖端口替换、预检拒绝、依赖拓扑、启动检查、资源回收、取消、快照副本和严格JSON检查。测试使用假设模块，没有真实解析/检索后端。
 
 内核接收已解析的内部装配计划；正式部署归一化、制品锁、流水线策略和持久化状态核对尚未接入，详见 [内核边界](KERNEL_RUNTIME.md)。全量字段对照、传输映射、状态机和内容/权限/事务边界校验仍在后续阶段，不能把当前包测试提升成产品服务、权限、发布或召回验收通过。
+
+证据级Recall的局部执行规则见[召回评测契约](RETRIEVAL_EVALUATION.md)。离线算术已有合成测试，但封存Schema/数据、真实输出映射、权限、置信区间和性能仍未验；不能将numeric_recall_target_met替代正式阶段F验收。
+
+REFLECT-01的多查询预算、输出时机、反馈采纳与两个实现对照细则见[有限反思编排](REFLECTION_ORCHESTRATION.md)。新增六项门槛仍须真实模型与事务验证。
+
+
+## 静态依赖边界门
+
+执行[依赖边界检查](DEPENDENCY_BOUNDARIES.md)作为阶段B的局部检查：所有生产源文件必须在精确包规则中登记，领域与编排不可引入供应商/HTTP/SQL或具体模块。当前覆盖pkg/cmd，尚需随业务层建设扩展internal/frontend；静态通过不能替代真实双实现验收。
+
+
+## 统一本地验证入口（Windows）
+
+[check_architecture.py](check_architecture.py)顺序执行全量Go测试（含静态依赖门）、go vet、全部Python架构测试及伙伴/管理/远程模块OpenAPI结构校验。首次使用需已有`.tools/go/bin/go.exe`、当前Python的jsonschema环境，以及第7节的固定版本OpenAPI验证虚拟环境；工具缺失作为失败记录，不自动安装或跳过。
+
+```powershell
+python docs/architecture/check_architecture.py
+```
+
+默认输出`.local/architecture-check/latest.json`；`--report`可指定保存位置，`--timeout`设置每个命令的秒数。报告保存逐项命令/退出码/输出、UTC记录时间和Go/机器契约输入的SHA-256，并比较运行前后文件库存。任一检查失败、执行超时、工具缺失或输入变化，命令非零退出。后续修改输入必须重新运行，不以旧报告宣称当前通过。
+
+报告明确`production_acceptance=false`；`local_checks_passed=true`只表示列出的本地范围。三份OpenAPI均为结构验证，不证明处理器、认证、供应商语义或SDK行为。运行组件、数据迁移、性能和真实召回门槛不由该入口判定。
+
+本次统一检查通过，Python测试219项；执行器五项测试验证非零退出与诊断、缺失工具及超时不会通过，并覆盖输入新增/删除/变更、二进制样本与依赖锁。当前结果归档见[统一本地检查证据](evidence/unified-local-checks.json)。该命令可作为后续CI入口，但当前部分Python跨语言试验依赖Windows路径，尚未建立跨平台或云CI支持。
+
+
+输入库存补充：examples/testdata下所有字节文件均纳入哈希，不仅限JSON/文本；OpenAPI固定依赖清单显式纳入。生成证据与缓存排除，避免报告自引用。清单仅声明这些文件的内容身份；工具路径记录不等于工具二进制或已安装传递依赖内容验证，报告显式保留这一限制。

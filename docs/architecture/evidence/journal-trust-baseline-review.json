@@ -1,0 +1,37 @@
+{
+  "recorded_at": "2026-10-13T01:41:29.865071+00:00",
+  "sources": {
+    "docs/architecture/journal_validation.py": "45b93fae24dc9410fdc772d0156caa0318880608dd9d828642242da5df9353bd",
+    "docs/architecture/test_journal_trust_baseline.py": "cb44a7237d2d9bc205c2fcdefb4881f23c008710582fa4d5f57c34a0731ac19f",
+    "docs/architecture/test_journal_trust_head.py": "a5698f7097898b1b078ec007a4081bf2b689afc77bc7be7f0e83aa1c4a7d55d8",
+    "docs/architecture/test_export_trust_inventory.py": "fc45ee931f40775add8176b12bc24857d5851023db0bda1e9342ce3e3d55fc61",
+    "docs/architecture/JOURNAL_PROTOCOL.md": "5a41afe6122081d5d97830adc0e985aac6fe67956b2c03cc59c5d6f0e6add9f2"
+  },
+  "scope": "Four independent synthetic TrustHead baseline tests plus typed sequence regression; 155 Python tests pass. Explicit start inventory and stream/cursor matching prevent omitted baseline, first-record version/high-water mismatch and false Bootstrap. No source/inventory authenticity, real ExportManifest linkage, external control anchor or atomic database replay proof.",
+  "checks": [
+    {
+      "name": "Trust baseline tests",
+      "chunk_id": "c28a1a",
+      "wall_time_seconds": 0.4671593,
+      "exit_code": 0,
+      "original_token_count": 27,
+      "output": "....\r\n----------------------------------------------------------------------\r\nRan 4 tests in 0.054s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Journal typed tests",
+      "chunk_id": "618a9d",
+      "wall_time_seconds": 0.4109479,
+      "exit_code": 0,
+      "original_token_count": 27,
+      "output": "....\r\n----------------------------------------------------------------------\r\nRan 4 tests in 0.055s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Python regression",
+      "chunk_id": "1b84c2",
+      "wall_time_seconds": 7.8934576,
+      "exit_code": 0,
+      "original_token_count": 65,
+      "output": "...........................................................................................................................................................\r\n----------------------------------------------------------------------\r\nRan 155 tests in 7.500s\r\n\r\nOK\r\n"
+    }
+  ]
+}

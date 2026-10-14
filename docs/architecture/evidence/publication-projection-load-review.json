@@ -1,0 +1,40 @@
+{
+  "recorded_at": "2026-10-13T05:43:40.900Z",
+  "scope": "Three added Python tests call actual Go --validate loader: closed fields, strict integers, local relationship rejection and five golden digests match. 174 Python tests and full Go/vet pass. Not trusted parent snapshot/current authorization/publication, current expiry or actual RetrieveRequest mapping proof.",
+  "checks": [
+    {
+      "command": "python -m unittest discover -s docs/architecture -p test_projection_digest.py",
+      "exit_code": 0,
+      "chunk_id": "eeb3fd",
+      "total_test_count": 7,
+      "new_test_count": 3
+    },
+    {
+      "chunk_id": "a51bb3",
+      "wall_time_seconds": 9.4e-06,
+      "exit_code": 0,
+      "original_token_count": 32,
+      "output": "...................\r\n----------------------------------------------------------------------\r\nRan 174 tests in 11.371s\r\n\r\nOK\r\n"
+    },
+    {
+      "chunk_id": "8a8867",
+      "wall_time_seconds": 4.5486326,
+      "exit_code": 0,
+      "original_token_count": 190,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t1.051s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t1.029s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.594s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.600s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.516s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.503s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t3.371s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t2.040s\n?   \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t1.580s\n"
+    },
+    {
+      "chunk_id": "e7c530",
+      "wall_time_seconds": 0.9725063,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/publicationprojection/record.go": "213ef7f4dfad547f57cbc9188ce9d4ef35102871b4d9a9433afe3cb05e1aa692",
+    "cmd/architecture-projection-digest/main.go": "12884f64e49ffb1aa17fe1ad029c620d1eeb98c325cd6c33ccd2f240e85253b5",
+    "docs/architecture/test_projection_digest.py": "cb3e7b85b6164d4b8beeaeb19f6bec8e1541f3d7d7efc1e2cf996549c4312ef2",
+    "docs/architecture/PUBLICATION_PROJECTION.md": "e12fe872e8bb43c3254a4d84a0a8805a2b3196b437791b023014e0adfb37314b"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "recorded_at": "2026-10-13T00:54:52.611223+00:00",
+  "sources": {
+    "docs/architecture/build_operation_grant_golden.py": "6d9f0d7509acd0a9fba0005e708001a84bcf4899ae11dad84d8a928a01a1f2e7",
+    "docs/architecture/test_operation_grant_golden.py": "bf7c41304e39df3c370162adfcc21b77318721066a79d1e601b0f9b8ba14ec50",
+    "docs/architecture/examples/operation-grant-golden.v1.json": "d30697a4da74db38de3f94472d5396b79a5d83f1e0fadaed03f146357385c60d",
+    "pkg/modulewire/operation_grant_test.go": "417810ab84f4f60104a25015fa42a308ce920749ae6f03ee913d4ef5b08141ef",
+    "docs/architecture/ACCESS_GRANT.md": "90515491dce36fde0d41c1a03e119acf0fbecc96b35bcc309548d1fa73c97035"
+  },
+  "scope": "17 operation samples: independent schema + actual Go request Decode and Go/Python request/scope digest comparisons. Input mutation digests differ and typed operation decoders reject invalid probes. No operation-action authorization semantics, real token/service identity/current policy/ledger/network evidence. 132 Python tests and full Go tests/vet pass.",
+  "checks": [
+    {
+      "name": "Operation golden generation",
+      "chunk_id": "f6c139",
+      "wall_time_seconds": 0.5214582,
+      "exit_code": 0,
+      "original_token_count": 24,
+      "output": "PASS: 17 independently Schema-checked request/scope golden bindings and input mutation digests\r\n"
+    },
+    {
+      "name": "Operation golden tests",
+      "chunk_id": "72fd7f",
+      "wall_time_seconds": 0.5403062,
+      "exit_code": 0,
+      "original_token_count": 27,
+      "output": "..\r\n----------------------------------------------------------------------\r\nRan 2 tests in 0.053s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Go regression",
+      "chunk_id": "9d7263",
+      "wall_time_seconds": 3.7937089,
+      "exit_code": 0,
+      "original_token_count": 88,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.789s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.705s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.394s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t0.473s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.631s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.123s\n"
+    },
+    {
+      "name": "Go vet",
+      "chunk_id": "0b7a77",
+      "wall_time_seconds": 0.9364025,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "name": "Python regression",
+      "chunk_id": "8c5940",
+      "wall_time_seconds": 6.5478305,
+      "exit_code": 0,
+      "original_token_count": 60,
+      "output": "....................................................................................................................................\r\n----------------------------------------------------------------------\r\nRan 132 tests in 6.058s\r\n\r\nOK\r\n"
+    }
+  ]
+}

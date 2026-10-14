@@ -98,3 +98,8 @@ python -m unittest discover -s docs/architecture -p test_remote_contract.py
 ```
 
 结构测试不能证明签名、授权或网络行为；对照和故障试验通过后再冻结对应远程端口。
+
+GrantVerifier内部结果的字段和规范摘要细化见[访问Grant绑定](ACCESS_GRANT.md)。已有Schema和5项离线关系检查；token/SDK选择、验签/轮换、Go摘要金标、服务身份、实时闸门和账本仍待验，不能用JSON声明代替可信结果。
+
+
+2026-10-13将17项远程操作纳入[统一外部规范校验](VALIDATION.md#7-openapi规范校验证据)和[统一检查入口](check_architecture.py)。固定校验器0.9.0通过当前文件，摘要见[报告](evidence/openapi-conformance.json)。仅结构一致性，实际处理器/授权/网络故障语义仍待验。

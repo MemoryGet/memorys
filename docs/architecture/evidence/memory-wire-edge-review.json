@@ -1,0 +1,35 @@
+{
+  "scope": "Actual Go memory codec / Python schema relation tests; no real provider/authority/content bounds",
+  "red": {
+    "chunk_id": "e48890",
+    "exit_code": 1,
+    "observed_failures": [
+      "Python zero creation time",
+      "Python reversed character range",
+      "Python reversed bbox",
+      "Go explicit empty worksheet",
+      "Go explicit empty cell_range"
+    ]
+  },
+  "green": {
+    "chunk_id": "130a02",
+    "exit_code": 0,
+    "tests": 4,
+    "rejection_matrix_cases": 8
+  },
+  "unified_report": "unified-local-checks.json",
+  "sources": [
+    {
+      "path": "pkg/modulewire/memory.go",
+      "sha256": "3e7d77899ee371d488e4c86eff5866bcb4b92a009c8c716a08e0a9b0f003aab5"
+    },
+    {
+      "path": "docs/architecture/memory_record_validation.py",
+      "sha256": "7cb38b88e9315edea8c0521d5cb1ad6251475252ff9782a88e1c842076f19301"
+    },
+    {
+      "path": "docs/architecture/test_memory_wire.py",
+      "sha256": "3a0282e75b3b6522dd2a382403c620208ad4af698f5cd494138ff08d07de5148"
+    }
+  ]
+}

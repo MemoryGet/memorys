@@ -59,3 +59,31 @@ python -m unittest discover -s docs/architecture -p test_export_manifest.py
 `export_validation.validate_package`接受显式entry-id到bytes映射，不读取路径、不下载、不导入。离线参考实现最多1000段，单段4MiB、总计128MiB，JSON嵌套64层；这些是设计检查工具限制，生产流式导出不能据此限制企业数据量。成功固定`ready_for_import=false`并列明未验证项。
 
 测试覆盖空族明确列出、缺族/重复条目、缺失/额外字节、摘要/数量篡改、多段重复记录、契约/类型失配、JSON重复键/行格式、精确计数和恢复规则。空库存只是假设设计样本；它不证明某个运行部署真的没有数据。[日志水位](JOURNAL_PROTOCOL.md)及[原件复制清单](BLOB_COPY.md)已另提供局部机器契约；真实导出/导入、各类payload Schema、实际字节复制与提交水位验证仍待完成，D-04保持开放。
+
+## 部署信任记录的待扩展库存（2026-10-13）
+
+[信任激活仓储](KEY_TRUST_ACTIVATION.md#6-平台仓储与部署事务端口)新增trust_domain/trust_head/trust_snapshot/key_retirement/trust_activation/runtime_trust_receipt逻辑族。随后元数据1.1已扩展RESOURCE_TYPES；typed payload Schema及真实库存仍未完成。正式启用前需实现记录契约，再验证备份外部锚点、日志及事务恢复。声明端口不使旧导出格式自动兼容。
+
+## 元数据1.1库存增量（2026-10-13）
+
+source.metadata_contract_version从1.0升为1.1，清单结构schema_version仍为1。新增upload_operation、trust_domain、trust_head、trust_snapshot、key_retirement、trust_activation、runtime_trust_receipt、deployment_audit_record、deployment_outbox_record共9族。上传操作用于未知提交和候选恢复；部署记录包括信任高水位、退役及控制面事务事实，不能以普通space审计代替DomainID语义。
+
+每族即使为零也必须有空段，清单检查核对精确覆盖；增加其它族的段凑数量无法掩盖遗漏。1.0声明由当前1.1检查器明确拒绝；不把旧包静默补零变成具备新治理事实的完整快照。升级后的实际导出应从受信源库存证明新族为空或完整，不由操作者手工改版本字符串。
+
+Journal Schema从同一RESOURCE_TYPES取得可重放族（继续排除migration_journal自递归），9族已可出现在完整事务链的包络和摘要中。旧导入器/重放器遇到未知族必须拒绝，不忽略并继续切换；历史1.0包需要显式隔离升级及权威补录方案，当前未实现升级转换器。
+
+4项新测试覆盖新族在相同段数下仍不能遗漏、旧版本拒绝、新族包络计数及Journal链条核对。包络允许的合成payload不是完整记录验证，ready_for_import/ready_for_replay继续固定false。见[执行证据](evidence/export-trust-inventory-review.json)。完整typed payload、真实数据库快照/外部锚点、原子导入与重放仍未验，D-04保持开放。
+
+## TrustHead首个类型化记录（2026-10-13）
+
+[TrustHead Schema](schemas/trust-head.v1.schema.json)和build_trust_head.py定义akos.metadata.trust_head/1；字段为domain_id、issuer_id、active(id/version/digest)、build_lock_digest、high_water_version、row_version，与实际Go contracts.TrustHead逐项映射。记录键record_id固定为domain_id，部署域一对一绑定issuer。版本/计数为正uint64，精确整数、摘要格式、未知/缺字段及高水位＝active.version受检；不可把来源存在性或审批可信度推给Schema。
+
+实际Go codec位于pkg/modulewire/trust_record.go，复用受控字段注册及精确数字编码。cmd/architecture-trust-record是只读映射检查器，不导入数据。Python试验先核对Schema，再调用Go Decode→contracts.TrustHead→Encode并比较规范字节，验证version超过double精度及row_version达到uint64上限。记录合法不表示还能继续版本推进，上限时另由推进检查拒绝溢出。
+
+export_validation现仅对trust_head执行此payload校验，报告typed_record_counts；record_id与payload归属错配也拒绝。其它族仍只有包络，unverified中的typed_record_payloads保留，ready_for_import固定false；Journal随后已接同一TrustHead记录校验及链内推进规则，见[日志规范](JOURNAL_PROTOCOL.md)；仍不证明相对源快照或真实重放通过。
+
+3项新增Python测试包含实际Go编解码，检查合法计数、record_id/高水位/float/未知字段拒绝及错误Go样例；见[执行证据](evidence/trust-head-record-review.json)。其余payload、跨记录引用、Head高水位来源、事务/退役/真实导入仍待验，D-04开放。
+
+TrustHead在Journal中的载荷/声明版本、链内高水位和issuer推进校验已补充；首次Head与独立源快照的核对尚未完成，其它记录族仍待类型化。
+
+导出Identity/原始清单摘要与Journal起点的组合验证见[日志规范](JOURNAL_PROTOCOL.md)。提取器使用同一已核验bytes，不重新打开路径；独立期望可信来源与实际完整快照仍未证明，不能作为ready_for_import/replay许可。

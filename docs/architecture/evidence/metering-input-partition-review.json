@@ -1,0 +1,38 @@
+{
+  "scope": "Receipt input partition relation checks: two new Go tests (seven exact/overflow cases and missing/unknown total/partial cached cases), eight metering tests total. No provider authority or real ledger proof.",
+  "checks": [
+    {
+      "chunk_id": "93bc94",
+      "wall_time_seconds": 5.2585329,
+      "exit_code": 0,
+      "original_token_count": 255,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.576s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-binding\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-probe\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.717s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.136s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.773s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.130s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t0.947s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.808s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.331s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t2.043s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t1.538s\nok  \tgithub.com/MemoryGet/memorys/pkg/reflection\t1.802s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t1.944s\n"
+    },
+    {
+      "chunk_id": "629b0b",
+      "wall_time_seconds": 2.1489938,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "remaining": [
+    "provider evidence and required metric completeness",
+    "persistent reservation/reconciliation",
+    "multi-process CAS/recovery and replacement"
+  ],
+  "sources": [
+    {
+      "path": "pkg/contracts/metering.go",
+      "sha256": "057fa4f4cde67369e66302eb508da7e37eb7ff6783aea520c76e490a9961378f"
+    },
+    {
+      "path": "pkg/contracts/metering_test.go",
+      "sha256": "6bc241ad08fd6c97415cea86b8e8d078e38b7672a43ca9ed4d17ed27295ba954"
+    },
+    {
+      "path": "docs/architecture/REQUEST_METERING.md",
+      "sha256": "b833d10d5373f27f52fe82bc3a51391b09db1f87e0bbef1fa739e18f9555391c"
+    }
+  ]
+}

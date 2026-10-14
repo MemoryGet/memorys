@@ -1,6 +1,6 @@
 # Blob远程字段与二进制边界 V1
 
-本规范补充[远程模块协议](REMOTE_MODULES.md)的三项Blob操作。Go映射位于`pkg/modulewire/blob.go`，二进制检查位于`blob_stream.go`。它们是DTO和完整性检查，尚无HTTP适配器、multipart处理器、当前授权/Grant或真实存储调用。
+本规范补充[远程模块协议](REMOTE_MODULES.md)的三项Blob操作。Go映射位于`pkg/modulewire/blob.go`，二进制检查位于`blob_stream.go`。它们是DTO和完整性检查；另有[multipart接收辅助器](BLOB_MULTIPART_TRANSPORT.md)及局部HTTP证据。当前授权/Grant、完整服务与真实存储确认仍待实现。
 
 ## 1. 字段与响应关联
 
@@ -41,3 +41,7 @@ Python脚本将put/open/delete三组样本分别送入实际Go类型映射，并
 Go试验覆盖DTO往返、上传期望、删除Ack、普通EOF和数据+EOF、截断/溢出/哈希篡改、底层错误/无进展、空文件、预算、取消前/读取中取消、回显/类型/长度与大小写拆分重复头。未执行multipart、HTTP/SSE传输、Grant/当前权限、幂等账本、阻塞读取取消、实际Put/Open/Delete或UI/MCP读取。
 
 D-03的文件数据映射取得局部证据，生成流、控制和安全错误映射以及正式认证/网络协议验收仍未闭合，不能冻结完整远程协议。
+
+## 4. 接收与上传确认的边界
+
+接收阶段的最新证据见[multipart规范](BLOB_MULTIPART_TRANSPORT.md)；此前第3节记录限定为当时Blob映射检查。后续[上传确认与恢复协议](BLOB_CONFIRMATION.md)定义持久对象、事务确认及未知结果恢复，尚无运行实现。不得将接收receipt视作正式BlobRef确认。

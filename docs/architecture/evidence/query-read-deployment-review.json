@@ -1,0 +1,33 @@
+{
+  "recorded_at": "2026-10-13T06:24:55.778Z",
+  "scope": "Required query_read_unit deployment role and fixed-view/scoped-read feature declarations. Three new tests and 177 Python regression tests pass. Updated hypothetical config offline_validated but ready_for_service=false. No actual factory, deployment normalization, data-source lock or real feature verification.",
+  "checks": [
+    {
+      "command": "python -m unittest discover -s docs/architecture -p test_query_read_deployment.py",
+      "exit_code": 0,
+      "chunk_id": "e6b69f",
+      "test_count": 3
+    },
+    {
+      "chunk_id": "46ef3e",
+      "wall_time_seconds": 7.1e-06,
+      "exit_code": 0,
+      "original_token_count": 32,
+      "output": "...................\r\n----------------------------------------------------------------------\r\nRan 177 tests in 11.167s\r\n\r\nOK\r\n"
+    },
+    {
+      "command": "python docs/architecture/check_config.py --config docs/architecture/examples/design-deployment.json --manifest docs/architecture/examples/design-provider-manifest.json",
+      "exit_code": 0,
+      "chunk_id": "aaed57",
+      "ready_for_service": false
+    }
+  ],
+  "sources": {
+    "docs/architecture/schemas/deployment-config.v1.schema.json": "b583a0bd134fe4e9dde9e8f289899ebea7be10e2a9d6ad4bfebf01d0c9614fee",
+    "docs/architecture/check_deployment_design.py": "911248ead0aefc5631bb51b831400788d2a0f03052b2df6bc775ea230d8a80cd",
+    "docs/architecture/check_assembly_semantics.py": "8ce2f9c8b1bfa97abf5960246c62221c0255b7814eca63432bf5290c85f110ba",
+    "docs/architecture/test_query_read_deployment.py": "e5202fd24a564afe50e9e03956a41267edbd6d47d1f8b9a31c2a526d3df078d6",
+    "docs/architecture/examples/design-deployment.json": "1a881e8869435a8ff504d8cd87a3baf59072bc215ae36794244ea6de1cff47d7",
+    "docs/architecture/examples/design-provider-manifest.json": "5f230c166d8b42531422ca230c4340eaba4d952c59f6d56db537e0dd4e223d3c"
+  }
+}

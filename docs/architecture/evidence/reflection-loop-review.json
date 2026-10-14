@@ -1,0 +1,25 @@
+{
+  "recorded_at": "2026-10-13T12:03:33.844Z",
+  "scope": "Nine controlled Go request-local evidence reflection loop tests, bounded rounds/deadline, no-novel/repeated plans, mandatory gate and post-refine recheck, input copies/caller budget. Full Go tests/vet pass. No actual model/backend/current authority, persistent request budget/replay, usage/cost or quality proof.",
+  "checks": [
+    {
+      "chunk_id": "4a773e",
+      "wall_time_seconds": 4.8162374,
+      "exit_code": 0,
+      "original_token_count": 255,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t1.482s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-binding\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-probe\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t1.505s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t1.096s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.736s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.160s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t0.836s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t3.494s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.803s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t1.853s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t2.030s\nok  \tgithub.com/MemoryGet/memorys/pkg/reflection\t0.614s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t0.659s\n"
+    },
+    {
+      "chunk_id": "f3683e",
+      "wall_time_seconds": 0.8980366,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/reflection/loop.go": "0365be1e29cd868edf7ce07cf9cff416e7a1eff626ab9b4c87c39adab5983fbb",
+    "pkg/reflection/loop_test.go": "934247060abc2eb0ee197c58e813da2d0809e845c057cc92b619e8e68f0083ef",
+    "docs/architecture/REFLECTION_ORCHESTRATION.md": "40384d92f4480bbc32de70a166c5f74ef23f54108f75b3e4255e398f662ad1ca"
+  }
+}

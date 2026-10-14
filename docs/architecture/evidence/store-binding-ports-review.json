@@ -1,0 +1,31 @@
+{
+  "recorded_at": "2026-10-13T06:39:38.045Z",
+  "scope": "Four Go relationship tests and provider-neutral store identity/observation/coverage port declarations. Full Go tests/vet pass. No trusted control-plane source, actual endpoint observation, serialized Schema, real cursor coverage or readiness proof.",
+  "checks": [
+    {
+      "command": ".\\.tools\\go\\bin\\go.exe test -count=1 -run TestStoreIdentity -v ./pkg/contracts",
+      "exit_code": 0,
+      "chunk_id": "5865b9",
+      "test_count": 4
+    },
+    {
+      "chunk_id": "8bc81e",
+      "wall_time_seconds": 5.5610673,
+      "exit_code": 0,
+      "original_token_count": 201,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.927s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.884s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.495s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.535s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.253s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.099s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t3.341s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t2.102s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t1.763s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t1.409s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t1.471s\n"
+    },
+    {
+      "chunk_id": "fea8c4",
+      "wall_time_seconds": 1.8136795,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/contracts/store_binding.go": "22e849b833f0036fc3031f6316046f722740e12705c718ba2ad7c4c51da192d5",
+    "pkg/contracts/store_binding_test.go": "d01482fe49583ba22f345404e8663f3c19587c323ced4fac7ced6ac6b72e814c",
+    "docs/architecture/METADATA_STORE_BINDING.md": "decb9bfff9082a6adef414fee75382d53ecb6038a5f815437686a7470aca5b70"
+  }
+}

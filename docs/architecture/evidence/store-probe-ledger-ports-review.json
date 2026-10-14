@@ -1,0 +1,31 @@
+{
+  "recorded_at": "2026-10-13T11:09:12.422Z",
+  "scope": "Five Go local probe-attempt relationship tests and deployment-domain ledger transaction/CAS interface declarations. Full Go tests/vet pass. No DB CAS/atomic audit-outbox-journal, trusted lease/current authorization, collective Check inventory, digest proof or persistent replay/recovery.",
+  "checks": [
+    {
+      "command": ".\\.tools\\go\\bin\\go.exe test -count=1 -run TestProbeLedger -v ./pkg/contracts",
+      "exit_code": 0,
+      "chunk_id": "ae2f8c",
+      "test_count": 5
+    },
+    {
+      "chunk_id": "d9c375",
+      "wall_time_seconds": 5.3207582,
+      "exit_code": 0,
+      "original_token_count": 241,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.683s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-binding\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-probe\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.180s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.191s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.401s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t0.866s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t0.899s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.685s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.406s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t1.766s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t0.997s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t1.656s\n"
+    },
+    {
+      "chunk_id": "fbbe2a",
+      "wall_time_seconds": 2.2400632,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/contracts/store_probe_ledger.go": "544084afc2f1afc69743c9cd3b365ed17fc9e85e5f0eb1485aad52a4d3d5b9c0",
+    "pkg/contracts/store_probe_ledger_test.go": "748b9a347069c5ca4d11534517afa3cf194f626e57ac37aa9301b33020331c84",
+    "docs/architecture/STORE_PROBE_LEDGER.md": "98b130f852829bbd893a4cc21ac654f64d3f9a2f9cff88fa428b023587dc6769"
+  }
+}

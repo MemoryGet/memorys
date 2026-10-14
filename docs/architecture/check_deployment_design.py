@@ -12,13 +12,13 @@ def binding(capability):
 
 
 def fixture():
-    roles = ["authenticator", "authorizer", "metadata_uow", "publication",
+    roles = ["authenticator", "authorizer", "metadata_uow", "query_read_unit", "publication",
              "blob_store", "task_repository", "task_queue", "event_bus", "audit", "observer"]
     return {
         "schema_version": 1, "build_lock_ref": "design-only-not-a-real-build-lock",
         "modules": [{"instance_id": "design-fixture", "provider": "unimplemented-reference",
                      "implementation_version": "0.1.0", "contract": "1.0", "settings": {}, "dependency_bindings": {}}],
-        "bindings": {role: binding(role) for role in roles},
+        "bindings": {role: {**binding(role), **({"required_features": ["snapshot.fixed_view", "lifecycle.scoped_read"]} if role == "query_read_unit" else {})} for role in roles},
         "index_profiles": [{"id": "index", "version": 1, "mode": "independent",
                             "bindings": {role: binding(role) for role in ["parser", "splitter", "embedder"]},
                             "index_routes": [{"route_id": "keyword-index", "channels": ["keyword"], "binding": binding("index_writer")},
@@ -29,7 +29,7 @@ def fixture():
         "query_profiles": [{"id": "query", "version": 1, "bindings": {"fuser": binding("fuser")},
                             "retrieval_routes": [{"route_id": "keyword-recall", "channels": ["keyword"], "binding": binding("retriever"), "candidate_limit": 50, "required": True},
                                                  {"route_id": "vector-recall", "channels": ["vector"], "binding": binding("retriever"), "candidate_limit": 50, "required": True}],
-                            "reflection": {"enabled": False, "max_extra_rounds": 2, "total_budget_ms": 30000},
+                            "reflection": {"enabled": False, "max_extra_rounds": 2, "max_plan_queries": 2, "total_budget_ms": 30000},
                             "policy": {"schema_version": 1, "candidate_limit": 100, "answer_evidence_limit": 10, "fusion": {"method": "rrf", "rank_constant": 60},
                                        "rerank": {"enabled": False}, "generation": {"enabled": False, "max_output_tokens": 2048},
                                        "timeouts": {"retrieval_ms": 5000, "rerank_ms": 3000, "generation_ms": 20000}, "optional_capabilities": []}}],

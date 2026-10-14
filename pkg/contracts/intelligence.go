@@ -88,10 +88,11 @@ type Reflector interface {
 }
 
 type MemoryProvenance struct {
-	Kind       string
-	TaskID     *ID
-	FeedbackID *ID
-	Citations  []Citation
+	Kind           string
+	ConfirmationID *ID // Platform confirmation event; not a model assertion.
+	TaskID         *ID
+	FeedbackID     *ID
+	Citations      []Citation
 }
 
 type MemoryRecord struct {

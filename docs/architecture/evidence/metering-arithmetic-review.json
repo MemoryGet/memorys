@@ -1,0 +1,25 @@
+{
+  "recorded_at": "2026-10-13T12:22:05.610Z",
+  "scope": "Six Go metering arithmetic/receipt relationship tests. Exact big.Int ceiling, money compatibility/overflow and cached subset; unknown/estimated not actual complete. Full Go tests/vet pass. Synthetic rates, no approved catalog/provider proof, reservation/debit/reconcile, persistent budget or recovery.",
+  "checks": [
+    {
+      "chunk_id": "035794",
+      "wall_time_seconds": 5.3979061999999995,
+      "exit_code": 0,
+      "original_token_count": 255,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.843s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-binding\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-probe\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.540s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.140s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.784s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.439s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.133s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.962s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t2.047s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t1.687s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t0.949s\nok  \tgithub.com/MemoryGet/memorys/pkg/reflection\t2.227s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t2.007s\n"
+    },
+    {
+      "chunk_id": "aaebd6",
+      "wall_time_seconds": 2.2033827,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/contracts/metering.go": "d46a2006700f50fc555a6ad42af7056b1606ee7bae2b00d3ddf05e1b666d44ea",
+    "pkg/contracts/metering_test.go": "0af8e3453e92948bebfbc1c047c6e9a50eff6318d81ac01ecaf259d161a96595",
+    "docs/architecture/REQUEST_METERING.md": "39c2bb6eb7f0be428de0087ff7d406201fb74686a37b3ba2e339f435ea137029"
+  }
+}

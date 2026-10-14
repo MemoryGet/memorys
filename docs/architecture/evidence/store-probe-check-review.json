@@ -1,0 +1,32 @@
+{
+  "recorded_at": "2026-10-13T11:16:15.518Z",
+  "scope": "Five Go tests for immutable Check member inventory and all-member acceptance proposals; Check/Probe CAS repository declarations extended. Full Go tests/vet pass. No actual CAS/ledger consumption, atomic audit-outbox-journal, multiprocess replay, authenticated binding/current policy or real coverage proof.",
+  "checks": [
+    {
+      "command": ".\\.tools\\go\\bin\\go.exe test -count=1 -run TestProbeCheck -v ./pkg/contracts",
+      "exit_code": 0,
+      "chunk_id": "d030d4",
+      "test_count": 5
+    },
+    {
+      "chunk_id": "b0a9be",
+      "wall_time_seconds": 5.2259926,
+      "exit_code": 0,
+      "original_token_count": 241,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.705s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-binding\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-probe\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.791s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.414s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.135s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.083s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.042s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.893s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.350s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t1.719s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t1.907s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t1.912s\n"
+    },
+    {
+      "chunk_id": "e091ca",
+      "wall_time_seconds": 1.9010254,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/contracts/store_probe_ledger.go": "26fb7d75295ee1ff8496dc1b97db3e2548cf317a625c90b7e58d2cddf07cf2ea",
+    "pkg/contracts/store_probe_check.go": "596376f718fc08ec88125da6420d6b4ccfa5f5532b21b2b16fb340be18c00f6d",
+    "pkg/contracts/store_probe_check_test.go": "1bb5d191ca7f33e271dfcab0bb2d8672a3fea4085d2741e9f3dfc341c6d257c5",
+    "docs/architecture/STORE_PROBE_LEDGER.md": "4cb0550581e47c68b80e5da9f7fd183d6cf2115cd95e8349caddf52364897ae8"
+  }
+}

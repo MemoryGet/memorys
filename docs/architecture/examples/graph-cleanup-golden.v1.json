@@ -1,0 +1,18 @@
+{
+  "format": "akos.graph-cleanup-golden/1",
+  "cases": [
+    {
+      "name": "source",
+      "input_json": "{\"schema_version\": \"1.0\", \"operation\": {\"operation_id\": \"operation\", \"subject_id\": \"用户甲\", \"kind\": \"source_invalidation\", \"document_id\": \"document\", \"revision_id\": \"revision\", \"publication_epoch\": 18446744073709551615, \"target\": {\"space_id\": \"target-space_id\", \"kb_id\": \"target-kb_id\", \"backend_epoch_id\": \"target-backend_epoch_id\", \"generation_id\": \"target-generation_id\", \"index_profile_digest\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"extraction_profile_digest\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"ontology_digest\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"source_snapshot_digest\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}}",
+      "canonical_json": "{\"operation\":{\"document_id\":\"document\",\"kind\":\"source_invalidation\",\"operation_id\":\"operation\",\"publication_epoch\":18446744073709551615e0,\"revision_id\":\"revision\",\"subject_id\":\"用户甲\",\"target\":{\"backend_epoch_id\":\"target-backend_epoch_id\",\"extraction_profile_digest\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"generation_id\":\"target-generation_id\",\"index_profile_digest\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"kb_id\":\"target-kb_id\",\"ontology_digest\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"source_snapshot_digest\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"space_id\":\"target-space_id\"}},\"schema_version\":\"1.0\"}",
+      "sha256": "808b1f0f09c1b2c907709ad3d7abda6da9e2b2dab4b9536285ae28efe6b8c990"
+    },
+    {
+      "name": "delete",
+      "input_json": "{\"schema_version\": \"1.0\", \"operation\": {\"operation_id\": \"operation\", \"subject_id\": \"用户甲\", \"kind\": \"generation_deletion\", \"target\": {\"space_id\": \"target-space_id\", \"kb_id\": \"target-kb_id\", \"backend_epoch_id\": \"target-backend_epoch_id\", \"generation_id\": \"target-generation_id\", \"index_profile_digest\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"extraction_profile_digest\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"ontology_digest\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"source_snapshot_digest\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}, \"retention_permit_id\": \"permit\"}}",
+      "canonical_json": "{\"operation\":{\"kind\":\"generation_deletion\",\"operation_id\":\"operation\",\"retention_permit_id\":\"permit\",\"subject_id\":\"用户甲\",\"target\":{\"backend_epoch_id\":\"target-backend_epoch_id\",\"extraction_profile_digest\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"generation_id\":\"target-generation_id\",\"index_profile_digest\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"kb_id\":\"target-kb_id\",\"ontology_digest\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"source_snapshot_digest\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"space_id\":\"target-space_id\"}},\"schema_version\":\"1.0\"}",
+      "sha256": "80c94acb7077e02356af791a40b538b68b5e6da2c4b42d27684f1d6670a3887d"
+    }
+  ],
+  "source_authenticated": false
+}

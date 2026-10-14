@@ -1,0 +1,25 @@
+{
+  "recorded_at": "2026-10-13T05:20:31.345Z",
+  "scope": "Six synthetic partition merge tests, including actual RRF one-route integration. No backend/current authorization/publication/generation provenance, executor/concurrency or failure-degradation implementation, Recall/performance proof.",
+  "checks": [
+    {
+      "chunk_id": "043599",
+      "wall_time_seconds": 4.4448501,
+      "exit_code": 0,
+      "original_token_count": 150,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t1.226s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.847s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.870s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t1.037s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.449s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.472s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t3.290s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t0.579s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t0.454s\n"
+    },
+    {
+      "chunk_id": "5c9bed",
+      "wall_time_seconds": 0.8976949,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/retrievalplan/merge.go": "ade7ef68775948c3715dfe04b51848e82aae5b7505e38a33747953e23daf4cab",
+    "pkg/retrievalplan/merge_test.go": "115d08daad993a3baeb864e38d7fbda88d016176c321999555d57472b505a010",
+    "docs/architecture/RETRIEVAL_COORDINATOR.md": "01d18ba359a4642aeac1e530611e949c4a2a6e93ede842d60b7b85e2458b6f06"
+  }
+}

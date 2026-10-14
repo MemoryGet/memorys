@@ -6,7 +6,7 @@ import unittest
 
 from jsonschema import ValidationError
 
-from build_export_manifest import RESOURCE_TYPES
+from build_export_manifest import RESOURCE_TYPES,METADATA_CONTRACT_VERSION
 from export_validation import validate_package
 
 
@@ -14,7 +14,7 @@ class ExportManifestTests(unittest.TestCase):
     def setUp(self):
         self.payloads = {f"entry-{resource}": b"" for resource in RESOURCE_TYPES}
         self.manifest = {"schema_version": 1, "export_id": "export-1", "kind": "metadata_full_snapshot",
-                         "source": {"deployment_id": "deployment-1", "build_lock_sha256": "a"*64, "metadata_contract_version": "1.0"},
+                         "source": {"deployment_id": "deployment-1", "build_lock_sha256": "a"*64, "metadata_contract_version": METADATA_CONTRACT_VERSION},
                          "snapshot": {"snapshot_id": "snapshot-1", "journal_stream_id": "stream-1", "committed_watermark": "cursor-1", "boundary": "after_complete_transaction", "writes": "all_metadata_writes_paused"},
                          "segments": [{"entry_id": key, "resource_type": resource, "record_contract": f"akos.metadata.{resource}/1", "encoding": "jsonl-envelope/1", "record_count": 0, "byte_length": 0, "sha256": hashlib.sha256(b"").hexdigest()} for resource, key in zip(RESOURCE_TYPES,self.payloads)],
                          "blob_payloads": "external_required_before_cutover", "derived_indexes": "excluded_rebuild_or_verify", "lease_restore": "invalidate_all_inflight"}

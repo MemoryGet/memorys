@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "capabilities": {
+    "memory": ["prefilter.space", "prefilter.owner", "prefilter.task", "prefilter.kb", "prefilter.ttl", "evidence.provenance", "delete.idempotent", "migration.standard_records"],
+    "graph": ["prefilter.space", "prefilter.kb", "prefilter.revision", "prefilter.generation", "evidence.provenance", "delete.source_invalidation", "migration.rebuild"]
+  }
+}

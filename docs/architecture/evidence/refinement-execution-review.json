@@ -1,0 +1,28 @@
+{
+  "recorded_at": "2026-10-13T11:46:29.714Z",
+  "scope": "Six controlled callback tests for one-round multi-query refinement execution; shared base dispatch validates global pool/cost/failure semantics. Full Go tests/vet pass. No actual reflector/backends, multiple-round 30s accounting, embedding/model usage/cost, authority freshness or quality proof.",
+  "checks": [
+    {
+      "chunk_id": "2c9f1c",
+      "wall_time_seconds": 4.2693219,
+      "exit_code": 0,
+      "original_token_count": 241,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.630s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-binding\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-probe\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.996s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t1.017s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.455s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.381s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t0.741s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.935s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.707s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t2.102s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t1.742s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t2.111s\n"
+    },
+    {
+      "chunk_id": "4c1d60",
+      "wall_time_seconds": 1.2096013,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/retrievalplan/execute.go": "83e57030516a35ae93eae15e4104440960d1a14808811e272b9af1a2c9061d56",
+    "pkg/retrievalplan/dispatch.go": "c86ae50c177943449b9cd8ee07e90487e51422ab1dd89c24cc4cac71ac6cb253",
+    "pkg/retrievalplan/refinement.go": "9b566245674c062477cc88cae89c5e670a4339d390be47399642898747778414",
+    "pkg/retrievalplan/refinement_execute.go": "ca6f7fa93abc44fc04709811eec82066d8fdbc00e4a0a78bccdeb5b700d714b8",
+    "pkg/retrievalplan/refinement_execute_test.go": "628e91eb65d3fd00b9e3752b0265d151f9090b903d8afd5509b9fc46f7c91cbf",
+    "docs/architecture/REFLECTION_ORCHESTRATION.md": "98cb07168f6932c8384dd27991871cddfe0533dbb1d76006f41459d7194ef408"
+  }
+}

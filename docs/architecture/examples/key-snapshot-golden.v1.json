@@ -1,0 +1,10 @@
+{
+  "format": "akos.key-snapshot-golden/1",
+  "scope": "Synthetic public bytes for configuration hashing, not signed credentials",
+  "config_json": "{\"snapshot_id\":\"trust-1\",\"version\":9007199254740993,\"issuer_id\":\"issuer-1\",\"valid_from_ns\":0,\"valid_until_ns\":9223372036854775807,\"max_lifetime_ns\":1000000000,\"keys\":[{\"key_id\":\"key-1\",\"algorithm\":\"EdDSA\",\"public_key\":\"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=\",\"enabled_at_ns\":0,\"sign_until_ns\":9007199254740993,\"verify_until_ns\":9007199254740994}]}",
+  "expected": {
+    "id": "trust-1",
+    "version": 9007199254740993,
+    "digest": "5d2fdc626c1afb8963e1757cd3860501ff809c3779b32b51cc13706570d67461"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "recorded_at": "2026-10-13T06:43:14.181Z",
+  "scope": "Closed offline store-binding-review Schema, five new structural/identity tests, 182 Python regression tests pass. Report provenance_verified/coverage_verified/ready_for_service all false. No signed independent expectation, actual Go DTO mapping, real observation or commit coverage proof.",
+  "checks": [
+    {
+      "command": "python -m unittest discover -s docs/architecture -p test_store_binding.py",
+      "exit_code": 0,
+      "chunk_id": "96d46b",
+      "test_count": 5
+    },
+    {
+      "chunk_id": "949054",
+      "wall_time_seconds": 7.7e-06,
+      "exit_code": 0,
+      "original_token_count": 32,
+      "output": "...................\r\n----------------------------------------------------------------------\r\nRan 182 tests in 11.314s\r\n\r\nOK\r\n"
+    },
+    {
+      "command": "python docs/architecture/build_store_binding.py",
+      "exit_code": 0,
+      "chunk_id": "fae790"
+    }
+  ],
+  "sources": {
+    "docs/architecture/build_store_binding.py": "4cca5d73f352aab2fdde0c336d289f0ba36980540d6bb8a5ed0fcde923f09a1a",
+    "docs/architecture/store_binding_validation.py": "7f43cebca09500e7575f03f9eaf7596b5730dbffd931e7d296bf59c8571ecb86",
+    "docs/architecture/test_store_binding.py": "c78014b7e463076f51520bd1d6c5a12d73260f37c4dc4528e6bb6749c02865be",
+    "docs/architecture/schemas/store-binding-review.v1.schema.json": "8b8a936b77344cdeba5bff3b9a6a36bb37fc6f436ad07e2f8529738a6d70d555",
+    "docs/architecture/METADATA_STORE_BINDING.md": "93d74d6f5fb80f5dc83ed9cf56dcc71f91d5dce8bb4041b61689493d275c3785"
+  }
+}

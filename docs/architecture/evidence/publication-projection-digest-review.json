@@ -1,0 +1,41 @@
+{
+  "recorded_at": "2026-10-13T05:40:05.305Z",
+  "scope": "Five synthetic fixed-domain projection digest vectors, four added tests including actual compiled Go tool comparison. 171 Python regression tests, Go regression and vet pass. Go helper explicitly unchecked; no schema/relationship validation there, trusted publication service, actual request mapping or current authorization proof.",
+  "checks": [
+    {
+      "command": "python -m unittest discover -s docs/architecture -p test_projection_digest.py",
+      "exit_code": 0,
+      "chunk_id": "7edf67",
+      "test_count": 4
+    },
+    {
+      "chunk_id": "6f03fe",
+      "wall_time_seconds": 7.7e-06,
+      "exit_code": 0,
+      "original_token_count": 31,
+      "output": "................\r\n----------------------------------------------------------------------\r\nRan 171 tests in 10.970s\r\n\r\nOK\r\n"
+    },
+    {
+      "chunk_id": "c4c7b3",
+      "wall_time_seconds": 3.5298492,
+      "exit_code": 0,
+      "original_token_count": 190,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t1.210s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t1.581s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t1.488s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t1.218s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.894s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.826s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.356s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t0.792s\n?   \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t2.170s\n"
+    },
+    {
+      "chunk_id": "0e0634",
+      "wall_time_seconds": 0.9564541,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/publicationprojection/digest.go": "c4bf41f3b9d21c2c08df84de4ebd95a79a7c68f5f4921f2939f29957554e5bd3",
+    "cmd/architecture-projection-digest/main.go": "acd8c1b317ba176c1d919ae00d2b1848c0e556bbade647fe95db2e7e98a6098d",
+    "docs/architecture/publication_projection.py": "81a0fa2b2ccd087b3e2711820b66ebe81f3a4712175ebe9bcbdf0c7ff60daf34",
+    "docs/architecture/build_projection_golden.py": "4dec950909d9083411ede2aae6d49707e1a075fef476c08b65cb14c5b2a488d3",
+    "docs/architecture/test_projection_digest.py": "9f0d91ca9b657e98aa27cc9eb4428c3ae24cd0898546248a9220a5f19a957b76",
+    "docs/architecture/examples/publication-projection-golden.v1.json": "9b4e302e9f3dbd44e8aef1fe00d862f805c2faf5ec5f0e7404869fd1a23f3e01"
+  }
+}

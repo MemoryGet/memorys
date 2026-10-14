@@ -1,0 +1,26 @@
+{
+  "recorded_at": "2026-10-13T05:28:34.109Z",
+  "scope": "Three added tests preserve deployment MaxCalls in the internal Plan, reject invalid/lower call cap before callbacks, allow exact cap and reject inconsistent parallelism. Full Go tests/vet pass. Not trusted deployment normalization, remote plan protocol, authorization/publication or backend proof.",
+  "checks": [
+    {
+      "chunk_id": "c6ac0d",
+      "wall_time_seconds": 4.363349,
+      "exit_code": 0,
+      "original_token_count": 150,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.592s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.978s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.669s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.405s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.326s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t0.923s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t3.230s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.321s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t1.546s\n"
+    },
+    {
+      "chunk_id": "be3bac",
+      "wall_time_seconds": 1.026961,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/retrievalplan/plan.go": "2a27ce128f4146cd119bf680c4ad076a1eb27be514ec103b143eb68b1f7a3532",
+    "pkg/retrievalplan/execute.go": "b1ac11a770b90a399324f681ff8ca813d453862a1c1e1183a8491fc9aa09e128",
+    "pkg/retrievalplan/execute_test.go": "2214f9d8abd39f62c16d7eba5cc9fcd3127278dac6ed83b4dbe96263cfce0545",
+    "docs/architecture/RETRIEVAL_COORDINATOR.md": "01fcd464750a8f24de5d71a7615d0994da4345e480c72e2f02f51dbdbc35d96a"
+  }
+}

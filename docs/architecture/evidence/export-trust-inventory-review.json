@@ -1,0 +1,47 @@
+{
+  "recorded_at": "2026-10-13T01:27:53.020078+00:00",
+  "sources": {
+    "docs/architecture/build_export_manifest.py": "757ee2c748b66f691cd09a10671a9b8db7b516f7496edaf08d750ee00b6b4fa7",
+    "docs/architecture/build_journal_contract.py": "7eeabd1762e9951f6c2ce3d53b370dad6cd26d6a4804c7f281b5fa8b7a217d53",
+    "docs/architecture/test_export_manifest.py": "0d220a2fd2e286ccce558079fb00dfdfbf390e969c94560c327bb767a3710eab",
+    "docs/architecture/test_export_trust_inventory.py": "3a08f99aac74b91ebfa30a6f5b0a815c7e1c87008a30fa2fd24f6a60003ba3f8",
+    "docs/architecture/schemas/export-manifest.v1.schema.json": "1fbda746fd017411ed6e3f7e14c0c93dae36db82853432c23cfaf621f4f67759",
+    "docs/architecture/schemas/journal-bundle.v1.schema.json": "20ea032006c614880f4b8ba190e315d38943e1934ee1d8cfcaaccbd363f32e19",
+    "docs/architecture/EXPORT_CONTRACT.md": "2645d085aba7aaef6748d094157dcb6e22c4d1560e94b4d08d195293d0cf0c66"
+  },
+  "scope": "Metadata source contract 1.1 requires nine new upload/deployment trust record families, mirrored in Journal enum. Four synthetic inventory/envelope/hash-chain tests and 144 Python regressions pass. No typed payload, authoritative source inventory, actual database export/import/replay or control-plane recovery proof.",
+  "checks": [
+    {
+      "name": "Export schema consistency",
+      "chunk_id": "ab19cd",
+      "wall_time_seconds": 0.2713884,
+      "exit_code": 0,
+      "original_token_count": 14,
+      "output": "PASS: export manifest schema generation consistency\r\n"
+    },
+    {
+      "name": "Journal schema consistency",
+      "chunk_id": "2f137e",
+      "wall_time_seconds": 0.3048123,
+      "exit_code": 0,
+      "original_token_count": 12,
+      "output": "PASS: journal schema generation consistency\r\n"
+    },
+    {
+      "name": "Inventory tests",
+      "chunk_id": "d53859",
+      "wall_time_seconds": 0.54493,
+      "exit_code": 0,
+      "original_token_count": 27,
+      "output": "....\r\n----------------------------------------------------------------------\r\nRan 4 tests in 0.159s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Python regression",
+      "chunk_id": "eef0ea",
+      "wall_time_seconds": 6.3178364,
+      "exit_code": 0,
+      "original_token_count": 63,
+      "output": "................................................................................................................................................\r\n----------------------------------------------------------------------\r\nRan 144 tests in 5.919s\r\n\r\nOK\r\n"
+    }
+  ]
+}

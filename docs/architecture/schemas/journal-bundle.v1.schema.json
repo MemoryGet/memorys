@@ -140,7 +140,16 @@
                     "invocation_record",
                     "immutable_payload",
                     "credential_reference",
-                    "retention_policy_snapshot"
+                    "retention_policy_snapshot",
+                    "upload_operation",
+                    "trust_domain",
+                    "trust_head",
+                    "trust_snapshot",
+                    "key_retirement",
+                    "trust_activation",
+                    "runtime_trust_receipt",
+                    "deployment_audit_record",
+                    "deployment_outbox_record"
                   ]
                 },
                 "record_id": {

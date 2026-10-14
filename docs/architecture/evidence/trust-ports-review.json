@@ -1,0 +1,36 @@
+{
+  "recorded_at": "2026-10-13T01:23:34.319738+00:00",
+  "sources": {
+    "pkg/contracts/trust.go": "b5e155e67e62b4807e57b0ffa516a31ac8ade8eb0ffbec1821294b08ee7dc56b",
+    "pkg/contracts/trust_test.go": "d656722ca2f82d3905d5415c8ba5acb6b8b9192a0a50e756c23bd89b43ff6170",
+    "docs/architecture/KEY_TRUST_ACTIVATION.md": "452f39c26dcb73b0733b4d37cca65b3317ee0940b580d74de02c53cee244dffd",
+    "docs/architecture/EXPORT_CONTRACT.md": "708e0289a01aa0afdea752722b58ff59bc1f5f8bc7645610f15a3f2d5b45f44f"
+  },
+  "scope": "Three TrustHead record relation tests and full Go tests/vet. New deployment authorizer, trust repository and transaction ports are declarations only, not real implementations. No persistent CAS/UoW, operator/provenance authorization, key retirement lookup or complete trust export/import evidence.",
+  "checks": [
+    {
+      "name": "Trust relation scenarios",
+      "chunk_id": "333666",
+      "wall_time_seconds": 1.6968711,
+      "exit_code": 0,
+      "original_token_count": 105,
+      "output": "=== RUN   TestTrustHeadAdvanceExactVersion\n--- PASS: TestTrustHeadAdvanceExactVersion (0.00s)\n=== RUN   TestTrustHeadRejectsRollbackSameVersionAndCASMismatch\n--- PASS: TestTrustHeadRejectsRollbackSameVersionAndCASMismatch (0.00s)\n=== RUN   TestTrustHeadRejectsDomainDigestAndCounterOverflow\n--- PASS: TestTrustHeadRejectsDomainDigestAndCounterOverflow (0.00s)\nPASS\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.391s\n"
+    },
+    {
+      "name": "Go regression",
+      "chunk_id": "8b24ff",
+      "wall_time_seconds": 4.7649197,
+      "exit_code": 0,
+      "original_token_count": 102,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.607s\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t1.030s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.656s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.401s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t0.851s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.780s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.149s\n"
+    },
+    {
+      "name": "Go vet",
+      "chunk_id": "a0068c",
+      "wall_time_seconds": 1.5579879,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ]
+}

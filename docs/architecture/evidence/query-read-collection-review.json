@@ -1,0 +1,31 @@
+{
+  "recorded_at": "2026-10-13T06:06:44.528Z",
+  "scope": "Five Go tests for bounded pagination using test repository, including fixed view, cross-page duplicate/cursor cycle rejection, no truncated output, cancellation/read failure and scope admission. Full Go tests/vet pass. No real WithinRead snapshot, cursor binding/completeness, independent data ownership or current authorization/publication proof.",
+  "checks": [
+    {
+      "command": ".\\.tools\\go\\bin\\go.exe test -count=1 -v ./pkg/queryread",
+      "exit_code": 0,
+      "chunk_id": "22b0c2",
+      "test_count": 5
+    },
+    {
+      "chunk_id": "001f85",
+      "wall_time_seconds": 4.1794024,
+      "exit_code": 0,
+      "original_token_count": 201,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.611s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.986s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.460s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.676s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.097s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.250s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.986s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.588s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t1.967s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t2.069s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t1.975s\n"
+    },
+    {
+      "chunk_id": "499bd7",
+      "wall_time_seconds": 0.980538,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/queryread/collect.go": "27e3a8888ebabe330a8e29b69f068a992209794215903ac4ed2d285064f53205",
+    "pkg/queryread/collect_test.go": "8c515ce58cb01a1161dc02402755cf25e890efd332872e3c05790817636f82b3",
+    "docs/architecture/QUERY_AUTHORITY.md": "7cde7f18ca55f89726a2fe8f522568666c2b31f061ba39737de20bec7c0226bc"
+  }
+}

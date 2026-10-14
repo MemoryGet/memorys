@@ -1,0 +1,38 @@
+{
+  "recorded_at": "2026-10-13T05:26:50.346Z",
+  "scope": "Three added regressions for aggregate serialized-candidate budget, joined failure classification and single-wrapper transport degradation. Full Go tests and vet pass. Not peak memory, real backend correctness, current authorization/publication or Recall proof.",
+  "pre_fix_failures": [
+    {
+      "chunk_id": "7711f6",
+      "exit_code": 1,
+      "description": "Aggregate overflow reproduced; test output was excessive and assertion was corrected to log only summary."
+    },
+    {
+      "chunk_id": "c0b6d7",
+      "exit_code": 1,
+      "description": "Optional joined unavailable+invalid error incorrectly downgraded."
+    }
+  ],
+  "checks": [
+    {
+      "chunk_id": "e87552",
+      "wall_time_seconds": 4.1652396,
+      "exit_code": 0,
+      "original_token_count": 150,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.618s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.578s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.831s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.774s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.211s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.043s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.948s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.561s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t1.873s\n"
+    },
+    {
+      "chunk_id": "a69772",
+      "wall_time_seconds": 0.9884266,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/retrievalplan/execute.go": "6dea10474e5eaa6e17923a0868ae7f6a2a4b03943676f7febb75a0111d8984eb",
+    "pkg/retrievalplan/execute_test.go": "9a10be7487e7a6725cddc12fa21678ef0bbb1ceada7980bc5bfdd3e852ba7784",
+    "pkg/retrievalplan/merge.go": "92a985fe0b2592e592d2533a24e607682e23ebfce926e18f02a67beb6bc3bd40",
+    "docs/architecture/RETRIEVAL_COORDINATOR.md": "bb0163f20a2875079396969bf4902f9c2f9743edafc96a9200c263a8811f82d6"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "recorded_at": "2026-10-13T00:46:20.867357+00:00",
+  "sources": {
+    "docs/architecture/retrieval_seal.py": "d24bb51f39d1b240691eb4a21e4e0e6dfff81266061bda80157e7e9c21c5d3a0",
+    "docs/architecture/test_retrieval_seal.py": "ba3c28b249b5c34ed300018950fcb13d2c048de4c4d32399499c59bb3742ed0e",
+    "docs/architecture/RETRIEVAL_EVALUATION.md": "baf6c25ce4552cc6ddf421c720b46ce64bc5469ebd2ca0f87986736fb54b19bc"
+  },
+  "scope": "Eight projection-package tests using real temporary UTF-8 files and synthetic labels, 123 Python regression tests. No original document/mapping package provenance, independent annotation, authoritative access/publication snapshots, immutable post-check assets, real retrieval or Recall guarantee.",
+  "checks": [
+    {
+      "name": "Seal tests",
+      "chunk_id": "cde356",
+      "wall_time_seconds": 0.403885,
+      "exit_code": 0,
+      "original_token_count": 28,
+      "output": "........\r\n----------------------------------------------------------------------\r\nRan 8 tests in 0.038s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Python regression",
+      "chunk_id": "e0e0e2",
+      "wall_time_seconds": 6.6900995,
+      "exit_code": 0,
+      "original_token_count": 57,
+      "output": "...........................................................................................................................\r\n----------------------------------------------------------------------\r\nRan 123 tests in 6.309s\r\n\r\nOK\r\n"
+    }
+  ]
+}

@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "akos.publication-projection/1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "projection_id",
+    "request_id",
+    "invocation_id",
+    "parent_scope_id",
+    "child_scope_id",
+    "space_id",
+    "knowledge_base_id",
+    "backend_epoch_id",
+    "route_id",
+    "module_instance_id",
+    "parent_publication_digest",
+    "query_profile_digest",
+    "pipeline_digest",
+    "policy_version",
+    "channels",
+    "entries",
+    "expires_at_unix_ns"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "projection_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "request_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "invocation_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "parent_scope_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "child_scope_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "space_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "knowledge_base_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "backend_epoch_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "route_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "module_instance_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "parent_publication_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "query_profile_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "pipeline_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "policy_version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 18446744073709551615
+    },
+    "channels": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "keyword",
+          "vector",
+          "graph"
+        ]
+      }
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "document_id",
+          "revision_id",
+          "publication_version",
+          "generation_set_id",
+          "generation_id",
+          "channel",
+          "index_profile_digest"
+        ],
+        "properties": {
+          "document_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "revision_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "publication_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 18446744073709551615
+          },
+          "generation_set_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "generation_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "channel": {
+            "enum": [
+              "keyword",
+              "vector",
+              "graph"
+            ]
+          },
+          "index_profile_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    },
+    "expires_at_unix_ns": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9223372036854775807
+    }
+  }
+}

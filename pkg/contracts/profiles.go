@@ -64,6 +64,7 @@ type QueryPolicy struct {
 type ReflectionPolicy struct {
 	Enabled        bool
 	MaxExtraRounds int
+	MaxPlanQueries int
 	TotalBudgetMS  int64
 }
 

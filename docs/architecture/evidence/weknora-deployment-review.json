@@ -1,0 +1,151 @@
+{
+  "checked_at": "2026-10-13T00:30:11.890469+00:00",
+  "repository": "Tencent/WeKnora",
+  "resolved_commit": "3e8b0bfc80b845b2d4b2ed683994748741450a97",
+  "scope": "Pinned source and API metadata review only; no runtime certification, image digest resolution, SBOM, vulnerability audit or full license clearance.",
+  "sources": [
+    {
+      "path": "LICENSE",
+      "url": "https://raw.githubusercontent.com/Tencent/WeKnora/3e8b0bfc80b845b2d4b2ed683994748741450a97/LICENSE",
+      "sha256": "25cfeca2c3eee245313b1106cf1b27244e47b682802a02cc536f8f1beb6a29a6",
+      "bytes": 158420,
+      "finding": "Primary project MIT with explicit third-party exceptions; notices and licenses directory must be assessed separately."
+    },
+    {
+      "path": "docker-compose.yml",
+      "url": "https://raw.githubusercontent.com/Tencent/WeKnora/3e8b0bfc80b845b2d4b2ed683994748741450a97/docker-compose.yml",
+      "sha256": "ca3f1ac96117564d5e0d5429fac98e475bfe68557dc62e1053c4c0da1b12543c",
+      "bytes": 49825,
+      "base_services": [
+        "frontend",
+        "app",
+        "docreader",
+        "postgres",
+        "redis"
+      ],
+      "app_dependencies": [
+        "redis",
+        "postgres",
+        "docreader"
+      ],
+      "images": {
+        "postgres": "paradedb/paradedb:v0.22.6-pg17",
+        "redis": "redis:7.0-alpine",
+        "app": "wechatopenai/weknora-app:${WEKNORA_VERSION:-latest}",
+        "docreader": "wechatopenai/weknora-docreader:${WEKNORA_VERSION:-latest}"
+      },
+      "optional_profiles": {
+        "qdrant": [
+          "qdrant",
+          "full"
+        ],
+        "milvus": [
+          "milvus"
+        ],
+        "weaviate": [
+          "weaviate"
+        ],
+        "minio": [
+          "minio",
+          "full"
+        ],
+        "neo4j": [
+          "neo4j",
+          "full"
+        ],
+        "doris": [
+          "doris"
+        ],
+        "langfuse": [
+          "langfuse",
+          "full"
+        ]
+      },
+      "finding": "Profile availability is not a platform adapter or replacement test. Full profile does not enable every backend."
+    },
+    {
+      "path": "go.mod",
+      "url": "https://raw.githubusercontent.com/Tencent/WeKnora/3e8b0bfc80b845b2d4b2ed683994748741450a97/go.mod",
+      "sha256": "1478569a725e29c6a8158d87ee1b23238ebdaf523f96d25d4e41f3cc884bb3bd",
+      "bytes": 18158
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "url": "https://raw.githubusercontent.com/Tencent/WeKnora/3e8b0bfc80b845b2d4b2ed683994748741450a97/THIRD_PARTY_NOTICES.md",
+      "sha256": "8018c8ddcb92ccbcd2259acbe9d14524889a23114df4470cc5838a8aa8bac953",
+      "bytes": 4694,
+      "license_markers": {
+        "AGPL": 0,
+        "GPL": 1,
+        "LGPL": 0,
+        "Apache": 3,
+        "MIT": 4,
+        "BSD": 0
+      },
+      "headings": [
+        "## Go MySQL Driver",
+        "## go-m1cpu",
+        "## OpenCC dictionary data",
+        "## Build-only component",
+        "## Maintaining this bundle"
+      ]
+    },
+    {
+      "path": "docker/Dockerfile.docreader",
+      "url": "https://raw.githubusercontent.com/Tencent/WeKnora/3e8b0bfc80b845b2d4b2ed683994748741450a97/docker/Dockerfile.docreader",
+      "sha256": "8bdb39fe9160c18710476dd795f10b953059ed7b04520a9a305252d0ef02fd92",
+      "bytes": 5285,
+      "from_images": [
+        "python:3.10.18-bookworm AS builder",
+        "python:3.10.18-bookworm AS runner"
+      ],
+      "dependency_files": [
+        "COPY docreader/pyproject.toml docreader/uv.lock ./",
+        "RUN pip install uv --break-system-packages && \\",
+        "COPY docreader/pyproject.toml docreader/uv.lock ./"
+      ]
+    },
+    {
+      "path": "docker/Dockerfile.app",
+      "url": "https://raw.githubusercontent.com/Tencent/WeKnora/3e8b0bfc80b845b2d4b2ed683994748741450a97/docker/Dockerfile.app",
+      "sha256": "dfd4fa82b8f01c33a811050613b59ed641fd9ab9e558e5af47b53a43a1b4f9d9",
+      "bytes": 5794,
+      "from_images": [
+        "--platform=$TARGETPLATFORM node:24-bookworm-slim@sha256:ba849c60be29959425b8734d57b8b4b7d56f98edd9504c9af091d5281095a71e AS browserskill",
+        "golang:1.26-bookworm AS builder",
+        "debian:12.12-slim"
+      ],
+      "dependency_files": [
+        "# Copy go mod files. go.mod replace-points anydoc at ./third_party/anydoc-go,",
+        "COPY third_party/anydoc-go/go.mod third_party/anydoc-go/go.mod",
+        "# Link the anydoc parser engine (office docs converted in-process, no",
+        "./scripts/build-anydoc-lib.sh; \\",
+        "make build-prod GO_BUILD_TAGS=anydoc; \\",
+        "python3 -m pip install --break-system-packages --upgrade pip setuptools wheel && \\"
+      ]
+    }
+  ],
+  "maintenance": {
+    "url": "https://api.github.com/repos/Tencent/WeKnora",
+    "response_sha256": "69dce35e98e94db9dddf53add291ddb9ef0498c08deb53757e61604ff06ed8c2",
+    "archived": false,
+    "disabled": false,
+    "pushed_at": "2026-10-12T13:05:02Z",
+    "default_branch": "main",
+    "finding": "Activity observation only, no SLA or pinned-version security assurance."
+  },
+  "latest_release": {
+    "url": "https://api.github.com/repos/Tencent/WeKnora/releases/latest",
+    "response_sha256": "fad9df805fd38a1e9a03d738560b6193c98bbbfb7df27d04246fb46cc27dc598",
+    "tag_name": "v0.8.2",
+    "published_at": "2026-09-24T06:43:43Z",
+    "prerelease": false,
+    "draft": false
+  },
+  "limitations": [
+    "No OCI digest/provenance/architecture resolution",
+    "Docreader pyproject.toml and uv.lock located through Dockerfile but contents not yet reviewed",
+    "No complete transitive and image component license inventory",
+    "No actual profile startup, filter, export, replacement or performance tests"
+  ]
+}

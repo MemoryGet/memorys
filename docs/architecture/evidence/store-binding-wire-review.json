@@ -1,0 +1,39 @@
+{
+  "recorded_at": "2026-10-13T10:36:26.919Z",
+  "scope": "Three Python tests compile actual Go offline store-binding codec; explicit field mappings, strict integer tokens and relationships. 185 Python regressions, full Go tests/vet pass. No independent source authentication, real endpoint probes, journal coverage, data import or activation.",
+  "checks": [
+    {
+      "command": "python -m unittest discover -s docs/architecture -p test_store_binding_wire.py",
+      "exit_code": 0,
+      "chunk_id": "1ec472",
+      "test_count": 3
+    },
+    {
+      "chunk_id": "ca3aea",
+      "wall_time_seconds": 8.1e-06,
+      "exit_code": 0,
+      "original_token_count": 33,
+      "output": "..........................\r\n----------------------------------------------------------------------\r\nRan 185 tests in 14.004s\r\n\r\nOK\r\n"
+    },
+    {
+      "chunk_id": "de9ae8",
+      "wall_time_seconds": 4.8836069,
+      "exit_code": 0,
+      "original_token_count": 222,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.634s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-binding\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t1.227s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.845s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t1.104s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t0.661s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t0.888s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t3.026s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.520s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t2.061s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t1.745s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t2.100s\n"
+    },
+    {
+      "chunk_id": "46aee1",
+      "wall_time_seconds": 1.4783631,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/modulewire/store_binding.go": "78bbdbbb0dda540a3f7250642e417827e8061387b8686718237583fe48db612e",
+    "cmd/architecture-store-binding/main.go": "f483bb4fdfaa9a416e932e38cda7393e65db6d9ec26c9714333cac6c10663f56",
+    "docs/architecture/test_store_binding_wire.py": "bcba428333bd7e8c60d9aee3c73b77270c8057f61876f1d66beeee256d3d11e3",
+    "docs/architecture/METADATA_STORE_BINDING.md": "86c64699cfabf839d0a956fc663c16152e12a68128d753ca765552028d7a8b33"
+  }
+}

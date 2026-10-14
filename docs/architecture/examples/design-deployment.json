@@ -30,6 +30,15 @@
       "contract": "1.0",
       "required_features": []
     },
+    "query_read_unit": {
+      "instance_id": "design-fixture",
+      "capability": "query_read_unit",
+      "contract": "1.0",
+      "required_features": [
+        "snapshot.fixed_view",
+        "lifecycle.scoped_read"
+      ]
+    },
     "publication": {
       "instance_id": "design-fixture",
       "capability": "publication",
@@ -192,6 +201,7 @@
       "reflection": {
         "enabled": false,
         "max_extra_rounds": 2,
+        "max_plan_queries": 2,
         "total_budget_ms": 30000
       },
       "policy": {

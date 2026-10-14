@@ -1,0 +1,84 @@
+{
+  "recorded_at": "2026-10-13T05:00:45.838516+00:00",
+  "sources": {
+    "pkg/fusion/rrf.go": "8ae9b334e2eeddc0286606aaf71469d12eb2acce99863c7a2cd502cdad0afcf8",
+    "pkg/fusion/rrf_test.go": "c77983f8e8ec5154d4d68c996744efb81b4f6cac9549bc0398a9c3991d899ab4",
+    "pkg/contracts/retrieval.go": "91df3ad475938bcbd079d735bb6cc617521426dcb5ed6021aba3e9e6e807e394",
+    "pkg/modulewire/retrieval_types.go": "c8e7e7550958eabbe627954dd1d6a5782abbfbf0636554a63d5b20a66498e5cb",
+    "pkg/modulewire/fusion_origins.go": "446648c6145d41802e549c2ad9323582c80d974c6431c0eb96b1794d9e00d584",
+    "pkg/modulewire/reranking.go": "42a73903e3af609e52f2ce703f9998ea55a1b2fa32c176729aa53f2d956bc48d",
+    "pkg/modulewire/retrieval_validation.go": "a5cd983a8a6d9f0352b019b8a718493164c1e06b8c060871b5c355b082ff3b38",
+    "docs/architecture/build_remote_contract.py": "f05bc3aef418a2f6c02eab19447b9ae1f10ccca53d50fc398d52c4809737fb14",
+    "docs/architecture/openapi/modules.v1.json": "7fc696185a5c2c3ea29c5294b18175fbfdfae8bf85266bafc26366692826b312",
+    "docs/architecture/test_fusion_wire.py": "dea9aa834d6fd9435621c3a6fba26ca5d18381763954a7d9ce51c4219b07e5ae",
+    "docs/architecture/FUSION_CONTRACT.md": "3c0757af1df7809336666883925896d7e057818b38ac42b2e5f6cb954f34c49f"
+  },
+  "scope": "First bounded RRF Fuser, four Go tests and two independent Schema/actual Go wire tests; 161 Python regression tests. Candidate gains optional FusionOrigins with generation coverage; raw retriever provenance rejected by codec and Schema. Full Go tests/vet pass. No trusted route inventory, actual retrieval/privacy, multi-KB orchestration, runtime provider replacement, Recall or latency evidence.",
+  "paper": "https://doi.org/10.1145/1571941.1572114",
+  "checks": [
+    {
+      "name": "Fusion scenarios",
+      "chunk_id": "6165b4",
+      "wall_time_seconds": 3.4044913,
+      "exit_code": 0,
+      "original_token_count": 138,
+      "output": "=== RUN   TestRRFUsesRanksPreservesBothOriginsAndRoundtripsRerankWire\n--- PASS: TestRRFUsesRanksPreservesBothOriginsAndRoundtripsRerankWire (0.01s)\n=== RUN   TestDuplicateRouteAndCandidateCannotIncreaseVotes\n--- PASS: TestDuplicateRouteAndCandidateCannotIncreaseVotes (0.00s)\n=== RUN   TestConflictingEvidenceAndRefusionRejected\n--- PASS: TestConflictingEvidenceAndRefusionRejected (0.00s)\n=== RUN   TestBoundsCancellationAndOutputCopies\n--- PASS: TestBoundsCancellationAndOutputCopies (0.00s)\nPASS\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.829s\n"
+    },
+    {
+      "name": "Fusion wire/schema",
+      "chunk_id": "f62f8a",
+      "wall_time_seconds": 3.7174735,
+      "exit_code": 0,
+      "original_token_count": 27,
+      "output": "..\r\n----------------------------------------------------------------------\r\nRan 2 tests in 3.219s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Go regression",
+      "chunk_id": "369945",
+      "wall_time_seconds": 4.6821681,
+      "exit_code": 0,
+      "original_token_count": 135,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.630s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.861s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.484s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.811s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.623s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.085s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t3.179s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.208s\n"
+    },
+    {
+      "name": "Go vet",
+      "chunk_id": "092a72",
+      "wall_time_seconds": 1.2268707,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "name": "Python regression",
+      "chunk_id": "9a7763",
+      "wall_time_seconds": 10.0156187,
+      "session_id": 31198,
+      "original_token_count": 40,
+      "output": "..............................................................................................................................................................."
+    },
+    {
+      "name": "Remote schema",
+      "chunk_id": "008c5c",
+      "wall_time_seconds": 0.4115264,
+      "exit_code": 0,
+      "original_token_count": 12,
+      "output": "PASS: remote contract matches design source\r\n"
+    },
+    {
+      "name": "Final Python completion",
+      "chunk_id": "6149a7",
+      "wall_time_seconds": 0.0000079,
+      "exit_code": 0,
+      "original_token_count": 31,
+      "output": "................\r\n----------------------------------------------------------------------\r\nRan 161 tests in 9.120s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Final OpenAPI conformance",
+      "chunk_id": "9dbd95",
+      "wall_time_seconds": 0.9703612,
+      "exit_code": 0,
+      "original_token_count": 15,
+      "output": "PASS: updated modules.v1 OpenAPI structural conformance\r\n"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "recorded_at": "2026-10-13T01:07:46.447431+00:00",
+  "sources": {
+    "go.mod": "49644fb2e82ca25fa8d72c3948009b51f7878e14b3d7e87da822b093271ef8a3",
+    "go.sum": "fbc572f9e977f123935c7e2e4e95e62e1b6edf41be5a82e0fc6d19afe813d7c7",
+    "pkg/accessgrant/verify.go": "d6b313431a95b314b1ee4ed53d1bcec7909831c00afa7aaca94aa51c01245497",
+    "pkg/accessgrant/verify_test.go": "bf4e75f341b8ce64584c3464f690e351db78d0504735973695c65be636d9a624",
+    "docs/architecture/GRANT_TOKEN_PROFILE.md": "e0537464fcea6a70b72ba45c16ec0276b0436f4d179f6f0b3e83d570461c9fe5"
+  },
+  "scope": "Four real go-jose signing/verification tests with ephemeral Ed25519 keys and synthetic Trust/Expectation. Signature tampering, binding/header/key mismatch, exact time and integer/field rejection, HS256 and null epoch checked. No production identity/current policy/parent job/replay ledger, full rotation orchestration, HTTP or full vulnerability audit evidence.",
+  "checks": [
+    {
+      "name": "SDK scenarios",
+      "chunk_id": "ce9f96",
+      "wall_time_seconds": 1.5325282,
+      "exit_code": 0,
+      "original_token_count": 132,
+      "output": "=== RUN   TestSDKSignatureAndEachTamperedSegment\n--- PASS: TestSDKSignatureAndEachTamperedSegment (0.00s)\n=== RUN   TestSignedWrongClaimsHeadersAndKeySnapshot\n--- PASS: TestSignedWrongClaimsHeadersAndKeySnapshot (0.00s)\n=== RUN   TestNanosecondBoundaryAndMalformedSignedPayloads\n--- PASS: TestNanosecondBoundaryAndMalformedSignedPayloads (0.00s)\n=== RUN   TestSDKAlgorithmConfusionAndNullEpochRejected\n--- PASS: TestSDKAlgorithmConfusionAndNullEpochRejected (0.00s)\nPASS\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.523s\n"
+    },
+    {
+      "name": "Go regression",
+      "chunk_id": "2cd4ca",
+      "wall_time_seconds": 3.2924773,
+      "exit_code": 0,
+      "original_token_count": 102,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t1.639s\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t1.451s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t1.076s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t1.262s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.051s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.168s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t0.748s\n"
+    },
+    {
+      "name": "Go vet",
+      "chunk_id": "f6e7a0",
+      "wall_time_seconds": 1.05286,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "name": "Module integrity",
+      "chunk_id": "b0667d",
+      "wall_time_seconds": 0.4126842,
+      "exit_code": 0,
+      "original_token_count": 6,
+      "output": "all modules verified\n"
+    },
+    {
+      "name": "Final Go regression",
+      "chunk_id": "21ebf6",
+      "wall_time_seconds": 3.8129293,
+      "exit_code": 0,
+      "original_token_count": 102,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.595s\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.965s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.729s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.975s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t0.465s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.798s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.277s\n"
+    },
+    {
+      "name": "Final Go vet",
+      "chunk_id": "399f8f",
+      "wall_time_seconds": 0.8253783,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ]
+}

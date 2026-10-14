@@ -109,7 +109,7 @@ IndexPolicy冻结分块参数、EmbeddingSpec、必需索引通道和投影格�
 
 index_routes逐路声明route_id、channels和writer绑定；同一复合写入器可以同时提供keyword/vector产物。独立实现可将vector指向向量库、keyword指向全文引擎。单个Profile内每个通道只有一个权威写入路线；合并通道必须属于同一复合能力，不计作已独立替换。
 
-retrieval_routes逐路声明route_id、channels、retriever绑定、candidate_limit和required。查询服务并行调用满足同一QuerySnapshot的路线，然后统一融合；同一路线在一个查询轮次、KB和代际上只计一次排名贡献。复合混合召回返回一份排名列表，不能把它复制成两份假装关键词/向量两路从而增加融合权重。
+retrieval_routes逐路声明route_id、channels、retriever绑定、candidate_limit和required。查询服务并行调用满足同一QuerySnapshot的路线，然后统一融合；同一路线在一个查询轮次仅向融合贡献一份全局排名列表；跨KB/代际分区先按受控策略合并，不能增加路线票数。复合混合召回返回一份排名列表，不能把它复制成两份假装关键词/向量两路从而增加融合权重。
 
 索引绑定和召回绑定均有明确实例及契约，不能按渠道名称猜测连接。绑定实例可以不同，但必须由已验证的后端协议/布局兼容声明匹配GenerationSet；把一个Qdrant写入代际直接交给无映射的另一向量库检索器要拒绝装配。切换每条有状态索引路线仍走BackendEpoch迁移，纯查询排序实现替换走QueryProfile新版本。
 
@@ -156,3 +156,18 @@ python -m unittest discover -s docs/architecture -p test_check_config.py
 8项文件级测试覆盖有效报告、重复字段与错误信息隔离、非法Schema、动态外部引用、大小/嵌套/数字限制、本地引用、未使用的坏引用和settings错误。原有假设装配试验仍通过。
 
 报告中的unverified列出制品锁、真实工厂/健康、凭据、后端布局、持久化代际、KB扇出、授权、迁移和检索效果。这份报告不能用于开启就绪状态；正式部署归一化器还必须完成这些门槛。
+
+跨KB准入、配额、分区排名合并与失败处理细则见[检索协调器](RETRIEVAL_COORDINATOR.md)。当前纯规划器不代表实际并发/调用链已完成。
+
+部署的必需只读角色query_read_unit及两项特性门槛见[读能力部署规范](QUERY_AUTHORITY.md#12-部署角色与声明特性补齐)。它是未冻结V1草案增量，旧配置必须显式升级；自报特性不代替真实快照/生命周期验收。
+
+
+2026-10-14核对并修复Go内核与离线检查的[版本协商一致性](KERNEL_RUNTIME.md#版本协商一致性修复2026-10-14)：同主版本较新次版本不被额外1.0前缀限制拒绝，整数比较不依赖宿主位宽。仅声明协商，真实协议行为仍待验。
+
+
+特性名称的格式、长度和唯一性现由Go内部注册与离线Schema共同约束，见[结构一致性修复](KERNEL_RUNTIME.md#特性声明结构一致性修复2026-10-14)。合法新特性保留扩展性，声明不能替代公共行为测试。
+
+
+## 多格式证据核验装配提案
+
+[证据核验模块设计](EVIDENCE_VERIFICATION_MODULES.md)提出独立内容/原件/索引角色及按Block.kind/Source.kind/Locator族的固定路由。其特性名称与配置示例尚未成为现有Schema/内核校验规则，需Go端口、工厂检查、配置归一化和远程映射同步完成后才可声明装配可替换。未覆盖正式发布定位、重复路由或必需模块缺失必须拒绝；真实替换验收仍待执行。

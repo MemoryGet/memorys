@@ -63,6 +63,9 @@ func checkRetrieve(request contracts.RetrieveRequest) error {
 }
 
 func checkCandidate(candidate contracts.Candidate, request contracts.RetrieveRequest) error {
+	if candidate.FusionOrigins != nil {
+		return invalid()
+	} // Raw retrievers cannot invent platform fusion provenance.
 	if candidate.RouteID != request.RouteID || candidate.Rank < 1 || candidate.ScoreKind == "" ||
 		candidate.Citation.DocumentID == "" || candidate.Citation.BlockID == "" || len(candidate.GenerationIDs) == 0 ||
 		!contains(request.Publication.KnowledgeBaseIDs, candidate.KnowledgeBaseID) ||

@@ -1,0 +1,37 @@
+{
+  "recorded_at": "2026-10-13T00:24:01.055965+00:00",
+  "sources": {
+    "docs/architecture/build_upload_operation.py": "12db3f07213ffcd3ecd1724519b91382ad30db56cb39a4d4b662cb3ddfd213ef",
+    "docs/architecture/upload_operation_validation.py": "669fb7412c4b7ebf75349f2c26e0ad3932cf8ba842aac6380d7442a5d31c3d31",
+    "docs/architecture/test_upload_operation.py": "04a1b07e674f02c1ee7b8159307138b01ceffc0e0cfa69aa71028d7386d6b518",
+    "docs/architecture/schemas/upload-operation.v1.schema.json": "2dee4694e2c415bcba6e0b7b3a0100d143c462a316f0565e8a3ecefa35b4b81b",
+    "docs/architecture/BLOB_CONFIRMATION.md": "a4a012b711f40b06bc2b6946ecebd2ff0c57e5ebc2b64813485a9782267d0e91"
+  },
+  "scope": "Seven synthetic UploadOperation record tests and 94 Python regression tests. No semantic digest recomputation, transition/CAS, trusted authorization/lease/holds, immutable objects, storage bridge, transaction commit, restart or cleanup evidence. All valid records explicitly report ready_for_confirmation=false.",
+  "checks": [
+    {
+      "name": "Schema generation",
+      "chunk_id": "b3ce5d",
+      "wall_time_seconds": 0.3100617,
+      "exit_code": 0,
+      "original_token_count": 14,
+      "output": "PASS: upload operation schema generation consistency\r\n"
+    },
+    {
+      "name": "Upload record tests",
+      "chunk_id": "3f8640",
+      "wall_time_seconds": 0.8140369,
+      "exit_code": 0,
+      "original_token_count": 28,
+      "output": ".......\r\n----------------------------------------------------------------------\r\nRan 7 tests in 0.417s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Python regression",
+      "chunk_id": "57d637",
+      "wall_time_seconds": 4.9746475,
+      "exit_code": 0,
+      "original_token_count": 50,
+      "output": "..............................................................................................\r\n----------------------------------------------------------------------\r\nRan 94 tests in 4.590s\r\n\r\nOK\r\n"
+    }
+  ]
+}

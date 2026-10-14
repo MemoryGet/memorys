@@ -1,0 +1,35 @@
+{
+  "recorded_at": "2026-10-13T05:06:50.203026+00:00",
+  "sources": {
+    "pkg/fusion/profile.go": "684875541347161edc54374a45f281acc03189c6f89bc56926209a490e60d5f5",
+    "pkg/fusion/profile_test.go": "102c66803bc103e860f59f8003316fb814e790eddc74fc9c2e9465ab7db50fd8",
+    "docs/architecture/FUSION_CONTRACT.md": "c20679eeecac9a88aa7911b1137a7d2a2e6c0e9b8943f34e0f33509cb8d9a177"
+  },
+  "scope": "Four new ProfileRRF tests plus four base RRF tests. Route/backend identity fields, immutable profile references/digest, rank constant, per-route and global budgets are checked. Full Go tests/vet pass. No verified configuration provenance, real service identity, runtime factory, multi-KB orchestration, actual backend filtering, replacement or Recall/latency proof.",
+  "checks": [
+    {
+      "name": "Fusion/profile tests",
+      "chunk_id": "8eee93",
+      "wall_time_seconds": 1.5702283000000001,
+      "exit_code": 0,
+      "original_token_count": 266,
+      "output": "=== RUN   TestConfiguredRoutesBindProfileAndAllowMissingOptional\n--- PASS: TestConfiguredRoutesBindProfileAndAllowMissingOptional (0.00s)\n=== RUN   TestInjectedRouteBackendAndProfilePolicyOverridesRejected\n--- PASS: TestInjectedRouteBackendAndProfilePolicyOverridesRejected (0.00s)\n=== RUN   TestProfileBudgetAndConstructorConsistency\n--- PASS: TestProfileBudgetAndConstructorConsistency (0.00s)\n=== RUN   TestCapturedProfileCannotBeModifiedByCaller\n--- PASS: TestCapturedProfileCannotBeModifiedByCaller (0.00s)\n=== RUN   TestRRFUsesRanksPreservesBothOriginsAndRoundtripsRerankWire\n--- PASS: TestRRFUsesRanksPreservesBothOriginsAndRoundtripsRerankWire (0.02s)\n=== RUN   TestDuplicateRouteAndCandidateCannotIncreaseVotes\n--- PASS: TestDuplicateRouteAndCandidateCannotIncreaseVotes (0.00s)\n=== RUN   TestConflictingEvidenceAndRefusionRejected\n--- PASS: TestConflictingEvidenceAndRefusionRejected (0.00s)\n=== RUN   TestBoundsCancellationAndOutputCopies\n--- PASS: TestBoundsCancellationAndOutputCopies (0.00s)\nPASS\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t0.566s\n"
+    },
+    {
+      "name": "Go regression",
+      "chunk_id": "0df4a1",
+      "wall_time_seconds": 4.3207656,
+      "exit_code": 0,
+      "original_token_count": 135,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.804s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t1.164s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.834s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t1.316s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.541s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.105s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t3.219s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t0.606s\n"
+    },
+    {
+      "name": "Go vet",
+      "chunk_id": "954db3",
+      "wall_time_seconds": 0.8971596,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ]
+}

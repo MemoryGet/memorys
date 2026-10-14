@@ -1,0 +1,37 @@
+{
+  "recorded_at": "2026-10-13T00:49:11.799000+00:00",
+  "sources": {
+    "docs/architecture/build_access_grant.py": "e6b0e599facc2cd7303212ab61896fd85714ef16f5e116ee15a67ea9b8d95f9f",
+    "docs/architecture/access_grant_validation.py": "190602aa540c2db95628391de233582d0cfc4852a65336e75c7b2213b9d1bbef",
+    "docs/architecture/test_access_grant.py": "d7659bb794e998df173ee4749cb875786331adbd744b6b077d5221557684a660",
+    "docs/architecture/schemas/access-grant-bindings.v1.schema.json": "7e2398baca46f596733a754e7dbd0133c9bba2c9ec732fc481beabf34fb60b40",
+    "docs/architecture/ACCESS_GRANT.md": "a0aaa0a85e30065797882cdb57cfb989f436ac677cff60c4b1decca41056f04c"
+  },
+  "scope": "Five synthetic binding tests and 128 Python regression tests. No token/signature/SDK/key trust, real service identity/current policy, replay ledger, Go digest interoperability or streamed byte proof. authorized is always false.",
+  "checks": [
+    {
+      "name": "Grant schema",
+      "chunk_id": "95b330",
+      "wall_time_seconds": 0.0000162,
+      "exit_code": 0,
+      "original_token_count": 13,
+      "output": "PASS: grant bindings schema generation consistency\r\n"
+    },
+    {
+      "name": "Grant binding tests",
+      "chunk_id": "5f69d0",
+      "wall_time_seconds": 0.35697,
+      "exit_code": 0,
+      "original_token_count": 27,
+      "output": ".....\r\n----------------------------------------------------------------------\r\nRan 5 tests in 0.003s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Python regression",
+      "chunk_id": "005882",
+      "wall_time_seconds": 5.7109298,
+      "exit_code": 0,
+      "original_token_count": 59,
+      "output": "................................................................................................................................\r\n----------------------------------------------------------------------\r\nRan 128 tests in 5.616s\r\n\r\nOK\r\n"
+    }
+  ]
+}

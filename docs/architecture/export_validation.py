@@ -6,6 +6,7 @@ from jsonschema import Draft202012Validator
 
 from build_export_manifest import RESOURCE_TYPES, build
 from check_config import LIMIT, check_depth, finite_float, object_pairs, reject_constant
+from build_trust_head import validate_record as validate_trust_head
 
 
 def validate_package(manifest, payloads):
@@ -23,6 +24,7 @@ def validate_package(manifest, payloads):
         raise ValueError("export_offline_segment_limit")
     entries, resources, record_keys = set(), set(), set()
     total_bytes = 0
+    typed_counts = {"trust_head":0}
     for segment in manifest["segments"]:
         entry = segment["entry_id"]
         if entry in entries:
@@ -63,10 +65,14 @@ def validate_package(manifest, payloads):
             if key in record_keys:
                 raise ValueError("export_duplicate_record")
             record_keys.add(key)
+            if resource=="trust_head":
+                validate_trust_head(row["payload"],row["record_id"])
+                typed_counts["trust_head"]+=1
     if resources != set(RESOURCE_TYPES) or set(payloads) != entries:
         raise ValueError("export_coverage_mismatch")
     return {"status": "offline_manifest_envelopes_validated", "ready_for_import": False,
             "segment_count": len(entries), "record_count": len(record_keys),
+            "typed_record_counts":typed_counts,
             "unverified": ["trusted_package_provenance", "complete_authoritative_snapshot", "journal_commit_watermark",
                            "typed_record_payloads", "foreign_keys_and_space_ownership", "frozen_content_hashes",
                            "external_blob_bytes", "lease_invalidation", "backend_epoch_compatibility", "import_transactions"]}

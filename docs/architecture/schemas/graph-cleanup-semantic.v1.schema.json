@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "subject_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "kind": {
+          "enum": [
+            "source_invalidation",
+            "generation_deletion"
+          ]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "space_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "kb_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "backend_epoch_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "generation_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "index_profile_digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "extraction_profile_digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "ontology_digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "source_snapshot_digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "space_id",
+            "kb_id",
+            "backend_epoch_id",
+            "generation_id",
+            "index_profile_digest",
+            "extraction_profile_digest",
+            "ontology_digest",
+            "source_snapshot_digest"
+          ]
+        },
+        "document_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "revision_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "publication_epoch": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 18446744073709551615
+        },
+        "retention_permit_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "operation_id",
+        "subject_id",
+        "kind",
+        "target"
+      ],
+      "oneOf": [
+        {
+          "properties": {
+            "kind": {
+              "const": "source_invalidation"
+            }
+          },
+          "required": [
+            "document_id",
+            "revision_id",
+            "publication_epoch"
+          ],
+          "not": {
+            "required": [
+              "retention_permit_id"
+            ]
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "generation_deletion"
+            }
+          },
+          "required": [
+            "retention_permit_id"
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "document_id"
+                ]
+              },
+              {
+                "required": [
+                  "revision_id"
+                ]
+              },
+              {
+                "required": [
+                  "publication_epoch"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "operation"
+  ]
+}

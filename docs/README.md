@@ -24,6 +24,24 @@
 | 3.2.10 | [状态与取消映射](architecture/CONTROL_WIRE_MAPPING.md) | 控制/原请求关联、15类结果、六种状态与停止确认边界 |
 | 3.2.11 | [远程映射覆盖表](architecture/REMOTE_MAPPING_COVERAGE.md) | 17操作逐项数据证据、二进制/SSE边界和D-03运行缺口 |
 | 3.2.12 | [SSE接收与HTTP验证](architecture/SSE_TRANSPORT.md) | 帧边界/预算、逐批闸门、有界读取与取消关闭的本地网络证据 |
+| 3.2.13 | [multipart上传与隔离暂存](architecture/BLOB_MULTIPART_TRANSPORT.md) | 流式大小/摘要核验、前后访问回调、失败清理与服务器读取超时 |
+| 3.2.14 | [上传确认与恢复](architecture/BLOB_CONFIRMATION.md) | 接收/持久/确认三层边界、幂等身份、事务和崩溃恢复门槛 |
+| 3.2.15 | [远程Grant绑定](architecture/ACCESS_GRANT.md) | 服务身份/令牌/实时权限三层边界与调用摘要 |
+| 3.2.16 | [操作动作与子能力](architecture/REMOTE_OPERATION_POLICY.md) | 17操作策略、父业务意图与资源授权 |
+| 3.2.17 | [Grant令牌与SDK](architecture/GRANT_TOKEN_PROFILE.md) | 专用JWT Profile、go-jose固定候选及密钥轮换 |
+| 3.2.18 | [公钥信任激活](architecture/KEY_TRUST_ACTIVATION.md) | 来源信任、持久高水位、部署重启与防回滚恢复 |
+| 3.2.19 | [排名融合与来源轨迹](architecture/FUSION_CONTRACT.md) | 首个RRF Fuser、路线去重与完整来源/代际 |
+| 3.2.20 | [检索协调与跨库配额](architecture/RETRIEVAL_COORDINATOR.md) | 有界规划、合并策略、失败语义及运行门槛 |
+| 3.2.21 | [分库请求与授权边界](architecture/PARTITION_REQUEST.md) | 子Scope、发布投影、代际隔离与新Grant |
+| 3.2.22 | [发布投影身份](architecture/PUBLICATION_PROJECTION.md) | 父子快照、关系记录、过滤等式与摘要设计 |
+| 3.2.23 | [查询权威服务](architecture/QUERY_AUTHORITY.md) | 可替换读快照、父子授权、当前复核与一致性边界 |
+| 3.2.24 | [元数据读写绑定](architecture/METADATA_STORE_BINDING.md) | 数据集/存储代际、端点观测、共同激活与回退 |
+| 3.2.25 | [数据源启动门](architecture/STORE_STARTUP_GATE.md) | 独立期望、本次探测绑定、真实覆盖与联合就绪 |
+| 3.2.26 | [探测接收账本](architecture/STORE_PROBE_LEDGER.md) | 一次性CAS、重复/冲突、接管与提交未知恢复 |
+| 3.2.27 | [有限反思与草稿编排](architecture/REFLECTION_ORCHESTRATION.md) | 多查询共享预算、输出边界、反馈采纳与替换验收 |
+| 3.2.28 | [反思检索应用接入](architecture/REFLECTION_PIPELINE_BINDING.md) | 新授权/向量/投影、最终证据与全请求计量 |
+| 3.2.30 | [依赖边界检查](architecture/DEPENDENCY_BOUNDARIES.md) | 精确import清单、领域/编排隔离与静态检查 |
+| 3.2.29 | [全请求计量](architecture/REQUEST_METERING.md) | usage、精确费用、并发预留、未知与恢复 |
 | 3.3 | [逻辑数据模型](architecture/DATA_MODEL.md) | 记录关系、唯一约束、事务矩阵、冻结与回收 |
 | 3.3.1 | [保留与回收契约](architecture/RETENTION_CONTRACT.md) | 保留期限、回退保护、幂等、保留锁与物理删除闸门 |
 | 3.3.2 | [元数据导出契约](architecture/EXPORT_CONTRACT.md) | 权威记录库存、清单/分段摘要、快照水位和隔离导入闸门 |
@@ -36,9 +54,14 @@
 | 3.6 | [标准内容格式](architecture/CONTENT_FORMAT.md) | 表格/图片/音频载荷、检索投影和来源坐标 |
 | 3.6.1 | [冻结编码与哈希](architecture/FROZEN_CONTENT.md) | 精确字节规则、冻结字段、两级哈希及跨语言金标 |
 | 4 | [选型与决策](architecture/DECISIONS.md) | 默认方案、替代方案、WeKnora 边界及待验证事项 |
+| 4.0.1 | [候选组件准入](architecture/COMPONENT_ADMISSION.md) | 固定许可/部署证据、制品与数据隔离、统一准入门槛 |
+| 4.0.2 | [解析部署与替换](architecture/PARSER_DEPLOYMENT.md) | 引擎/字体/模型完整包、OCR能力、子进程预算与双实现门槛 |
 | 4.1 | [WeKnora适配器](architecture/WEKNORA_ADAPTER.md) | 固定源码证据、文本投影、候选隔离和使用门槛 |
+| 4.1.1 | [Qdrant独立向量适配器](architecture/QDRANT_ADAPTER.md) | 显式向量/过滤/代际、数据重建及复合路线对照 |
+| 4.1.2 | [中文关键词适配器](architecture/KEYWORD_ADAPTER.md) | OpenSearch/分词候选、精确过滤与独立混合检索对照 |
 | 4.2 | [MCP适配器](architecture/MCP_ADAPTER.md) | 协议/SDK基线、OAuth与服务身份、工具映射和互操作验收 |
 | 5 | [验证与实施顺序](architecture/VALIDATION.md) | 如何证明可替换、权限安全、召回和性能达标 |
+| 5.1 | [证据召回评测](architecture/RETRIEVAL_EVALUATION.md) | 前10窗口、标准来源区间、失败分母、权限负例与离线算术 |
 | 6 | [实施状态](IMPLEMENTATION_STATUS.md) | 文档、代码和实测分别完成了什么 |
 | 7 | [需求覆盖与证据审查](architecture/REQUIREMENTS_AUDIT.md) | 原始20个模块、五类成果和验收条件的覆盖与缺口 |
 | 8 | [架构验收报告](architecture/ACCEPTANCE_REVIEW.md) | 2026-10-12逐项判定、13项检查证据、契约冻结缺口与关闭标准 |
@@ -48,3 +71,11 @@
 设计原则：**固定业务语义，替换技术实现；平台持有权威数据，外部组件提供能力。**“每个模块可替换”不意味着任意组件都能直接互换。替代实现必须通过对应契约与能力门槛，有状态模块还必须通过迁移和回退验证。
 
 已有 GitHub 调研见 [组件调研](../AI_Knowledge_OS_GitHub选型调研_2026-10-11.md)。调研结论与实际适配验证分开记录，尚未实测的能力不能写作生产承诺。
+
+统一本地检查入口见[验证方案](architecture/VALIDATION.md#统一本地验证入口windows)和[执行脚本](architecture/check_architecture.py)。仅本地设计/契约回归，不代表运行验收。
+
+可选扩展设计见[记忆/图谱生命周期](architecture/MEMORY_GRAPH_LIFECYCLE.md)：权威归属、复合来源、撤回/删除、接口缺口与替换试验。
+
+检索返回前的必需权威检查顺序见[当前复核应用编排](architecture/CURRENT_CHECK_FLOW.md)，含身份绑定、当前批准、真实Ready、最终版本检查及发送边界。
+
+[可替换证据核验模块](architecture/EVIDENCE_VERIFICATION_MODULES.md)：内容/原件/索引/多格式定位的分工、路由与替换验收。

@@ -1,0 +1,47 @@
+{
+  "recorded_at": "2026-10-13T00:28:02.609062+00:00",
+  "sources": {
+    "docs/architecture/build_upload_operation.py": "79ed312d4cf8031c3f444bf15ba9337eaf19a990212ade53a3522ef695603aa4",
+    "docs/architecture/upload_operation_validation.py": "13a41fb19ab1e9205fca8b26dea195451156756fb100c729f56398112fb0ecb7",
+    "docs/architecture/upload_transition_validation.py": "6353355158bfc314c8d151253a89f7834d09ee9e4d14abb4d1b90eb7463bdab4",
+    "docs/architecture/test_upload_operation.py": "2450f8b02e6cd1897f557fec2ab25bd2a608fb022ba09c162cc81176ad952599",
+    "docs/architecture/test_upload_transition.py": "a5dc8882dd2d10255576c8a7161ae4f0bb75c23995d26ee509ce7c68e26f750f",
+    "docs/architecture/schemas/upload-operation.v1.schema.json": "af00d7e30663632aa38231508d7821c12a2f5cfad487c50cb865eaa9ebab71a0",
+    "docs/architecture/BLOB_CONFIRMATION.md": "8749e3776263cc9feff1790ea463984398bdea6b812e556de52ae6391ddfa8c3"
+  },
+  "scope": "Seven record and nine transition synthetic tests, 103 Python regression tests. Fencing high-water is persisted in the proposed record; no actual CAS, authoritative guard observations, immutable storage, transaction, recovery or two-provider replacement evidence. Reports never authorize confirmation.",
+  "checks": [
+    {
+      "name": "Upload schema",
+      "chunk_id": "07164d",
+      "wall_time_seconds": 0.2973496,
+      "exit_code": 0,
+      "original_token_count": 14,
+      "output": "PASS: upload operation schema generation consistency\r\n"
+    },
+    {
+      "name": "Record checks",
+      "chunk_id": "2b5230",
+      "wall_time_seconds": 0.8195536,
+      "exit_code": 0,
+      "original_token_count": 28,
+      "output": ".......\r\n----------------------------------------------------------------------\r\nRan 7 tests in 0.427s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Transition checks",
+      "chunk_id": "88effd",
+      "wall_time_seconds": 1.4285576,
+      "exit_code": 0,
+      "original_token_count": 28,
+      "output": ".........\r\n----------------------------------------------------------------------\r\nRan 9 tests in 1.024s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Python regression",
+      "chunk_id": "e1be8e",
+      "wall_time_seconds": 6.0978036,
+      "exit_code": 0,
+      "original_token_count": 52,
+      "output": ".......................................................................................................\r\n----------------------------------------------------------------------\r\nRan 103 tests in 5.669s\r\n\r\nOK\r\n"
+    }
+  ]
+}

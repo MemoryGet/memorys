@@ -1,0 +1,31 @@
+{
+  "recorded_at": "2026-10-13T10:53:15.543Z",
+  "scope": "Closed offline bound-probe review Schema and five exact-nanosecond relationship tests. 190 Python regressions pass. authenticated/coverage_verified/ready_for_service false. No Go time mapping, trusted clock/expectation authentication, remote service, receipt consumption or coverage proof.",
+  "checks": [
+    {
+      "command": "python -m unittest discover -s docs/architecture -p test_store_probe.py",
+      "exit_code": 0,
+      "chunk_id": "84ecc0",
+      "test_count": 5
+    },
+    {
+      "chunk_id": "12100e",
+      "wall_time_seconds": 9.4e-06,
+      "exit_code": 0,
+      "original_token_count": 34,
+      "output": "..............................\r\n----------------------------------------------------------------------\r\nRan 190 tests in 13.156s\r\n\r\nOK\r\n"
+    },
+    {
+      "command": "python docs/architecture/build_store_probe.py",
+      "exit_code": 0,
+      "chunk_id": "b12f85"
+    }
+  ],
+  "sources": {
+    "docs/architecture/build_store_probe.py": "542e662043c62fc8dcaef57fb7b55880e149841e972471e4b3dab434f8b9afdf",
+    "docs/architecture/store_probe_validation.py": "bf94298ee1fc5d4b75ff63c3ffcff68269b14470657e54e076bf6cbdd398582e",
+    "docs/architecture/test_store_probe.py": "1cd9138daebe2ad5d18c05be0b5d68c317b538742a20578a8be566e7c1714656",
+    "docs/architecture/schemas/store-probe-review.v1.schema.json": "786266fad934dba12bd475cd329c2df221f189bd1d1e19608690fd9b75d5bd21",
+    "docs/architecture/STORE_STARTUP_GATE.md": "bc5f53fe1cef4b4140d31288be55336d0e0386ce87e10f64013f49e02f60e8c7"
+  }
+}

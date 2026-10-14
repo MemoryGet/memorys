@@ -1,0 +1,63 @@
+{
+  "recorded_at": "2026-10-13T00:59:01.869777+00:00",
+  "sources": {
+    "docs/architecture/remote_operation_policy.py": "e49bcd58691a01af8ccc7e3e7d21edada2b937169b8800633456f761249004a1",
+    "docs/architecture/test_remote_operation_policy.py": "4cfdbfca05824d77de956914cac4ca3e184244a89173177adc2383acc45590b3",
+    "docs/architecture/examples/remote-operation-policy.v1.json": "fe5cfb6a39059222570197359dd7b56d483a6c605b37de4829a6935a98f0bc04",
+    "docs/architecture/build_operation_grant_golden.py": "ded7ed3721492c2d25e149548a8079534a2078df3d55f1654a0d3f8828b24bb2",
+    "docs/architecture/examples/operation-grant-golden.v1.json": "d19c0069b0423a5bb81260dd99ce358ffb602db17f6fc4c66e8f5596a997ef09",
+    "docs/architecture/REMOTE_OPERATION_POLICY.md": "f28c5530913e9dfa3be16bf9884662409fc9b4f2a8d2f739783cc3a1233104c9",
+    "docs/architecture/ACCESS_GRANT.md": "34a28e2e5e2a1d6b5251e55afe7af218448550685dfd6d06e81762fb848d270c"
+  },
+  "scope": "17 operation/action routes and corrected grant fixtures. Four policy tests, full Go tests/vet, golden consistency and 136 Python regression tests pass. No real subject/role, parent job, resource authority, signature, current authorization or persistent ledger evidence; authorized always false.",
+  "checks": [
+    {
+      "name": "Policy generation",
+      "chunk_id": "2eb083",
+      "wall_time_seconds": 0.3132836,
+      "exit_code": 0,
+      "original_token_count": 16,
+      "output": "PASS: 17 operation route/action policy generation consistency\r\n"
+    },
+    {
+      "name": "Policy tests",
+      "chunk_id": "6e8656",
+      "wall_time_seconds": 0.5616307,
+      "exit_code": 0,
+      "original_token_count": 27,
+      "output": "....\r\n----------------------------------------------------------------------\r\nRan 4 tests in 0.074s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Updated operation golden",
+      "chunk_id": "dad559",
+      "wall_time_seconds": 0.5022466,
+      "exit_code": 0,
+      "original_token_count": 24,
+      "output": "PASS: 17 independently Schema-checked request/scope golden bindings and input mutation digests\r\n"
+    },
+    {
+      "name": "Go regression",
+      "chunk_id": "da8c8e",
+      "wall_time_seconds": 3.8681717,
+      "exit_code": 0,
+      "original_token_count": 88,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.597s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.452s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.784s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t0.733s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.687s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.078s\n"
+    },
+    {
+      "name": "Go vet",
+      "chunk_id": "5bcc1c",
+      "wall_time_seconds": 0.8408726,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "name": "Python regression",
+      "chunk_id": "b1747a",
+      "wall_time_seconds": 6.6194762,
+      "exit_code": 0,
+      "original_token_count": 61,
+      "output": "........................................................................................................................................\r\n----------------------------------------------------------------------\r\nRan 136 tests in 6.103s\r\n\r\nOK\r\n"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "recorded_at": "2026-10-13T06:00:21.356Z",
+  "scope": "Two provider-neutral read interfaces and DTOs; four synthetic published-page relationship tests. Full Go tests/vet pass. No actual read transaction/snapshot, lifecycle invalidation, cursor binding/completeness, current authorization/publication or module factory proof.",
+  "checks": [
+    {
+      "command": ".\\.tools\\go\\bin\\go.exe test -count=1 -run TestPublishedPage -v ./pkg/contracts",
+      "exit_code": 0,
+      "chunk_id": "e2c8fe",
+      "test_count": 4
+    },
+    {
+      "chunk_id": "aa952f",
+      "wall_time_seconds": 5.2747835,
+      "exit_code": 0,
+      "original_token_count": 188,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.589s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.539s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.814s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.112s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t0.953s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.083s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t3.124s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.209s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t1.316s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t1.646s\n"
+    },
+    {
+      "chunk_id": "a62a10",
+      "wall_time_seconds": 1.7297835,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/contracts/query_read.go": "89d17703ed1048a49425c32b40ff73a1c7bc814d4ab6220b8cb6b55bd81af6c8",
+    "pkg/contracts/query_read_test.go": "08099883fcb53a3c79ad355a8c10657f29753bef68f19011a6a39bced99f0f41",
+    "docs/architecture/QUERY_AUTHORITY.md": "290f0884a221f9411eb795bdaaf23aa570ad75515fe459f82a99679f1dc4566e"
+  }
+}

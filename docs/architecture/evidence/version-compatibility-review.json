@@ -1,0 +1,23 @@
+{
+  "scope": "Go kernel and Python offline declared lifecycle/business contract version compatibility; no real provider or wire negotiation evidence",
+  "red": {
+    "chunk_id": "bd6552",
+    "exit_code": 1,
+    "rejected_compatible_cases": 4
+  },
+  "green_report": "unified-local-checks.json",
+  "sources": [
+    {
+      "path": "pkg/kernel/preflight.go",
+      "sha256": "cec01db8bfa9ecc0f959bb599c8befae131862c946c5061a1e36ed15e58fe9ba"
+    },
+    {
+      "path": "pkg/kernel/version_compatibility_test.go",
+      "sha256": "871c9bfe08b200b492360a995218e63b0d987e5abde660f3985102ffe239874f"
+    },
+    {
+      "path": "docs/architecture/test_version_compatibility.py",
+      "sha256": "3d04da371153000e2e77b3affde06fba0ee87ab1a919013c21dfa4fa57f2ee27"
+    }
+  ]
+}

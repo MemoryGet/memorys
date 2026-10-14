@@ -81,3 +81,7 @@ python -m unittest discover -s docs/architecture -p 'test_*.py'
 ```
 
 正常验证不重写金标。规范有意变更时先审查版本兼容性，再显式使用`build_frozen_golden.py --write`生成候选向量；历史格式的向量不得被静默覆盖。HashFormat=akos.freeze/1尚未投产，冻结前仍须补足真实提交、序列化映射与大载荷试验。
+
+## 6. 新增投影摘要域（V1草案）
+
+登记`akos.publication-projection/1`：SHA-256(域UTF-8＋NUL＋完整PublicationProjectionV1的AKOS-CJSON/1)。完整字段、顺序和排除摘要自身的规则见[发布投影契约](PUBLICATION_PROJECTION.md)。与grant-request、grant-scope及冻结内容摘要不互换；域登记不代表可信发布服务已实现或契约已冻结。Python进行Schema/关系检查，Go DigestUnchecked只检查规范编码，正式调用须先补领域校验。

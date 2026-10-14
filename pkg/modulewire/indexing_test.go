@@ -71,8 +71,11 @@ func TestPrepareResultMatchesAuthoritativeExpectedTargets(t *testing.T) {
 		func(e *modulewire.PrepareExpectation) { e.EmbeddingSpecDigests = nil },
 		func(e *modulewire.PrepareExpectation) { e.Generations = append(e.Generations, e.Generations[0]) },
 	} {
-		bad := expected; mutation(&bad)
-		if _, err := modulewire.DecodePrepareResult(data, "req-1", "i", bad); err == nil { t.Fatal("invalid authoritative expectation accepted") }
+		bad := expected
+		mutation(&bad)
+		if _, err := modulewire.DecodePrepareResult(data, "req-1", "i", bad); err == nil {
+			t.Fatal("invalid authoritative expectation accepted")
+		}
 	}
 	result.Proof.AttemptID = "old-attempt"
 	data, _ = modulewire.EncodePrepareResult("req-1", "i", result)

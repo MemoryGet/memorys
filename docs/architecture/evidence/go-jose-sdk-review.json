@@ -1,0 +1,44 @@
+{
+  "checked_at": "2026-10-13T01:00:00.198194+00:00",
+  "repository": "go-jose/go-jose",
+  "requested_ref": "v4.1.5",
+  "resolved_commit": "b10771e937ddcce419e30fc0c2b9e38464a333d0",
+  "latest_release_observed": {
+    "tag_name": "v4.1.5",
+    "published_at": "2026-09-03T19:52:20Z",
+    "prerelease": false,
+    "draft": false
+  },
+  "scope": "SDK source and release review only; not installed or validated against AKOS tokens",
+  "sources": [
+    {
+      "path": "LICENSE",
+      "url": "https://raw.githubusercontent.com/go-jose/go-jose/b10771e937ddcce419e30fc0c2b9e38464a333d0/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "bytes": 11358
+    },
+    {
+      "path": "go.mod",
+      "url": "https://raw.githubusercontent.com/go-jose/go-jose/b10771e937ddcce419e30fc0c2b9e38464a333d0/go.mod",
+      "sha256": "e069e6002d29495b8c2dc6cf0d3b56a075ec5be7abb6c2eb1a1c0845cb66b8b3",
+      "bytes": 48,
+      "module_lines": [
+        "module github.com/go-jose/go-jose/v4",
+        "",
+        "go 1.24.0"
+      ]
+    },
+    {
+      "path": "jws.go",
+      "url": "https://raw.githubusercontent.com/go-jose/go-jose/b10771e937ddcce419e30fc0c2b9e38464a333d0/jws.go",
+      "sha256": "8c0dc7f178c1fd9e022e6531b0b6780b63f7b836328cf11815798d53f1a19235",
+      "bytes": 15938
+    },
+    {
+      "path": "jwt/jwt.go",
+      "url": "https://raw.githubusercontent.com/go-jose/go-jose/b10771e937ddcce419e30fc0c2b9e38464a333d0/jwt/jwt.go",
+      "sha256": "41b658accd4e5a6838c453960bbacefb20545bfba5a070df81fc302cfc35472f",
+      "bytes": 6152
+    }
+  ]
+}

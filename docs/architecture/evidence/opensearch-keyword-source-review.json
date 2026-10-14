@@ -1,0 +1,60 @@
+{
+  "checked_at": "2026-10-13T04:43:50.041727+00:00",
+  "repository": "opensearch-project/OpenSearch",
+  "requested_ref": "3.3.2",
+  "resolved_commit": "6564992150e26aaa62d4522a220dfff5188aeb88",
+  "scope": "Fixed source/API and plugin registration only; not deployed",
+  "sources": [
+    {
+      "path": "LICENSE.txt",
+      "url": "https://api.github.com/repos/opensearch-project/OpenSearch/contents/LICENSE.txt?ref=6564992150e26aaa62d4522a220dfff5188aeb88",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "bytes": 11357,
+      "license": "Apache-2.0"
+    },
+    {
+      "path": "plugins/analysis-smartcn/build.gradle",
+      "url": "https://api.github.com/repos/opensearch-project/OpenSearch/contents/plugins/analysis-smartcn/build.gradle?ref=6564992150e26aaa62d4522a220dfff5188aeb88",
+      "sha256": "7d5a327e43cdc3854b67a2c271a80f09f70fd80fb5066b8f1a3465d86515146c",
+      "bytes": 1612,
+      "lucene_smartcn_dependency_declared": true
+    },
+    {
+      "path": "plugins/analysis-smartcn/src/main/java/org/opensearch/plugin/analysis/smartcn/AnalysisSmartChinesePlugin.java",
+      "url": "https://api.github.com/repos/opensearch-project/OpenSearch/contents/plugins/analysis-smartcn/src/main/java/org/opensearch/plugin/analysis/smartcn/AnalysisSmartChinesePlugin.java?ref=6564992150e26aaa62d4522a220dfff5188aeb88",
+      "sha256": "817c38fe9b40500e45e648567299a35b13f9a39ca27dabae08baf6992d380b8d",
+      "bytes": 3171,
+      "registered_analyzer_names": [
+        "smartcn"
+      ],
+      "registration_methods": [
+        "getAnalyzers",
+        "getTokenizers",
+        "getTokenFilters"
+      ]
+    },
+    {
+      "path": "rest-api-spec/src/main/resources/rest-api-spec/api/search.json",
+      "url": "https://api.github.com/repos/opensearch-project/OpenSearch/contents/rest-api-spec/src/main/resources/rest-api-spec/api/search.json?ref=6564992150e26aaa62d4522a220dfff5188aeb88",
+      "sha256": "f909a1be6df6d1e8c38bcfe70eab5a6a348d0744203c0d731f969bd0cee347cd",
+      "bytes": 9025,
+      "api_names": [
+        "search"
+      ]
+    }
+  ],
+  "latest_release": {
+    "url": "https://api.github.com/repos/opensearch-project/OpenSearch/releases/latest",
+    "checked_at": "2026-10-13T04:45:08.236472+00:00",
+    "tag_name": "3.9.0",
+    "published_at": "2026-09-29T21:54:18Z",
+    "prerelease": false,
+    "draft": false,
+    "html_url": "https://github.com/opensearch-project/OpenSearch/releases/tag/3.9.0"
+  },
+  "limitations": [
+    "No distribution/plugin installation, analysis output or private service tested",
+    "Fixed 3.3.2 is a compatibility baseline, not an assertion of current security suitability",
+    "No OCI/plugin/Lucene dependency lock, complete SBOM/license/security review or Recall evidence"
+  ]
+}

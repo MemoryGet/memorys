@@ -1,0 +1,278 @@
+{
+  "checked_at": "2026-10-13T00:36:00.202100+00:00",
+  "repository": "qdrant/qdrant",
+  "requested_ref": "v1.16.2",
+  "resolved_commit": "d2834de0b51be23a7b22b023e424cbb9456d0e75",
+  "scope": "Fixed license and OpenAPI source review only, no runtime",
+  "sources": [
+    {
+      "path": "LICENSE",
+      "url": "https://raw.githubusercontent.com/qdrant/qdrant/d2834de0b51be23a7b22b023e424cbb9456d0e75/LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "bytes": 11357,
+      "license": "Apache-2.0"
+    },
+    {
+      "path": "docs/redoc/v1.16.x/openapi.json",
+      "url": "https://raw.githubusercontent.com/qdrant/qdrant/d2834de0b51be23a7b22b023e424cbb9456d0e75/docs/redoc/v1.16.x/openapi.json",
+      "sha256": "4c38639831b0679ed695da6d824d19f523759ed8838a5740c9683653b6afb3cc",
+      "bytes": 475799,
+      "info": {
+        "title": "Qdrant API",
+        "version": "v1.16.x",
+        "license": {
+          "name": "Apache 2.0",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+      },
+      "operations": {
+        "/collections/{collection_name}/points/query": {
+          "post": {
+            "operationId": "query_points",
+            "parameters": [
+              {
+                "name": "collection_name",
+                "in": "path"
+              },
+              {
+                "name": "consistency",
+                "in": "query"
+              },
+              {
+                "name": "timeout",
+                "in": "query"
+              }
+            ]
+          }
+        },
+        "/collections/{collection_name}/points": {
+          "post": {
+            "operationId": "get_points",
+            "parameters": [
+              {
+                "name": "collection_name",
+                "in": "path"
+              },
+              {
+                "name": "consistency",
+                "in": "query"
+              },
+              {
+                "name": "timeout",
+                "in": "query"
+              }
+            ]
+          },
+          "put": {
+            "operationId": "upsert_points",
+            "parameters": [
+              {
+                "name": "collection_name",
+                "in": "path"
+              },
+              {
+                "name": "wait",
+                "in": "query"
+              },
+              {
+                "name": "ordering",
+                "in": "query"
+              }
+            ]
+          }
+        },
+        "/collections/{collection_name}/points/delete": {
+          "post": {
+            "operationId": "delete_points",
+            "parameters": [
+              {
+                "name": "collection_name",
+                "in": "path"
+              },
+              {
+                "name": "wait",
+                "in": "query"
+              },
+              {
+                "name": "ordering",
+                "in": "query"
+              }
+            ]
+          }
+        },
+        "/collections/{collection_name}/points/scroll": {
+          "post": {
+            "operationId": "scroll_points",
+            "parameters": [
+              {
+                "name": "collection_name",
+                "in": "path"
+              },
+              {
+                "name": "consistency",
+                "in": "query"
+              },
+              {
+                "name": "timeout",
+                "in": "query"
+              }
+            ]
+          }
+        },
+        "/collections/{collection_name}/index": {
+          "put": {
+            "operationId": "create_field_index",
+            "parameters": [
+              {
+                "name": "collection_name",
+                "in": "path"
+              },
+              {
+                "name": "wait",
+                "in": "query"
+              },
+              {
+                "name": "ordering",
+                "in": "query"
+              }
+            ]
+          }
+        },
+        "/collections/{collection_name}/snapshots": {
+          "get": {
+            "operationId": "list_snapshots",
+            "parameters": [
+              {
+                "name": "collection_name",
+                "in": "path"
+              }
+            ]
+          },
+          "post": {
+            "operationId": "create_snapshot",
+            "parameters": [
+              {
+                "name": "collection_name",
+                "in": "path"
+              },
+              {
+                "name": "wait",
+                "in": "query"
+              }
+            ]
+          }
+        },
+        "/collections/{collection_name}/snapshots/recover": {
+          "put": {
+            "operationId": "recover_from_snapshot",
+            "parameters": [
+              {
+                "name": "collection_name",
+                "in": "path"
+              },
+              {
+                "name": "wait",
+                "in": "query"
+              }
+            ]
+          }
+        }
+      },
+      "schema_fields": {
+        "QueryRequest": {
+          "type": "object",
+          "properties": [
+            "shard_key",
+            "prefetch",
+            "query",
+            "using",
+            "filter",
+            "params",
+            "score_threshold",
+            "limit",
+            "offset",
+            "with_vector",
+            "with_payload",
+            "lookup_from"
+          ],
+          "variant_count": 0
+        },
+        "Filter": {
+          "type": "object",
+          "properties": [
+            "should",
+            "min_should",
+            "must",
+            "must_not"
+          ],
+          "variant_count": 0
+        },
+        "MatchAny": {
+          "type": "object",
+          "required": [
+            "any"
+          ],
+          "properties": [
+            "any"
+          ],
+          "variant_count": 0
+        },
+        "PointStruct": {
+          "type": "object",
+          "required": [
+            "id",
+            "vector"
+          ],
+          "properties": [
+            "id",
+            "vector",
+            "payload"
+          ],
+          "variant_count": 0
+        },
+        "PointsSelector": {
+          "properties": [],
+          "variant_count": 2
+        },
+        "ScrollRequest": {
+          "type": "object",
+          "properties": [
+            "shard_key",
+            "offset",
+            "limit",
+            "filter",
+            "with_payload",
+            "with_vector",
+            "order_by"
+          ],
+          "variant_count": 0
+        },
+        "CreateCollection": {
+          "type": "object",
+          "properties": [
+            "vectors",
+            "shard_number",
+            "sharding_method",
+            "replication_factor",
+            "write_consistency_factor",
+            "on_disk_payload",
+            "hnsw_config",
+            "wal_config",
+            "optimizers_config",
+            "quantization_config",
+            "sparse_vectors",
+            "strict_mode_config",
+            "metadata"
+          ],
+          "variant_count": 0
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "No running Qdrant tests, filter-isolation proof or prefetch filter propagation validation",
+    "No OCI digest, full dependency license/SBOM assessment",
+    "Snapshots are engine-native; portable platform replacement must rebuild from authoritative content",
+    "Tag resolved through GitHub commit API; pinned spec info identifies v1.16.x, server exact-version compatibility requires runtime check"
+  ]
+}

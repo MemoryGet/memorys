@@ -7,7 +7,6 @@ import (
 	"io"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/MemoryGet/memorys/pkg/contracts"
@@ -36,9 +35,10 @@ func compatible(supplied, requested string) bool {
 		return false
 	}
 	s, r := strings.Split(supplied, "."), strings.Split(requested, ".")
-	sMinor, e1 := strconv.Atoi(s[1])
-	rMinor, e2 := strconv.Atoi(r[1])
-	return e1 == nil && e2 == nil && s[0] == r[0] && sMinor >= rMinor
+	// Regex guarantees canonical decimal components without leading zeroes.
+	// Compare numerals without host-sized int parsing or overflow.
+	minorAtLeast := len(s[1]) > len(r[1]) || (len(s[1]) == len(r[1]) && s[1] >= r[1])
+	return s[0] == r[0] && minorAtLeast
 }
 
 func capabilityVersion(manifest Manifest, cap contracts.Capability) string {
@@ -49,6 +49,9 @@ func capabilityVersion(manifest Manifest, cap contracts.Capability) string {
 }
 
 func supports(manifest Manifest, requirement Requirement) bool {
+	if !validFeatures(requirement.Features) {
+		return false
+	}
 	declared := false
 	for _, cap := range manifest.Capabilities {
 		if cap == requirement.Capability {
@@ -59,7 +62,11 @@ func supports(manifest Manifest, requirement Requirement) bool {
 		return false
 	}
 	features := manifest.CapabilityFeatures[requirement.Capability]
-	for _, required := range requirement.Features {
+	if !validFeatures(features) {
+		return false
+	}
+	needed := append(MinimumExtensionFeatures(requirement.Capability), requirement.Features...)
+	for _, required := range needed {
 		found := false
 		for _, feature := range features {
 			if feature == required {
@@ -73,8 +80,19 @@ func supports(manifest Manifest, requirement Requirement) bool {
 	return true
 }
 
+func validFeatures(features []string) bool {
+	seen := make(map[string]bool, len(features))
+	for _, feature := range features {
+		if !identifier.MatchString(feature) || seen[feature] {
+			return false
+		}
+		seen[feature] = true
+	}
+	return true
+}
+
 func validateManifest(manifest Manifest) error {
-	if !identifier.MatchString(manifest.ID) || !release.MatchString(manifest.Version) || !compatible(manifest.ContractVersion, "1.0") || !strings.HasPrefix(manifest.ContractVersion, "1.0") {
+	if !identifier.MatchString(manifest.ID) || !release.MatchString(manifest.Version) || !compatible(manifest.ContractVersion, "1.0") {
 		return errors.New("module implementation or lifecycle contract is invalid")
 	}
 	if len(manifest.Capabilities) == 0 {
@@ -86,6 +104,9 @@ func validateManifest(manifest Manifest) error {
 			return errors.New("invalid module capability declaration")
 		}
 		seen[cap] = true
+		if !supports(manifest, Requirement{Capability: cap}) {
+			return errors.New("module lacks minimum capability features")
+		}
 	}
 	for cap := range manifest.CapabilityFeatures {
 		if !seen[cap] {
@@ -188,6 +209,25 @@ func bindDependencies(modules map[string]*plannedModule, config Config) error {
 		declarations := append([]Dependency(nil), module.factory.Manifest.DependencySlots...)
 		for _, cap := range module.factory.Manifest.Dependencies {
 			declarations = append(declarations, Dependency{Slot: string(cap), Capability: cap})
+		}
+		graph, manager := false, false
+		for _, cap := range module.factory.Manifest.Capabilities {
+			graph = graph || cap == contracts.GraphStorage
+			manager = manager || cap == contracts.GraphProjectionControl
+		}
+		if graph && !manager {
+			declared := false
+			for _, dep := range declarations {
+				if dep.Slot == "projection_manager" {
+					if dep.Capability != contracts.GraphProjectionControl {
+						return errors.New("graph management slot has incompatible capability")
+					}
+					declared = true
+				}
+			}
+			if !declared {
+				declarations = append(declarations, Dependency{Slot: "projection_manager", Capability: contracts.GraphProjectionControl, ContractVersion: "1.0"})
+			}
 		}
 		for _, dep := range declarations {
 			if !identifier.MatchString(dep.Slot) || module.dependencies[dep.Slot].instance != "" {

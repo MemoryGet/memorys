@@ -1,0 +1,223 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "akos.store-binding-review/1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "expectation",
+    "observations"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "expectation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "binding_id",
+        "identity",
+        "activation_cursor",
+        "endpoints"
+      ],
+      "properties": {
+        "binding_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "identity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "dataset_id",
+            "metadata_store_epoch_id",
+            "journal_stream_id",
+            "binding_version",
+            "metadata_model_version",
+            "schema_digest"
+          ],
+          "properties": {
+            "dataset_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "metadata_store_epoch_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "journal_stream_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "binding_version": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 18446744073709551615
+            },
+            "metadata_model_version": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 18446744073709551615
+            },
+            "schema_digest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        },
+        "activation_cursor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "endpoints": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "role",
+              "module_instance_id",
+              "endpoint_identity"
+            ],
+            "properties": {
+              "role": {
+                "enum": [
+                  "metadata_uow",
+                  "query_read_unit",
+                  "metadata_repository",
+                  "task_repository",
+                  "audit"
+                ]
+              },
+              "module_instance_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "endpoint_identity": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              }
+            }
+          }
+        }
+      }
+    },
+    "observations": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "observation_id",
+          "binding_id",
+          "identity",
+          "endpoint",
+          "current_cursor"
+        ],
+        "properties": {
+          "observation_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "binding_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "identity": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "dataset_id",
+              "metadata_store_epoch_id",
+              "journal_stream_id",
+              "binding_version",
+              "metadata_model_version",
+              "schema_digest"
+            ],
+            "properties": {
+              "dataset_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "metadata_store_epoch_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "journal_stream_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "binding_version": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 18446744073709551615
+              },
+              "metadata_model_version": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 18446744073709551615
+              },
+              "schema_digest": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          },
+          "endpoint": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "role",
+              "module_instance_id",
+              "endpoint_identity"
+            ],
+            "properties": {
+              "role": {
+                "enum": [
+                  "metadata_uow",
+                  "query_read_unit",
+                  "metadata_repository",
+                  "task_repository",
+                  "audit"
+                ]
+              },
+              "module_instance_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "endpoint_identity": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              }
+            }
+          },
+          "current_cursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        }
+      }
+    }
+  }
+}

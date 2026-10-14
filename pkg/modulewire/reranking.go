@@ -23,6 +23,11 @@ func init() {
 }
 
 func EncodeRerankRequest(call Call, scope contracts.AccessScope, request contracts.RerankRequest) ([]byte, error) {
+	for _, candidate := range request.Candidates {
+		if err := checkFusionOrigins(candidate); err != nil {
+			return nil, err
+		}
+	}
 	if request.Limit < 1 || request.Limit > 1000 {
 		return nil, invalid()
 	}
@@ -36,6 +41,11 @@ func DecodeRerankRequest(data []byte) (Call, contracts.AccessScope, contracts.Re
 	}
 	if input.Limit < 1 || input.Limit > 1000 {
 		return Call{}, contracts.AccessScope{}, contracts.RerankRequest{}, invalid()
+	}
+	for _, candidate := range input.Candidates {
+		if err := checkFusionOrigins(candidate); err != nil {
+			return Call{}, contracts.AccessScope{}, contracts.RerankRequest{}, err
+		}
 	}
 	return Call{context.InvocationID, context.ModuleInstanceID}, context.Scope,
 		contracts.RerankRequest{Request: requestContext(context), Query: input.Query, Candidates: input.Candidates, Limit: input.Limit}, nil

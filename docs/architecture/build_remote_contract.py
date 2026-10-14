@@ -90,9 +90,11 @@ def result_schemas(result):
     result["RetrieveInput"] = obj({"query": ref("Query"), "publication": ref("PublicationFilter"), "generations": array("Generation", 1),
                                    "backend_epoch_id": ref("ID"), "route_id": ref("ID"), "channels": {"type": "array", "minItems": 1, "uniqueItems": True,
                                      "items": {"enum": ["keyword", "vector", "graph"]}}, "limit": {"type": "integer", "minimum": 1, "maximum": 1000}})
+    result["FusionOrigin"] = obj({"route_id":ref("ID"),"retriever_id":ref("ID"),"rank":{"type":"integer","minimum":1,"maximum":1000},"generation_ids":array("ID",1)})
     result["Candidate"] = obj({"citation": ref("Citation"), "chunk_id": ref("ID"), "route_id": ref("ID"), "retriever_id": ref("ID"), "kb_id": ref("ID"),
-                               "rank": POSITIVE, "score": {"type": "number", "x-akos-numeric-representation": "float64-shortest-roundtrip"}, "score_kind": TEXT, "generation_ids": array("ID", 1), "text": {"type": "string"}})
-    result["RetrieveResult"] = obj({"candidates": array("Candidate", 0, 1000)})
+                               "rank": POSITIVE, "score": {"type": "number", "x-akos-numeric-representation": "float64-shortest-roundtrip"}, "score_kind": TEXT, "generation_ids": array("ID", 1), "text": {"type": "string"}, "fusion_origins":array("FusionOrigin",1,32)}, ["citation","chunk_id","route_id","retriever_id","kb_id","rank","score","score_kind","generation_ids","text"])
+    result["RawCandidate"] = {"allOf":[ref("Candidate"),{"not":{"required":["fusion_origins"]}}]}
+    result["RetrieveResult"] = obj({"candidates": array("RawCandidate", 0, 1000)})
     result["RerankInput"] = obj({"query": TEXT, "candidates": array("Candidate", 0, 1000), "limit": {"type": "integer", "minimum": 1, "maximum": 1000}})
     result["RerankResult"] = obj({"evidence": array("Evidence", 0, 1000)})
     result["GenerateInput"] = obj({"question": TEXT, "evidence": array("Evidence", 1, 1000),

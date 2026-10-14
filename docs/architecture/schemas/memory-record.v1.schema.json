@@ -1,0 +1,352 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AI Knowledge OS optional memory record V1 draft",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "owner_id",
+    "space_id",
+    "content",
+    "provenance",
+    "created_at",
+    "version"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "id": {
+      "$ref": "#/$defs/ID"
+    },
+    "owner_id": {
+      "$ref": "#/$defs/ID"
+    },
+    "space_id": {
+      "$ref": "#/$defs/ID"
+    },
+    "kb_id": {
+      "$ref": "#/$defs/ID"
+    },
+    "task_id": {
+      "$ref": "#/$defs/ID"
+    },
+    "content": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16000
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "citations"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "user_confirmed",
+            "task_experience",
+            "knowledge_summary"
+          ]
+        },
+        "confirmation_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "task_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "feedback_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "citations": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/Citation"
+          }
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "kind": {
+              "const": "user_confirmed"
+            }
+          },
+          "required": [
+            "confirmation_id"
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "task_id"
+                ]
+              },
+              {
+                "required": [
+                  "feedback_id"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "task_experience"
+            }
+          },
+          "anyOf": [
+            {
+              "required": [
+                "task_id"
+              ]
+            },
+            {
+              "required": [
+                "feedback_id"
+              ]
+            }
+          ],
+          "not": {
+            "required": [
+              "confirmation_id"
+            ]
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "knowledge_summary"
+            },
+            "citations": {
+              "minItems": 1
+            }
+          },
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "confirmation_id"
+                ]
+              },
+              {
+                "required": [
+                  "task_id"
+                ]
+              },
+              {
+                "required": [
+                  "feedback_id"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 18446744073709551615
+    }
+  },
+  "$defs": {
+    "Citation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document_id",
+        "revision_id",
+        "block_id",
+        "source_anchor"
+      ],
+      "properties": {
+        "document_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "revision_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "block_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "source_anchor": {
+          "$ref": "#/$defs/SourceAnchor"
+        }
+      }
+    },
+    "ID": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "SourceAnchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "locator"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "original",
+            "revision"
+          ]
+        },
+        "blob_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "revision_block_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "locator": {
+          "$ref": "#/$defs/Locator"
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OriginalAnchor"
+          }
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "kind": {
+              "const": "original"
+            }
+          },
+          "required": [
+            "blob_id"
+          ],
+          "not": {
+            "required": [
+              "revision_block_id"
+            ]
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "revision"
+            }
+          },
+          "required": [
+            "revision_block_id"
+          ],
+          "not": {
+            "required": [
+              "blob_id"
+            ]
+          }
+        }
+      ]
+    },
+    "Locator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "precision"
+      ],
+      "properties": {
+        "precision": {
+          "enum": [
+            "exact",
+            "coarse"
+          ]
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "slide": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "worksheet": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cell_range": {
+          "type": "string",
+          "minLength": 1
+        },
+        "paragraph_path": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "char_start": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "char_end": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "bbox": {
+          "$ref": "#/$defs/BoundingBox"
+        }
+      },
+      "dependentRequired": {
+        "char_start": [
+          "char_end"
+        ],
+        "char_end": [
+          "char_start"
+        ],
+        "cell_range": [
+          "worksheet"
+        ],
+        "bbox": [
+          "page"
+        ]
+      },
+      "description": "Character ranges are Unicode codepoint half-open ranges; semantic validation requires end >= start and bounds within canonical content. Coarse positioning is explicit."
+    },
+    "BoundingBox": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "description": "[left, top, right, bottom], normalized to a page in its canonical displayed orientation. Semantic checks require left < right and top < bottom."
+    },
+    "OriginalAnchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "blob_id",
+        "locator"
+      ],
+      "properties": {
+        "blob_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "locator": {
+          "$ref": "#/$defs/Locator"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "recorded_at": "2026-10-13T06:11:32.166Z",
+  "scope": "Four controlled repository tests for guarded read handle lifecycle, cooperative close cancellation/join, frozen scope/view and expiry/deadline admission. Full Go tests pass; vet and focused tests pass after final cancellation check. No actual WithinRead assembly, DB snapshot/driver resources or trusted authorization proof.",
+  "checks": [
+    {
+      "command": ".\\.tools\\go\\bin\\go.exe test -count=1 -v ./pkg/queryread",
+      "exit_code": 0,
+      "chunk_id": "c4cc2a",
+      "new_test_count": 4
+    },
+    {
+      "chunk_id": "431bdf",
+      "wall_time_seconds": 3.2876302,
+      "exit_code": 0,
+      "original_token_count": 201,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.927s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t2.088s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t1.544s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.431s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.745s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.606s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.243s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.269s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t2.168s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t1.073s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t1.892s\n"
+    },
+    {
+      "chunk_id": "f77d42",
+      "wall_time_seconds": 0.8758879,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "command": "focused queryread test and vet after final guard context check",
+      "exit_code": 0,
+      "chunk_id": "5ebb62"
+    }
+  ],
+  "sources": {
+    "pkg/queryread/guard.go": "10f1c2800bb5d389cdc9403ba669187afcee33884b39557c05890f7edf0d525d",
+    "pkg/queryread/guard_test.go": "7d01d777b328e079742c33148e1c819fd432b822ec178624c7f078f628d6b542",
+    "docs/architecture/QUERY_AUTHORITY.md": "9ca16a5f37098b6388d874a50b4d3a231e70f53b2fab3d588ceb5a306ffbf511"
+  }
+}

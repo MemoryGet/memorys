@@ -17,6 +17,12 @@ def validate_manifest(value, validator):
     slots = [item["slot"] for item in value["dependencies"]]
     if len(set(names)) != len(names) or len(set(slots)) != len(slots):
         raise ValueError("duplicate capability name or dependency slot")
+    policy = json.loads((Path(__file__).resolve().parents[2] / "pkg/kernel/extension-features.v1.json").read_text(encoding="utf-8"))
+    if policy["schema_version"] != 1:
+        raise ValueError("unsupported extension policy")
+    for item in value["capabilities"]:
+        if not set(policy["capabilities"].get(item["name"], [])) <= set(item["features"]):
+            raise ValueError("minimum extension capability features missing")
     grouped = set()
     group_ids = set()
     for group in value["composite_groups"]:

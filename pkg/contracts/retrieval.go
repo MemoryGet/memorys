@@ -87,6 +87,15 @@ type Candidate struct {
 	ScoreKind       string
 	GenerationIDs   []ID
 	Text            string
+	FusionOrigins   []FusionOrigin
+}
+
+// FusionOrigin records one route's contribution, independent of vendor score.
+type FusionOrigin struct {
+	RouteID       ID
+	RetrieverID   ID
+	Rank          int
+	GenerationIDs []ID
 }
 
 type Evidence struct {

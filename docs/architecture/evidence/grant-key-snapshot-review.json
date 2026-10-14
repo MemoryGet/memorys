@@ -1,0 +1,36 @@
+{
+  "recorded_at": "2026-10-13T01:12:04.921031+00:00",
+  "sources": {
+    "pkg/accessgrant/snapshot.go": "cbe1a41892cebc9bd8177de695155011c842d21f1408778d09835e36b6c652ec",
+    "pkg/accessgrant/snapshot_test.go": "467fc32a63abeb08e599b2bcccd9a213d689c540cd42323f0b8481e4d227ee53",
+    "pkg/accessgrant/verify.go": "cd7abaa0f4ab2a64d124ced23b4fc6228bd50acc1892a4404d8d1f25d41f6b1a",
+    "docs/architecture/GRANT_TOKEN_PROFILE.md": "3f276304a904671add20069d7c59e03b4fc06630f9b6e97aa686dcc76729dfd6"
+  },
+  "scope": "Four new immutable key snapshot tests plus four existing real SDK tests. Actual ephemeral signatures validate overlap, issuance/verification and snapshot windows, copied inputs, replacement removal and digest identity. No trusted distribution/rollback protection, runtime factory/reload or current service/subject authorization evidence.",
+  "checks": [
+    {
+      "name": "Snapshot/SDK scenarios",
+      "chunk_id": "08fecc",
+      "wall_time_seconds": 2.3043806,
+      "exit_code": 0,
+      "original_token_count": 244,
+      "output": "=== RUN   TestSnapshotOwnsKeysAndNormalOverlap\n--- PASS: TestSnapshotOwnsKeysAndNormalOverlap (0.00s)\n=== RUN   TestKeyIssuanceCutoffExpiryAndSnapshotExpiry\n--- PASS: TestKeyIssuanceCutoffExpiryAndSnapshotExpiry (0.00s)\n=== RUN   TestInvalidSnapshotsAndEmergencyRemoval\n--- PASS: TestInvalidSnapshotsAndEmergencyRemoval (0.00s)\n=== RUN   TestSnapshotDigestIndependentOfInputKeyOrder\n--- PASS: TestSnapshotDigestIndependentOfInputKeyOrder (0.00s)\n=== RUN   TestSDKSignatureAndEachTamperedSegment\n--- PASS: TestSDKSignatureAndEachTamperedSegment (0.00s)\n=== RUN   TestSignedWrongClaimsHeadersAndKeySnapshot\n--- PASS: TestSignedWrongClaimsHeadersAndKeySnapshot (0.00s)\n=== RUN   TestNanosecondBoundaryAndMalformedSignedPayloads\n--- PASS: TestNanosecondBoundaryAndMalformedSignedPayloads (0.00s)\n=== RUN   TestSDKAlgorithmConfusionAndNullEpochRejected\n--- PASS: TestSDKAlgorithmConfusionAndNullEpochRejected (0.00s)\nPASS\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.973s\n"
+    },
+    {
+      "name": "Go regression",
+      "chunk_id": "8973a5",
+      "wall_time_seconds": 4.2808634,
+      "exit_code": 0,
+      "original_token_count": 102,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.568s\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.622s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t1.024s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t1.239s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.536s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.939s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t0.798s\n"
+    },
+    {
+      "name": "Go vet",
+      "chunk_id": "672094",
+      "wall_time_seconds": 0.985139,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ]
+}

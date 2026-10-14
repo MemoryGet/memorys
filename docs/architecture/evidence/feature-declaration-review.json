@@ -1,0 +1,23 @@
+{
+  "scope": "Native Go factory feature declarations/requirements and Python manifest structural checks; no provider behavior evidence",
+  "red": {
+    "chunk_id": "919a71",
+    "exit_code": 1,
+    "failed_tests": 2
+  },
+  "green_report": "unified-local-checks.json",
+  "sources": [
+    {
+      "path": "pkg/kernel/preflight.go",
+      "sha256": "8e080b019a924610d3999176dbae06cbdb06c4bc44637bf28ef5e7f5e15cdb71"
+    },
+    {
+      "path": "pkg/kernel/feature_validation_test.go",
+      "sha256": "ec675a85caf2e30f4c0ec98b1d048f24a94749b0c8003041353f8e076057239a"
+    },
+    {
+      "path": "docs/architecture/test_feature_declarations.py",
+      "sha256": "aef2b97b56f8ca39a8bf80cc76f12b4eb8971242a5c8a7a727e31897b7c76da4"
+    }
+  ]
+}

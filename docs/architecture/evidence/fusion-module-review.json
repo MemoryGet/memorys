@@ -1,0 +1,28 @@
+{
+  "recorded_at": "2026-10-13T05:13:06.613Z",
+  "scope": "Controlled local RRF factory and runtime integration: 3 new tests pass. All Go regression and vet pass. No full deployment/profile authenticity, multi-KB factory directory, second algorithm replacement, backend permissions or Recall/performance proof.",
+  "checks": [
+    {
+      "chunk_id": "15b823",
+      "wall_time_seconds": 1.2606614,
+      "exit_code": 0,
+      "original_token_count": 102,
+      "output": "=== RUN   TestRRFModuleAssemblyAndRestartBinding\n--- PASS: TestRRFModuleAssemblyAndRestartBinding (0.00s)\n=== RUN   TestRRFModuleRejectsWrongAndMalformedSettings\n--- PASS: TestRRFModuleRejectsWrongAndMalformedSettings (0.00s)\n=== RUN   TestRRFModuleInstancesHaveIndependentLifecycles\n--- PASS: TestRRFModuleInstancesHaveIndependentLifecycles (0.00s)\nPASS\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t0.501s\n"
+    },
+    {
+      "command": ".\\.tools\\go\\bin\\go.exe test -count=1 ./...",
+      "chunk_id": "42d080",
+      "exit_code": 0
+    },
+    {
+      "command": ".\\.tools\\go\\bin\\go.exe vet ./...",
+      "chunk_id": "b37197",
+      "exit_code": 0
+    }
+  ],
+  "sources": {
+    "pkg/fusion/module.go": "5561fd99d43953bbef0b804939e4bf9a16f3cc4026ec752c36f725a7c6b68450",
+    "pkg/fusion/module_test.go": "76ea6ff8b928515b98ff1af49adbb5d7724f43a94ef90d755c4dcd010b89d266",
+    "docs/architecture/FUSION_CONTRACT.md": "222f6906d2d4abefe143e982c64be7650bdb1b1678822dc3b0b3e01782391ec0"
+  }
+}

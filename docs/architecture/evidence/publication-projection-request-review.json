@@ -1,0 +1,31 @@
+{
+  "recorded_at": "2026-10-13T05:47:29.549Z",
+  "scope": "Three Go tests for given projection/actual RetrieveRequest relationships, real modulewire roundtrip and 19 mutation cases. Full Go tests/vet pass. Synthetic facts; no trusted publication/authorization service, full readiness/backend validation, current expiry/state checks or new Grant/application integration.",
+  "checks": [
+    {
+      "command": ".\\.tools\\go\\bin\\go.exe test -count=1 -v ./pkg/publicationprojection",
+      "exit_code": 0,
+      "chunk_id": "08bd77",
+      "test_count": 3
+    },
+    {
+      "chunk_id": "818160",
+      "wall_time_seconds": 4.5899526,
+      "exit_code": 0,
+      "original_token_count": 188,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.827s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.552s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.434s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.741s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.194s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.010s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t3.442s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.540s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t1.373s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t1.726s\n"
+    },
+    {
+      "chunk_id": "5cdb5d",
+      "wall_time_seconds": 0.9341114,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/publicationprojection/request.go": "6ef4054bf1fe726de275f52f029cb1e241f0844906bd506e6c09a514e500c71a",
+    "pkg/publicationprojection/request_test.go": "104a6ea740041a156a873ea09ec96da1dd6ef37f09b8fec3580e106b812a74b7",
+    "docs/architecture/PUBLICATION_PROJECTION.md": "46ecac772cb8b4e828187f3bb507413dd4a603d189131bd5da27387822c61fb7"
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "format": "akos.operation-policy/1",
+  "operations": {
+    "blob_store_delete": {
+      "method": "POST",
+      "path": "/modules/v1/blob_store/delete",
+      "allowed_actions": [
+        "blob.delete"
+      ],
+      "execution_class": "job"
+    },
+    "blob_store_open": {
+      "method": "POST",
+      "path": "/modules/v1/blob_store/open",
+      "allowed_actions": [
+        "blob.open"
+      ],
+      "execution_class": "read"
+    },
+    "blob_store_put": {
+      "method": "POST",
+      "path": "/modules/v1/blob_store/put",
+      "allowed_actions": [
+        "blob.put"
+      ],
+      "execution_class": "job"
+    },
+    "composite_ingest_search_delete": {
+      "method": "POST",
+      "path": "/modules/v1/composite_ingest_search/delete",
+      "allowed_actions": [
+        "index.delete"
+      ],
+      "execution_class": "job"
+    },
+    "composite_ingest_search_prepare_projection": {
+      "method": "POST",
+      "path": "/modules/v1/composite_ingest_search/prepare_projection",
+      "allowed_actions": [
+        "index.prepare"
+      ],
+      "execution_class": "job"
+    },
+    "composite_ingest_search_search": {
+      "method": "POST",
+      "path": "/modules/v1/composite_ingest_search/search",
+      "allowed_actions": [
+        "knowledge.search",
+        "knowledge.ask"
+      ],
+      "execution_class": "read"
+    },
+    "composite_ingest_search_verify": {
+      "method": "POST",
+      "path": "/modules/v1/composite_ingest_search/verify",
+      "allowed_actions": [
+        "index.verify"
+      ],
+      "execution_class": "job"
+    },
+    "control_cancel": {
+      "method": "POST",
+      "path": "/modules/v1/control/cancel",
+      "allowed_actions": [
+        "invocation.cancel"
+      ],
+      "execution_class": "control"
+    },
+    "control_status": {
+      "method": "POST",
+      "path": "/modules/v1/control/status",
+      "allowed_actions": [
+        "invocation.status"
+      ],
+      "execution_class": "control"
+    },
+    "embedder_embed": {
+      "method": "POST",
+      "path": "/modules/v1/embedder/embed",
+      "allowed_actions": [
+        "knowledge.search",
+        "knowledge.ask",
+        "index.prepare"
+      ],
+      "execution_class": "pipeline"
+    },
+    "generator_generate": {
+      "method": "POST",
+      "path": "/modules/v1/generator/generate",
+      "allowed_actions": [
+        "knowledge.ask"
+      ],
+      "execution_class": "pipeline"
+    },
+    "index_writer_delete": {
+      "method": "POST",
+      "path": "/modules/v1/index_writer/delete",
+      "allowed_actions": [
+        "index.delete"
+      ],
+      "execution_class": "job"
+    },
+    "index_writer_prepare": {
+      "method": "POST",
+      "path": "/modules/v1/index_writer/prepare",
+      "allowed_actions": [
+        "index.prepare"
+      ],
+      "execution_class": "job"
+    },
+    "index_writer_verify": {
+      "method": "POST",
+      "path": "/modules/v1/index_writer/verify",
+      "allowed_actions": [
+        "index.verify"
+      ],
+      "execution_class": "job"
+    },
+    "parser_parse": {
+      "method": "POST",
+      "path": "/modules/v1/parser/parse",
+      "allowed_actions": [
+        "document.parse"
+      ],
+      "execution_class": "job"
+    },
+    "reranker_rerank": {
+      "method": "POST",
+      "path": "/modules/v1/reranker/rerank",
+      "allowed_actions": [
+        "knowledge.search",
+        "knowledge.ask"
+      ],
+      "execution_class": "pipeline"
+    },
+    "retriever_search": {
+      "method": "POST",
+      "path": "/modules/v1/retriever/search",
+      "allowed_actions": [
+        "knowledge.search",
+        "knowledge.ask"
+      ],
+      "execution_class": "read"
+    }
+  }
+}

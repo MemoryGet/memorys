@@ -1,0 +1,25 @@
+{
+  "recorded_at": "2026-10-13T11:36:18.180Z",
+  "scope": "Six synthetic Go multi-query route merge tests including actual RRF single-route contribution/conflict rejection, stable trace/order, cancellation and shared per-route variant byte budget. Full Go tests/vet pass. No actual reflector/backend, whole-round execution/budget accounting, provenance/current authority or quality proof.",
+  "checks": [
+    {
+      "chunk_id": "b4d452",
+      "wall_time_seconds": 3.6037502,
+      "exit_code": 0,
+      "original_token_count": 241,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t1.957s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-binding\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-probe\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t1.276s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.939s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t1.509s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.325s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.569s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.238s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.974s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t0.653s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t2.158s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t2.274s\n"
+    },
+    {
+      "chunk_id": "7fabe2",
+      "wall_time_seconds": 0.9995867,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/retrievalplan/refinement_merge.go": "bf7c106a95fee26a3b405098317232e1c33e6df6fc904633c69e82ab8360a615",
+    "pkg/retrievalplan/refinement_merge_test.go": "081ad9d4e1501ceb92bab206d78d657bfdbff501b900d3d0c7307368b956d73c",
+    "docs/architecture/REFLECTION_ORCHESTRATION.md": "c0b455492346f660e18baef2311b43e011500fdf1725b53d247604faf7eddbfe"
+  }
+}

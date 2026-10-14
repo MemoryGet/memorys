@@ -5,6 +5,11 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).parent
+METADATA_CONTRACT_VERSION = "1.1"
+ADDED_RESOURCE_TYPES = (
+    "upload_operation", "trust_domain", "trust_head", "trust_snapshot", "key_retirement",
+    "trust_activation", "runtime_trust_receipt", "deployment_audit_record", "deployment_outbox_record"
+)
 RESOURCE_TYPES = (
     "space", "knowledge_base", "principal", "identity_binding", "membership", "kb_grant", "authorization_policy",
     "document", "draft", "draft_block", "draft_blob", "revision", "block", "blob", "storage_binding",
@@ -13,7 +18,7 @@ RESOURCE_TYPES = (
     "outbox", "consumer_receipt", "idempotency_record", "audit_record", "migration_journal",
     "feedback", "draft_proposal", "memory_record", "retention_hold", "purge_job", "migration_operation",
     "tombstone", "request_record", "invocation_record", "immutable_payload", "credential_reference", "retention_policy_snapshot"
-)
+) + ADDED_RESOURCE_TYPES
 
 
 def build():
@@ -29,7 +34,7 @@ def build():
         **obj({
             "schema_version": {"const": 1}, "export_id": identifier,
             "kind": {"const": "metadata_full_snapshot"},
-            "source": obj({"deployment_id": identifier, "build_lock_sha256": digest, "metadata_contract_version": {"const": "1.0"}}),
+            "source": obj({"deployment_id": identifier, "build_lock_sha256": digest, "metadata_contract_version": {"const": METADATA_CONTRACT_VERSION}}),
             "snapshot": obj({"snapshot_id": identifier, "journal_stream_id": identifier,
                              "committed_watermark": identifier, "boundary": {"const": "after_complete_transaction"},
                              "writes": {"const": "all_metadata_writes_paused"}}),

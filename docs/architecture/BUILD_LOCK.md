@@ -32,3 +32,9 @@ python docs/architecture/check_build_lock.py --config <部署JSON> --manifest <�
 多个清单或制品重复相应参数；JSON输入沿用4MiB/64层、重复键及非有限数值拒绝规则，制品用分块读取。所有文件由操作者显式指定，命令不会按锁中的仓库文本或其他字符串下载/打开制品。成功结果固定`ready_for_service=false`，未验证列表继续包括来源信任、构建证明、实际运行制品、外部依赖、持久化epoch和权限等门槛。错误只输出安全类别，不回显配置正文或路径。
 
 `test_build_lock.py`使用临时合成制品验证字节篡改、条目覆盖、生命周期/策略版本、锁ID、浮动源码和安全错误拒绝路径。该制品没有实现模块能力；测试不证明启动、持久状态或真实组件替换成功。D-04的[导出清单](EXPORT_CONTRACT.md)、[日志链](JOURNAL_PROTOCOL.md)、[KB状态机](MIGRATION_STATE.md)及[文件字节清单](BLOB_COPY.md)已另提供局部机器契约；完整typed载荷、数据库/文件状态与正式运行核对仍待完成。
+
+## 信任配置与构建锁的扩展边界（2026-10-13）
+
+详见[信任激活协议](KEY_TRUST_ACTIVATION.md)。记录TrustDomain/Head、不可变快照、KeyRetirement与激活操作的归属，禁止低版本回退及受损公钥换kid复活；历史恢复必须核对备份之外的受信控制面锚点。现有仓储/BuildLock尚未包含完整机器绑定，也无持久激活/分发证据，后续须补齐。
+
+元数据读写数据集与活跃存储代际的运行核对见[存储绑定](METADATA_STORE_BINDING.md)。构建锁的配置/制品字节一致，不等于端点读取的是当前权威数据；动态激活期望由独立控制面验证。

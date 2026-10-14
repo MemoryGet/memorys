@@ -1,0 +1,31 @@
+{
+  "recorded_at": "2026-10-13T05:36:46.703Z",
+  "scope": "Closed draft publication projection Schema plus six offline relationship tests; 167 Python contract tests pass. authorized and ready_for_retrieval remain false. No projection digest, actual Go request mapping, trusted repository/current authorization/publication or performance proof.",
+  "checks": [
+    {
+      "command": "python -m unittest discover -s docs/architecture -p test_publication_projection.py",
+      "exit_code": 0,
+      "chunk_id": "ff8ad8",
+      "test_count": 6
+    },
+    {
+      "chunk_id": "39642a",
+      "wall_time_seconds": 9.559698000000001,
+      "exit_code": 0,
+      "original_token_count": 68,
+      "output": ".......................................................................................................................................................................\r\n----------------------------------------------------------------------\r\nRan 167 tests in 9.219s\r\n\r\nOK\r\n"
+    },
+    {
+      "command": "python docs/architecture/build_publication_projection.py",
+      "exit_code": 0,
+      "chunk_id": "ca1da2"
+    }
+  ],
+  "sources": {
+    "docs/architecture/build_publication_projection.py": "83961589a2e44f2796085702bcb6ddf6ba93af894e37aca418ea89fa2b7aafac",
+    "docs/architecture/publication_projection.py": "095ee1fa833e27674505fb9fe9bd0bd7371e464bfaaf5a16cfa749315cd047a7",
+    "docs/architecture/test_publication_projection.py": "904f824e25f674e7f9c017af25fe31db943cae43b7a890d63e0516ae8fc21e38",
+    "docs/architecture/schemas/publication-projection.v1.schema.json": "00e670c54ec385d083a10f90d320b6d7e430d0fa37064c702e157a12934ab500",
+    "docs/architecture/PUBLICATION_PROJECTION.md": "48f9595425be1f4ec262e52ba15f36dbace9d845c967382450472ec759ff0131"
+  }
+}

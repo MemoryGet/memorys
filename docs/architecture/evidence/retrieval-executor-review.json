@@ -1,0 +1,25 @@
+{
+  "recorded_at": "2026-10-13T05:24:05.748Z",
+  "scope": "Six controlled callback tests for fixed worker pool and failure classification. All Go tests/vet pass. No real backend cancellation/resource release, current authorization/publication, trusted request building or Recall/performance proof.",
+  "checks": [
+    {
+      "chunk_id": "8406fd",
+      "wall_time_seconds": 4.3705019,
+      "exit_code": 0,
+      "original_token_count": 150,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.878s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t1.215s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.848s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t1.314s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.593s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.114s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t3.233s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t0.580s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t0.495s\n"
+    },
+    {
+      "chunk_id": "6f0eda",
+      "wall_time_seconds": 0.8994311,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/retrievalplan/execute.go": "d0965bdb35ee4d3103957be9ffe9bb5f9b3e76bf2baa36371de593201163847a",
+    "pkg/retrievalplan/execute_test.go": "fe51efaad299be3db0d3b264798a35dac48d341ea87ca7aeb2228ff7252b9f24",
+    "docs/architecture/RETRIEVAL_COORDINATOR.md": "f9cd389cf944162e49fe7d2e57606fd52ed1de63ec740709029dd7b2e230947e"
+  }
+}

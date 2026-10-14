@@ -1,0 +1,55 @@
+{
+  "recorded_at": "2026-10-13T01:16:17.234773+00:00",
+  "sources": {
+    "pkg/accessgrant/load.go": "12e2adbc8d7aea92aaf05362c92904a6ada0e5362f02b87b4e4894824570588d",
+    "pkg/accessgrant/load_test.go": "f6f97a2df6a6e174a47911bc80a5685994ea7fcfd9169f945d4dbf51afde7a97",
+    "docs/architecture/build_key_snapshot.py": "1b7bf8d30920a0844202f24ab78aa9b908fdd2f42f5851188a68f796fbe4fca8",
+    "docs/architecture/test_key_snapshot.py": "82f4ed474472944c69607e391273e55afaee71992d9ad783aa8da38b1a5b89af",
+    "docs/architecture/schemas/key-snapshot.v1.schema.json": "3eaebafbb31c1987d0e72afd7fa2ed501cd95079a3ba2e84371791f8fedd8461",
+    "docs/architecture/examples/key-snapshot-golden.v1.json": "c8486d0f27c5069eab8f81a15d5b6050bb67363f7f60edcd7d34b6259d413d0e",
+    "docs/architecture/GRANT_TOKEN_PROFILE.md": "ba7887607f095ff88d99a3ec2c42717c5b366ee5c419b80ee380a58b36b1ac5c"
+  },
+  "scope": "Three Go JSON snapshot loading tests and four independent Python schema/digest tests, including exact version above double precision. Full Go tests/vet and 140 Python regression tests pass. No trusted expected-identity provenance, persistent high-water/rollback protection, distribution or runtime factory/reload evidence.",
+  "checks": [
+    {
+      "name": "Key schema/golden",
+      "chunk_id": "a051d0",
+      "wall_time_seconds": 0.0000238,
+      "exit_code": 0,
+      "original_token_count": 16,
+      "output": "PASS: key snapshot Schema and Python canonical identity golden\r\n"
+    },
+    {
+      "name": "Key snapshot Python tests",
+      "chunk_id": "c3845d",
+      "wall_time_seconds": 0.0000189,
+      "exit_code": 0,
+      "original_token_count": 27,
+      "output": "....\r\n----------------------------------------------------------------------\r\nRan 4 tests in 0.006s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Go regression",
+      "chunk_id": "f21582",
+      "wall_time_seconds": 3.0950711,
+      "exit_code": 0,
+      "original_token_count": 102,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.584s\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.965s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.583s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t1.149s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.427s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.852s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t0.884s\n"
+    },
+    {
+      "name": "Go vet",
+      "chunk_id": "e44a37",
+      "wall_time_seconds": 0.021669,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "name": "Python regression",
+      "chunk_id": "57e23e",
+      "wall_time_seconds": 6.2706332,
+      "exit_code": 0,
+      "original_token_count": 62,
+      "output": "............................................................................................................................................\r\n----------------------------------------------------------------------\r\nRan 140 tests in 5.873s\r\n\r\nOK\r\n"
+    }
+  ]
+}

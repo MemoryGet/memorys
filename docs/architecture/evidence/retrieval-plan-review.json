@@ -1,0 +1,31 @@
+{
+  "recorded_at": "2026-10-13T05:17:29.917Z",
+  "scope": "Pure per-route/per-KB quota planner, 5 Go tests. No authorization/publication provenance, runtime executor/concurrency enforcement, ranking merge, failure injection, real backends or Recall proof.",
+  "checks": [
+    {
+      "command": ".\\.tools\\go\\bin\\go.exe test -count=1 -v ./pkg/retrievalplan",
+      "exit_code": 0,
+      "chunk_id": "eea7f5",
+      "test_count": 5
+    },
+    {
+      "chunk_id": "785132",
+      "wall_time_seconds": 4.2839492,
+      "exit_code": 0,
+      "original_token_count": 150,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.637s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.588s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t1.059s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.794s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t0.987s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.227s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t3.169s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.595s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t1.241s\n"
+    },
+    {
+      "chunk_id": "2e7172",
+      "wall_time_seconds": 0.8160008,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/retrievalplan/plan.go": "4f01cb55c753808fd9c207a79ea5c527df1bcbe81e6001b5e5368dd6823206fa",
+    "pkg/retrievalplan/plan_test.go": "143ae673854aaa8bb83feb25355c1c3c5d1fcd5289dfb95d8e0e672c2a6fc6f2",
+    "docs/architecture/RETRIEVAL_COORDINATOR.md": "71ee5768f7cefa13c68b40f9ea3673c972493c345daa2f3c6279acb31413bc11"
+  }
+}

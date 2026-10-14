@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-12T12:04:57.944893+00:00",
+  "checked_at": "2026-10-13T14:06:01.078976+00:00",
   "validator": {
     "name": "openapi-spec-validator",
     "version": "0.9.0"
@@ -19,6 +19,14 @@
       "sha256": "efb66ec065c047e7365309f3b6211df254826123c1b7e1ea7932d3c9426c3e31",
       "openapi_version": "3.1.1",
       "operations": 26,
+      "result": "pass",
+      "negative_control": "missing_info_rejected"
+    },
+    {
+      "path": "openapi/modules.v1.json",
+      "sha256": "7fc696185a5c2c3ea29c5294b18175fbfdfae8bf85266bafc26366692826b312",
+      "openapi_version": "3.1.1",
+      "operations": 17,
       "result": "pass",
       "negative_control": "missing_info_rejected"
     }

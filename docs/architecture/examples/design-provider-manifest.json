@@ -44,6 +44,21 @@
       ]
     },
     {
+      "name": "query_read_unit",
+      "version": "1.0",
+      "features": [
+        "channel.keyword",
+        "channel.vector",
+        "prefilter.space",
+        "prefilter.kb",
+        "prefilter.revision",
+        "prefilter.generation",
+        "stream.read",
+        "snapshot.fixed_view",
+        "lifecycle.scoped_read"
+      ]
+    },
+    {
       "name": "publication",
       "version": "1.0",
       "features": [

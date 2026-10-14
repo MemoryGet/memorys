@@ -1,0 +1,45 @@
+{
+  "recorded_at": "2026-10-13T01:37:13.758139+00:00",
+  "sources": {
+    "docs/architecture/journal_validation.py": "d2cf246f90a828b0b9fe11457e0580625a37b4b8f311f40c9c0a07b89f822e5d",
+    "docs/architecture/build_trust_head.py": "24c908682edefc25fcfd19d4a640e8b319a8bb5c316f387378715abbfe0c430e",
+    "docs/architecture/test_journal_trust_head.py": "258f0f0ad1de13e4c9bdbc190ca9c3eb204ba9ee61aa5267e13c903f0ef96bb2",
+    "docs/architecture/test_export_trust_inventory.py": "a8c9261f2ab8ebaa5779259ce038bf30200b97f1cdfa7c9be34d96321878e34c",
+    "docs/architecture/JOURNAL_PROTOCOL.md": "b6a7d308c615ee35675a4bffce0ffacbcf823ebb50d576803b57f8e232997a57"
+  },
+  "scope": "Four synthetic TrustHead Journal checks: typed payload/version correspondence, Bootstrap, in-chain high-water/issuer advancement and tombstone refusal even after hash recomputation. 151 Python regression tests pass. No first-record authoritative snapshot, external anchor, other typed families, atomic database replay or live authorization proof.",
+  "checks": [
+    {
+      "name": "Trust journal tests",
+      "chunk_id": "e0acc3",
+      "wall_time_seconds": 0.4384,
+      "exit_code": 0,
+      "original_token_count": 27,
+      "output": "....\r\n----------------------------------------------------------------------\r\nRan 4 tests in 0.054s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Inventory compatibility",
+      "chunk_id": "aa35d8",
+      "wall_time_seconds": 0.5581393,
+      "exit_code": 0,
+      "original_token_count": 27,
+      "output": "....\r\n----------------------------------------------------------------------\r\nRan 4 tests in 0.166s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Schema consistency",
+      "chunk_id": "e1eb3c",
+      "wall_time_seconds": 0.3885326,
+      "exit_code": 0,
+      "original_token_count": 14,
+      "output": "PASS: typed trust head schema generation consistency\r\n"
+    },
+    {
+      "name": "Python regression",
+      "chunk_id": "8c2cc1",
+      "wall_time_seconds": 7.9108333,
+      "exit_code": 0,
+      "original_token_count": 64,
+      "output": ".......................................................................................................................................................\r\n----------------------------------------------------------------------\r\nRan 151 tests in 7.512s\r\n\r\nOK\r\n"
+    }
+  ]
+}

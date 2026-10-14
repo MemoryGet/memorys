@@ -48,7 +48,7 @@
           "pattern": "^[a-f0-9]{64}$"
         },
         "metadata_contract_version": {
-          "const": "1.0"
+          "const": "1.1"
         }
       }
     },
@@ -91,7 +91,7 @@
     },
     "segments": {
       "type": "array",
-      "minItems": 44,
+      "minItems": 53,
       "items": {
         "type": "object",
         "additionalProperties": false,
@@ -156,7 +156,16 @@
               "invocation_record",
               "immutable_payload",
               "credential_reference",
-              "retention_policy_snapshot"
+              "retention_policy_snapshot",
+              "upload_operation",
+              "trust_domain",
+              "trust_head",
+              "trust_snapshot",
+              "key_retirement",
+              "trust_activation",
+              "runtime_trust_receipt",
+              "deployment_audit_record",
+              "deployment_outbox_record"
             ]
           },
           "record_contract": {

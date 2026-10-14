@@ -173,3 +173,55 @@ OpenAPI的字符长度限制按Unicode码点计算，传输另设字节大小上
 导出包含 schema_version、snapshot_id、watermark、文档/版本/Block、原件清单与哈希、审批/发布/撤回历史、授权、配置快照、反馈/记忆、后端映射和每文件校验。凭据正文单独由部署的密钥系统迁移。衍生索引可选导出，默认由权威内容重建。
 
 导入先进入临时命名空间，校验引用完整性、跨空间归属、唯一键、哈希和发布状态，再切换。所有删除/撤回墓碑和权限变更必须包含在迁移水位内，否则旧内容可能复活。备份恢复必须跑与迁移相同的权限和引用验证。
+
+## 部署信任治理独立端口（2026-10-13）
+
+[Trust仓储与事务契约](KEY_TRUST_ACTIVATION.md#6-平台仓储与部署事务端口)定义DeploymentAuthorizer、TrustRepository和TrustUnitOfWork。部署域与知识空间的授权/审计分开，SDK与数据库类型不进入领域；记录推进检查不等于真实CAS或授权，正式仓储和迁移尚未实现。
+
+Fuser及Candidate的多路来源增量见[排名融合契约](FUSION_CONTRACT.md)，FusionOrigins保留各路线/原rank/代际。原Retriever不能伪造轨迹；远程字段增量仍须兼容认证，未冻结V1或完成真实融合验收。
+
+查询权威服务与拟定只读快照仓储边界见[QueryAuthority](QUERY_AUTHORITY.md)。现有MetadataRepository独立读取不能证明当前发布库存的一致性，Go[只读端口](../../pkg/contracts/query_read.go)及页面关系检查已声明；真实仓储、事务、工厂和一致性未实现。
+
+元数据源身份、独立期望、端点观测与覆盖验证端口见[store_binding.go](../../pkg/contracts/store_binding.go)及[存储绑定](METADATA_STORE_BINDING.md)。身份字段一致不代表提交点覆盖或就绪。
+
+部署控制域的探测账本记录/CAS事务端口见[store_probe_ledger.go](../../pkg/contracts/store_probe_ledger.go)及[账本协议](STORE_PROBE_LEDGER.md)。给定状态转换通过不证明真实持久一次性接收。
+
+统一usage、金额与精确算式的Go类型见[metering.go](../../pkg/contracts/metering.go)及[计量规范](REQUEST_METERING.md)。本地算式不扣预算或认证费率/供应商账单。
+
+
+全请求计量应用端口及预算/预留/回执草案见[request_meter.go](../../pkg/contracts/request_meter.go)和[事务边界](REQUEST_METERING.md#8-计量应用端口与持久事务边界)。仅声明，尚无持久实现或远程映射。
+
+
+记忆三类来源及ConfirmationID/引用关系的局部Go校验见[memory_provenance.go](../../pkg/contracts/memory_provenance.go)与[来源设计](MEMORY_GRAPH_LIFECYCLE.md#8-来源类型的go局部校验)。不验证事件真实性/当前可读性，正式wire/服务接入待实现。
+
+
+可选记忆记录wire草案见[Schema](schemas/memory-record.v1.schema.json)与[记录语义](MEMORY_GRAPH_LIFECYCLE.md#9-记忆记录机器草案)。仅离线形状/关系，未完成Go映射或来源认证。
+
+
+记忆离线记录映射见[modulewire/memory.go](../../pkg/modulewire/memory.go)及[跨语言样本](MEMORY_GRAPH_LIFECYCLE.md#10-gowire离线映射与跨语言样本)，已有实际Go/Python样本往返；完整边缘字段一致性和业务处理器仍待验证。
+
+
+图谱查询/抽取与投影管理分开；新增[GraphProjectionManager草案](../../pkg/contracts/graph_projection.go)及[管理语义](MEMORY_GRAPH_LIFECYCLE.md#13-独立图谱投影管理端口)。已有内核类型注册，尚无Schema、wire、业务处理器或真实清理证明。
+
+
+图谱准备/验证证明及清理回执的请求绑定关系校验见[graph_projection_validation.go](../../pkg/contracts/graph_projection_validation.go)和[结果规则](MEMORY_GRAPH_LIFECYCLE.md#15-图谱管理结果的局部关系校验)。仅形状/绑定，不证明来源或真实管理效果。
+
+
+图谱清理回执现要求OperationKind/RequestDigest及独立GraphCleanupExpectation，见[冻结请求绑定](MEMORY_GRAPH_LIFECYCLE.md#16-清理回执的操作类型与冻结请求绑定)。域隔离Hash和持久期望源尚未实现，不能仅凭匹配摘要授权删除。
+
+
+图谱清理冻结语义的闭合编解码及域隔离Hash见[graph_cleanup_digest.go](../../pkg/modulewire/graph_cleanup_digest.go)和[摘要实现边界](MEMORY_GRAPH_LIFECYCLE.md#17-清理语义dto与域隔离摘要实现)。临时调用信息排除，主体/原操作权威及物理效果需独立验证。
+
+
+图谱清理语义Schema与两类独立跨语言金标见[机器契约与金标](MEMORY_GRAPH_LIFECYCLE.md#18-清理语义schema与独立跨语言金标2026-10-14归档)。已核对实际Go工具摘要，不验证业务授权或删除效果。
+
+
+当前检索状态复核须另开读取回调，有界批量助手见[current.go](../../pkg/queryread/current.go)及[读取规则](QUERY_AUTHORITY.md#13-另开观察点的有界当前批量读取)。当前权限/真实新鲜度和业务匹配仍需独立核验。
+
+
+当前元数据与准备事实比对见[match_current.go](../../pkg/queryread/match_current.go)及[关系边界](QUERY_AUTHORITY.md#14-当前元数据与准备事实的关系比对)。nil结果不是授权/Ready/输出许可，实时批准和业务发送仍需独立核验。
+
+
+## 证据核验组合边界
+
+CurrentBackend是应用组合门面；冻结内容读取、原件完整性、索引实时核验及格式/定位专用核验须独立装配。正式专用端口、能力路由和远程操作尚待冻结；设计与6项EV运行门槛见[可替换证据核验模块](EVIDENCE_VERIFICATION_MODULES.md)。音频引用目前缺少时间定位字段，新增音频核验前须先补版本化引用契约，不把时间塞进供应商私有字符串。

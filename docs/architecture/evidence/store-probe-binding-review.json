@@ -1,0 +1,32 @@
+{
+  "recorded_at": "2026-10-13T10:49:09.739Z",
+  "scope": "Four synthetic Go bound-probe relationship/time tests and expectation shape refactor. Full Go tests/vet pass. No actual probe, trusted service/current policy, independent expected digest authentication, replay ledger, wire Schema or coverage verification.",
+  "checks": [
+    {
+      "command": ".\\.tools\\go\\bin\\go.exe test -count=1 -run 'TestBoundProbe|TestStoreIdentity' ./pkg/contracts",
+      "exit_code": 0,
+      "chunk_id": "77d4ad",
+      "new_test_count": 4
+    },
+    {
+      "chunk_id": "8303b8",
+      "wall_time_seconds": 5.8095111,
+      "exit_code": 0,
+      "original_token_count": 222,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t1.321s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-binding\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t1.886s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t1.367s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.858s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.400s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.363s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t3.314s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.925s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t2.108s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t2.164s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t2.115s\n"
+    },
+    {
+      "chunk_id": "844f20",
+      "wall_time_seconds": 2.086032,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/contracts/store_binding.go": "069cbe7e15b5d7dab96b1365b0e6303d680d65ac5b8253484b208cb2030071c1",
+    "pkg/contracts/store_probe_binding.go": "28b57f5ab030d73a77830deaed586ef1e837e1e8bf6d171caecd84222e7a2b3f",
+    "pkg/contracts/store_probe_binding_test.go": "c4ebe2811c956da826195f39397809b4232b5ad9738cd9fde9e1051c33ed80d5",
+    "docs/architecture/STORE_STARTUP_GATE.md": "1bdbe731446dea6ee84b3e266083185bee656b5390544dd5065904231ddca69f"
+  }
+}

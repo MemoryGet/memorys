@@ -1,0 +1,41 @@
+{
+  "recorded_at": "2026-10-13T11:29:31.180Z",
+  "scope": "Four Go tests for one-round refinement quota allocation plus one Python deployment bound test. ReflectionPolicy/Schema max_plan_queries added. 194 Python regression tests and full Go/vet pass. No actual reflector/executor, cross-query merging, cumulative reflection usage/current authority or feedback transaction proof.",
+  "checks": [
+    {
+      "command": ".\\.tools\\go\\bin\\go.exe test -count=1 -run TestRefinement -v ./pkg/retrievalplan",
+      "exit_code": 0,
+      "chunk_id": "30dcc5",
+      "test_count": 4
+    },
+    {
+      "chunk_id": "a94a84",
+      "wall_time_seconds": 6.8e-06,
+      "exit_code": 0,
+      "original_token_count": 34,
+      "output": "..............................\r\n----------------------------------------------------------------------\r\nRan 194 tests in 14.402s\r\n\r\nOK\r\n"
+    },
+    {
+      "chunk_id": "840a80",
+      "wall_time_seconds": 5.388865,
+      "exit_code": 0,
+      "original_token_count": 241,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.613s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-binding\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-probe\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t1.073s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.128s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.679s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.012s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t0.467s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.825s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.866s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t1.548s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t1.123s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t0.213s\n"
+    },
+    {
+      "chunk_id": "3acd68",
+      "wall_time_seconds": 2.1712323,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/contracts/profiles.go": "b53abff690bf5e8af4c40751b0d6c120e940a29a54ab9cb0e4f3019a149b4b0c",
+    "pkg/retrievalplan/refinement.go": "c7f8217709086c3109222e49a99768f67fafddac0a19a8f2deac617487ce7ea6",
+    "pkg/retrievalplan/refinement_test.go": "776e631b4c027fd887063729bd56d82eb7bd1dcaee2033620a8386942e006584",
+    "docs/architecture/test_reflection_config.py": "53d99ba738acfd9d41cd77c0ebdcc6d60ba9aa22e81b786081bf5b527fa6142b",
+    "docs/architecture/schemas/deployment-config.v1.schema.json": "0cb93c4484c5cd41bf58a799f4ee2842273ad6cda0c1d0e9ddcaac054d1c79f3",
+    "docs/architecture/REFLECTION_ORCHESTRATION.md": "f0d30f11ca7af75d907ee77915afd2cad8b84bdc09c172d03fea4af4d7fd8c47"
+  }
+}

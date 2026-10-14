@@ -1,0 +1,27 @@
+{
+  "recorded_at": "2026-10-13T00:40:42.296427+00:00",
+  "sources": {
+    "docs/architecture/retrieval_evaluation.py": "7bd01b4c03e598f90365ec036eca114121d6b6ce979852e3f2886c5ccd5ec2e4",
+    "docs/architecture/test_retrieval_evaluation.py": "eaad929dd243c4a56a3497fb7e94e82b085a18598b0742f5ab3b4251ef468ae5",
+    "docs/architecture/RETRIEVAL_EVALUATION.md": "227f4fd4f534deb63dc955580365eb43787245634578312ee3eedf77b9dd9d1f"
+  },
+  "scope": "Seven synthetic evidence-range evaluation tests and 110 Python regression tests. No real Chinese dataset, provenance, authorization/publication, backend retrieval, mapping, confidence interval, answer quality or performance evidence; formal_acceptance_passed always false.",
+  "checks": [
+    {
+      "name": "Recall tests",
+      "chunk_id": "5e7605",
+      "wall_time_seconds": 0.2717982,
+      "exit_code": 0,
+      "original_token_count": 28,
+      "output": ".......\r\n----------------------------------------------------------------------\r\nRan 7 tests in 0.002s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Python regression",
+      "chunk_id": "67dd4e",
+      "wall_time_seconds": 5.9743704,
+      "exit_code": 0,
+      "original_token_count": 54,
+      "output": "..............................................................................................................\r\n----------------------------------------------------------------------\r\nRan 110 tests in 5.598s\r\n\r\nOK\r\n"
+    }
+  ]
+}

@@ -53,3 +53,37 @@ python -m unittest discover -s docs/architecture -p test_journal_contract.py
 参考工具限制1000事务、每事务10000项mutation、10000个payload、每个4MiB/总128MiB，沿用64层JSON限制；生产流式处理另设计容量。expected边界必须来自可信调用方独立记录，校验器无法凭一个dict证明其来源。成功固定`ready_for_replay=false`，列出真实提交顺序、typed载荷、初始版本、原子receipt、授权/外部产物/切换等未验证项。
 
 专项试验是合成链：证明任意ID顺序不影响前驱校验，漏段/乱序/截断、跨流/重复事务、部分事务/ordinal、版本冲突、缺失/篡改/多余载荷及墓碑目标失配会被拒绝。它不模拟真实事务调度，不证明数据库JOURNAL-02已通过。D-04继续保持开放。
+
+## 元数据1.1记录族增量（2026-10-13）
+
+[导出库存](EXPORT_CONTRACT.md)新增上传操作及部署信任9族，同步进入Journal允许记录族。完整事务哈希链检查已有4项增量试验，不证明这些payload类型、实际提交/重放或外部控制面锚点；旧读取器不得忽略未知族后继续切换。
+
+## TrustHead类型化日志校验（2026-10-13）
+
+Journal已复用build_trust_head的单记录Schema/精确整数/record_id关系检查，并报告typed_mutation_counts。trust_head只允许upsert，不允许用tombstone删除防回滚高水位；信任域停用通过独立治理状态表达，保留Head/退役历史，不能在域重新启用时重置版本。
+
+payload.row_version必须等于mutation.new_version。previous_version为空的Bootstrap必须row_version=1；非空则严格加一。日志内部再次出现同一Head时，issuer固定、row_version加一、active.version/high_water_version严格提升。对错误载荷重新计算段摘要和事务游标不会绕过这些语义检查。
+
+4项新增合成测试覆盖类型化计数、payload/声明版本矛盾、不合法Bootstrap、同/低高水位、issuer改变及墓碑拒绝，见[执行证据](evidence/journal-trust-head-review.json)。其它族仍只有包络/通用版本关系，ready_for_replay固定false。
+
+随后下述独立起始库存参数已核对首次Head关系；输入来源和完整性仍未证明，不能据此声明相对真实权威快照未回滚。可信起点、外部控制面锚点、退役/审批关系和目标数据库原子重放仍是必需门槛，D-04保持开放。
+
+## TrustHead独立起始库存（2026-10-13）
+
+validate_bundle增加独立trust_snapshot输入，字段恰好为snapshot_id、journal_stream_id、from_cursor和heads。heads是record_id→完整typed TrustHead映射，最多10000项；所有记录先通过同一Schema、精确整数/高水位和键归属校验，再复制为只读起点，检查过程中不修改调用者快照。
+
+任何trust_head mutation都必须提供该起点，空库存也须显式传入，缺省None不能被解释为源快照无Head。stream/from_cursor必须匹配独立expected边界；有源Head时首条previous_version等于其row_version，issuer固定且高水位严格提升。没有源Head时只有previous_version为空、row_version=1的Bootstrap可作为日志首条；不能用不存在于库存的非空旧版本跳过验证，也不能把已有Head声明为新建。
+
+4项新增合成测试覆盖非空起点推进、不修改源输入、缺起点/缺记录/边界错配、首条row/high_water关系及假Bootstrap。报告增加initial_trust_head_count；见[执行证据](evidence/journal-trust-baseline-review.json)。其它族仍未提供类型化快照基线，不能由本项推定整个元数据重放已验证。
+
+trust_snapshot必须来自受信源快照及独立冻结库存，不得从待检日志反推生成。此函数仅比较调用者提供的独立数据，未认证其来源/完整性，也未把snapshot_id与真实ExportManifest或控制面锚点关联；unverified保留trust_snapshot_provenance_and_inventory，ready_for_replay固定false。真实源读取、可信冻结包、备份外部检查点和数据库原子重放仍待实现。
+
+## 从已核验导出包提取起点（2026-10-13）
+
+trust_baseline_from_export.build_baseline接受原始清单bytes、显式entry→bytes映射和独立expected_export。expected字段完整绑定export_id、deployment_id、build_lock_sha256、metadata_contract_version、snapshot_id、journal_stream_id、committed_watermark及manifest_sha256。清单摘要覆盖原始文件字节，不规范化空格/键序后冒充同一制品；Schema和payload完整检查仍执行。
+
+函数捕获同一份不可变bytes映射，先运行元数据1.1库存/段摘要/TrustHead类型化校验，再从这些已核验字节提取全部trust_head记录。它不读取路径或下载URL，不从Journal反推出起点；返回的新库存与输入对象分离。原始清单受4MiB预算、起点最多10000条Head，段/总字节预算复用导出检查器。
+
+validate_journal_from_export组合该提取器与Journal校验，要求清单提交水位与日志from_cursor/stream一致，源Head版本/高水位与日志首条/后续推进匹配。报告trust_source_export记录源Identity、typed库存数和导出局部报告，ready_for_replay仍false。
+
+4项新合成试验覆盖完整包驱动起点、8项独立期望错配、清单空格导致原始摘要变化、payload篡改/返回对象隔离及日志起始游标错配，见[执行证据](evidence/trust-export-baseline-review.json)。这部分证明指定文件包和指定期望的关联，未验证expected来自可信控制面、暂停写屏障/提交快照真实、全库数据完整或外部防回滚锚点。其它payload和实际数据库原子重放仍待验，D-04保持开放。

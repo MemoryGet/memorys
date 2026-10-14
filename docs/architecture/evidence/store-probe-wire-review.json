@@ -1,0 +1,41 @@
+{
+  "recorded_at": "2026-10-13T10:58:08.085Z",
+  "scope": "Three actual-Go/Python bound-probe codec tests and Go positive-int64 nanosecond/timezone boundary test. 193 Python regressions and full Go/vet pass. Offline now input, not authenticated clock/expectation/peer; no probe ledger, real endpoint, journal coverage or startup coordinator.",
+  "checks": [
+    {
+      "command": "python -m unittest discover -s docs/architecture -p test_store_probe_wire.py",
+      "exit_code": 0,
+      "chunk_id": "2983eb",
+      "test_count": 3
+    },
+    {
+      "chunk_id": "f2c58d",
+      "wall_time_seconds": 7.2e-06,
+      "exit_code": 0,
+      "original_token_count": 35,
+      "output": "..................................\r\n----------------------------------------------------------------------\r\nRan 193 tests in 16.924s\r\n\r\nOK\r\n"
+    },
+    {
+      "chunk_id": "606be3",
+      "wall_time_seconds": 5.0164715,
+      "exit_code": 0,
+      "original_token_count": 241,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.871s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-binding\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-probe\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.694s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t1.332s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.452s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.083s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.161s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t3.005s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.767s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t2.139s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t1.376s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t2.265s\n"
+    },
+    {
+      "chunk_id": "e00854",
+      "wall_time_seconds": 1.6024535,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/modulewire/store_binding.go": "c129670760f8460a0bb408d788ac002460b015d19cec4e148191d3259aaebcc0",
+    "pkg/modulewire/store_probe.go": "6331e7811fd4c3cbd48b2c0d98004495ebc742a9946b1524fc13675d90d61a51",
+    "pkg/modulewire/store_probe_test.go": "32827eb1e648ccf4aec314440af2ab8bcf6bf0b0eccec0ec2dc5cb73db32eae9",
+    "cmd/architecture-store-probe/main.go": "6e024613893a41b4ba4051ef8adddd76ac6452877d095741ea0ad8cfeb15fdc4",
+    "docs/architecture/test_store_probe_wire.py": "d709c1d59713245de341dbe7b2fc4885b1767acdc69bf992eea1adb2467d8484",
+    "docs/architecture/STORE_STARTUP_GATE.md": "f4415781fc0d84da8331418ce0fa643bd431fa23ba5350998135fc884ccb8298"
+  }
+}

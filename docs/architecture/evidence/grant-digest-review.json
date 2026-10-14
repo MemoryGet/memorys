@@ -1,0 +1,47 @@
+{
+  "recorded_at": "2026-10-13T00:51:55.288694+00:00",
+  "sources": {
+    "pkg/modulewire/grant_digest.go": "98108ba2ba85c158010faa62352cb65179de7874bf556008cb7fbfed897f3809",
+    "pkg/modulewire/grant_digest_test.go": "5f234c82b4d01b3abf38017d3bf2a9172dd7300da3cd51f240d85b3412cb0e7d",
+    "docs/architecture/access_grant_validation.py": "bcd40cddc3e87faad8530a342c0061712cbd8fa06a2ce3b5a101d6062d7d7ce7",
+    "docs/architecture/build_grant_golden.py": "db29c0e0f1961a9a37046bb724ad1d090883a22281ddbb16f5947859852ea8b9",
+    "docs/architecture/test_grant_golden.py": "7dc175a49d90ab34bed8631c5aed594a5f41dee084e3b2715012e7d745b50271",
+    "docs/architecture/examples/grant-binding-golden.v1.json": "9c8d7489abca752c8de8f138b72356316f273429484eaccbd207b169559ddc42",
+    "docs/architecture/ACCESS_GRANT.md": "73871da291cdb13528d99a2d6bd744033e8a4372534491106c9ea67215ee19f1"
+  },
+  "scope": "Six Go/Python canonical-byte/digest vectors, including one decoded real ParseRequest shape and one full Scope shape; two new Go and two Python tests. Full Go tests/vet and 130 Python tests pass. No token/signature/SDK, all-operation binding, real service identity/current policy/replay ledger evidence.",
+  "checks": [
+    {
+      "name": "Grant golden consistency",
+      "chunk_id": "a61f8c",
+      "wall_time_seconds": 0.419576,
+      "exit_code": 0,
+      "original_token_count": 15,
+      "output": "PASS: six Python grant binding vectors and canonical bytes\r\n"
+    },
+    {
+      "name": "Go regression",
+      "chunk_id": "80b19a",
+      "wall_time_seconds": 4.1090915,
+      "exit_code": 0,
+      "original_token_count": 88,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.853s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.453s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.388s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t0.685s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.544s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.071s\n"
+    },
+    {
+      "name": "Go vet",
+      "chunk_id": "d7701c",
+      "wall_time_seconds": 1.1339493,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "name": "Python regression",
+      "chunk_id": "70429d",
+      "wall_time_seconds": 6.5309546,
+      "exit_code": 0,
+      "original_token_count": 59,
+      "output": "..................................................................................................................................\r\n----------------------------------------------------------------------\r\nRan 130 tests in 6.088s\r\n\r\nOK\r\n"
+    }
+  ]
+}

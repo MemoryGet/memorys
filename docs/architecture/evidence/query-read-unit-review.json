@@ -1,0 +1,36 @@
+{
+  "recorded_at": "2026-10-13T06:17:03.114Z",
+  "scope": "Seven controlled read-unit tests for automatic Guard lifecycle, exactly-once synchronous callback, errors/admission, expiry and premature async return. Scope expiry success race reproduced and fixed. Full Go tests/vet pass. No real DB snapshot/transaction cleanup, raw handle ownership, trusted authorization or production factory proof.",
+  "pre_fix_failure": {
+    "chunk_id": "f53e78",
+    "exit_code": 1,
+    "description": "Scope expiry during callback returned success due parent/child timer propagation timing."
+  },
+  "checks": [
+    {
+      "command": ".\\.tools\\go\\bin\\go.exe test -count=1 -run TestProtectedUnit -v ./pkg/queryread",
+      "exit_code": 0,
+      "chunk_id": "8e5a30",
+      "test_count": 7
+    },
+    {
+      "chunk_id": "7f8b86",
+      "wall_time_seconds": 4.1747694,
+      "exit_code": 0,
+      "original_token_count": 201,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.841s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.797s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.455s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.382s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.177s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.094s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t3.024s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t2.025s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t1.717s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t1.351s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t2.040s\n"
+    },
+    {
+      "chunk_id": "aad076",
+      "wall_time_seconds": 0.8726712,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/queryread/unit.go": "3c30cfc87aaf631712fdb0db97a7dd24e1edf07c513965c8c08be16673d6f416",
+    "pkg/queryread/unit_test.go": "32aba9b50a742318c201ffb593f3e30a7ea5e3b58cbc503f1eb84ad4951895ad",
+    "docs/architecture/QUERY_AUTHORITY.md": "6eefe6726a0bddabaee80ece854db8a8b8c02728e2155098c411f2141a728f13"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "recorded_at": "2026-10-13T04:41:03.004792+00:00",
+  "sources": {
+    "docs/architecture/trust_baseline_from_export.py": "fa4203e507cb504908ce76246072a342856384fd8e0e2282c3c410a8f2aace28",
+    "docs/architecture/test_trust_baseline_from_export.py": "6b77ed0f95b2fc4d092c1766eeaf27e0874b59c64552bbff100fead477e1595c",
+    "docs/architecture/JOURNAL_PROTOCOL.md": "be74dfa6ea05ab1a10738c39e31601c166986ce7a51fc18f9172abfe253d7fc9"
+  },
+  "scope": "Four synthetic export-to-Journal baseline tests and 159 Python regressions. Eight independently supplied identity fields including raw manifest SHA-256, payload digests, typed Head extraction and stream/start-cursor binding are checked. No independent expectation provenance, real source snapshot/write barrier, complete database inventory, external anchor or atomic target replay proof.",
+  "checks": [
+    {
+      "name": "Export baseline tests",
+      "chunk_id": "ee070f",
+      "wall_time_seconds": 0.5094114,
+      "exit_code": 0,
+      "original_token_count": 27,
+      "output": "....\r\n----------------------------------------------------------------------\r\nRan 4 tests in 0.176s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Python regression",
+      "chunk_id": "ff5b6c",
+      "wall_time_seconds": 8.6875633,
+      "exit_code": 0,
+      "original_token_count": 66,
+      "output": "...............................................................................................................................................................\r\n----------------------------------------------------------------------\r\nRan 159 tests in 8.321s\r\n\r\nOK\r\n"
+    }
+  ]
+}

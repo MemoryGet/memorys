@@ -1,0 +1,32 @@
+{
+  "recorded_at": "2026-10-13T06:21:12.607Z",
+  "scope": "query_read_unit Go capability and kernel type check; two kernel tests with two synthetic providers, guarded callbacks, closed service, feature/wrong-port rejection. Full Go tests/vet pass. No formal deployment role/normalization, metadata source lock, actual DB migration or real factory proof.",
+  "checks": [
+    {
+      "command": ".\\.tools\\go\\bin\\go.exe test -count=1 ./pkg/kernel",
+      "exit_code": 0,
+      "chunk_id": "08dac5",
+      "new_test_count": 2
+    },
+    {
+      "chunk_id": "217022",
+      "wall_time_seconds": 5.7589939,
+      "exit_code": 0,
+      "original_token_count": 201,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t1.218s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.819s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.978s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t1.398s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.373s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t0.725s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t3.618s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.582s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t2.286s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t1.737s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t1.615s\n"
+    },
+    {
+      "chunk_id": "06489a",
+      "wall_time_seconds": 1.7006801,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "sources": {
+    "pkg/contracts/core.go": "3fd658a5c75ec173c46bbad43dbd64ab80c5685b838e936e287ba9a4351dc0dc",
+    "pkg/kernel/ports.go": "dd7b371a7c7ded7f9ec03e6c978c7929c5239c616eec678ea82de2b8f17951e4",
+    "pkg/kernel/query_read_test.go": "e3ac9b28c5d19349acb7f46cef242b9c11fdbc8e447dfeb8ccb4baa0410d581c",
+    "docs/architecture/QUERY_AUTHORITY.md": "e4e9e14ccd115ece0834934f058a795b353136cbc97edd5b6445fd00e339d161"
+  }
+}

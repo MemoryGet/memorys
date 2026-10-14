@@ -1,0 +1,45 @@
+{
+  "recorded_at": "2026-10-13T00:19:09.166218+00:00",
+  "sources": {
+    "pkg/moduletransport/blob_multipart.go": "71929424c7a99c7821da338821a8c5edd843eff302489e2d121045ad29d89a52",
+    "pkg/moduletransport/blob_multipart_test.go": "7eb788d19f63f320a287d19c522f7fa51ce8dabd3b94f032c7cb664e6e433726",
+    "pkg/moduletransport/upload_cleanup_test.go": "2ec3d14d9ff6bdfc21cef6e4ae045b35b0e6969184884cdab5afaee6d7ffb113",
+    "pkg/moduletransport/upload_deadline_test.go": "e5e26c8194e2e8ad5d66c0cc1f7ea2775d3927ab5637d0795be0488d60dd356d",
+    "docs/architecture/BLOB_MULTIPART_TRANSPORT.md": "b5a0438789239d439ae35ba90f3200b0a2699045a743fa20e312c088da3deb98"
+  },
+  "scope": "Seven added multipart tests including isolated disk staging and real localhost HTTP success, cancellation and server read deadline with connected client. Authorizers are synthetic; no real Grant, storage commit/BlobRef activation, persistent ledger or recovery evidence.",
+  "checks": [
+    {
+      "name": "Go regression",
+      "chunk_id": "9ae94c",
+      "wall_time_seconds": 4.0268579,
+      "exit_code": 0,
+      "original_token_count": 88,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.843s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.450s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.400s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t0.687s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.743s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.035s\n"
+    },
+    {
+      "name": "Go vet",
+      "chunk_id": "498748",
+      "wall_time_seconds": 1.0561970999999999,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "name": "Python contracts",
+      "chunk_id": "b80c85",
+      "wall_time_seconds": 6.4258588,
+      "exit_code": 0,
+      "original_token_count": 48,
+      "output": ".......................................................................................\r\n----------------------------------------------------------------------\r\nRan 87 tests in 5.982s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Transport scenarios",
+      "chunk_id": "86f5f2",
+      "wall_time_seconds": 4.1473154,
+      "exit_code": 0,
+      "original_token_count": 523,
+      "output": "=== RUN   TestSSELineEndingsBOMCommentsAndMultilineJSON\n--- PASS: TestSSELineEndingsBOMCommentsAndMultilineJSON (0.00s)\n=== RUN   TestSSERejectsTruncationTypeMismatchAndPostTerminalEvents\n--- PASS: TestSSERejectsTruncationTypeMismatchAndPostTerminalEvents (0.00s)\n=== RUN   TestSSEAccessSinkAndByteLimitsFailClosed\n--- PASS: TestSSEAccessSinkAndByteLimitsFailClosed (0.00s)\n=== RUN   TestSSEHeadersAndMandatoryGateDeadline\n--- PASS: TestSSEHeadersAndMandatoryGateDeadline (0.00s)\n=== RUN   TestActualHTTPChunkBoundariesAndGateRevocation\n--- PASS: TestActualHTTPChunkBoundariesAndGateRevocation (0.00s)\n=== RUN   TestActualHTTPBlockedReadCancelledAndSinkFailureClosesPeer\n--- PASS: TestActualHTTPBlockedReadCancelledAndSinkFailureClosesPeer (0.05s)\n=== RUN   TestActualHTTPDeadlineEndsSilentPeerAndErrorTerminalIsNotSuccess\n--- PASS: TestActualHTTPDeadlineEndsSilentPeerAndErrorTerminalIsNotSuccess (0.10s)\n=== RUN   TestMultipartStreamsLargeFileIntoIsolatedDiskWithoutFilenameUse\n--- PASS: TestMultipartStreamsLargeFileIntoIsolatedDiskWithoutFilenameUse (0.03s)\n=== RUN   TestMultipartFailuresAbortStagingAndReturnNoReceipt\n--- PASS: TestMultipartFailuresAbortStagingAndReturnNoReceipt (0.00s)\n=== RUN   TestMultipartMetadataOrderEncodingAndBudgetsRejectBeforeStorage\n--- PASS: TestMultipartMetadataOrderEncodingAndBudgetsRejectBeforeStorage (0.00s)\n=== RUN   TestMultipartCurrentAuthorizationBeforeStorageAndAfterBytes\n--- PASS: TestMultipartCurrentAuthorizationBeforeStorageAndAfterBytes (0.00s)\n=== RUN   TestActualHTTPMultipartReceiptAndInterruptedUploadAbort\n--- PASS: TestActualHTTPMultipartReceiptAndInterruptedUploadAbort (0.50s)\n=== RUN   TestTerminalWaitsForEOFAndFreshAccessGate\n--- PASS: TestTerminalWaitsForEOFAndFreshAccessGate (0.00s)\n=== RUN   TestUploadCloseAndCleanupFailureRemainUnconfirmed\n--- PASS: TestUploadCloseAndCleanupFailureRemainUnconfirmed (0.00s)\n=== RUN   TestHTTPUploadDeadlineInterruptsClientThatDoesNotDisconnect\n--- PASS: TestHTTPUploadDeadlineInterruptsClientThatDoesNotDisconnect (0.65s)\nPASS\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t2.875s\n"
+    }
+  ]
+}

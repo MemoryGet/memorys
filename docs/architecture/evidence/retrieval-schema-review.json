@@ -1,0 +1,47 @@
+{
+  "recorded_at": "2026-10-13T00:43:30.252928+00:00",
+  "sources": {
+    "docs/architecture/build_retrieval_evaluation.py": "0681f220afd1cb903560275bba70388486e733d8cd847de7e72c256df3bb02d1",
+    "docs/architecture/retrieval_evaluation.py": "cfd12896f93a7cda603bcf11a704b1e1f1ca59bd55a614d974ed47d3746f7976",
+    "docs/architecture/test_retrieval_schema.py": "daf907df959632a05bec76a352c4f5282d7a6d5c528025bc6e060db766389920",
+    "docs/architecture/test_retrieval_evaluation.py": "acbe30225b995b6755058268e971d378f0f016d8a0f803601bd49635a8935b06",
+    "docs/architecture/schemas/retrieval-dataset.v1.schema.json": "6e531619f77bfbb1674bbda840fa0a087e8e9853b2368e4f4b9c056cfde84623",
+    "docs/architecture/schemas/retrieval-run.v1.schema.json": "b550d7e22352b6b64d205a4edf6f035ae2dfef78d8ce99746ba0f1cfd725b748",
+    "docs/architecture/RETRIEVAL_EVALUATION.md": "2979b8bdb77afa13c7d38ac6b5be0a92bdfd0dec90f9561019563269d8ce6d1a"
+  },
+  "scope": "Five schema/request-binding tests, seven synthetic Recall tests and 115 Python regression tests. No sealed source authentication, actual backend request/authorization trace, output mapping, Chinese data, confidence intervals or performance proof.",
+  "checks": [
+    {
+      "name": "Evaluation schemas",
+      "chunk_id": "458389",
+      "wall_time_seconds": 0.276887,
+      "exit_code": 0,
+      "original_token_count": 16,
+      "output": "PASS: retrieval dataset and run schema generation consistency\r\n"
+    },
+    {
+      "name": "Evaluation schema tests",
+      "chunk_id": "c4d0ba",
+      "wall_time_seconds": 0.435352,
+      "exit_code": 0,
+      "original_token_count": 27,
+      "output": ".....\r\n----------------------------------------------------------------------\r\nRan 5 tests in 0.055s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Recall arithmetic",
+      "chunk_id": "71d78b",
+      "wall_time_seconds": 0.5145001,
+      "exit_code": 0,
+      "original_token_count": 28,
+      "output": ".......\r\n----------------------------------------------------------------------\r\nRan 7 tests in 0.140s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "Python regression",
+      "chunk_id": "3d93cf",
+      "wall_time_seconds": 6.1223902,
+      "exit_code": 0,
+      "original_token_count": 55,
+      "output": "...................................................................................................................\r\n----------------------------------------------------------------------\r\nRan 115 tests in 5.732s\r\n\r\nOK\r\n"
+    }
+  ]
+}

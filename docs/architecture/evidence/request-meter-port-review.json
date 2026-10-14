@@ -1,0 +1,36 @@
+{
+  "scope": "RequestMeter declarative ports and transaction design only. Existing full Go tests and vet pass; no new behavior test or persistent meter implemented.",
+  "checks": [
+    {
+      "chunk_id": "cf07ec",
+      "wall_time_seconds": 6.184086,
+      "exit_code": 0,
+      "original_token_count": 255,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.631s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-binding\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-probe\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t0.627s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.141s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.900s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t0.986s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.021s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t3.319s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t1.240s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t1.201s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t1.472s\nok  \tgithub.com/MemoryGet/memorys/pkg/reflection\t1.545s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t1.830s\n"
+    },
+    {
+      "chunk_id": "adb64c",
+      "wall_time_seconds": 2.4500733,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "unverified": [
+    "authorization and admission",
+    "persistent CAS/uniqueness/audit/outbox",
+    "dispatch recovery/provider reconciliation",
+    "multi-process accounting",
+    "migration and wire/bootstrap"
+  ],
+  "sources": [
+    {
+      "path": "pkg/contracts/request_meter.go",
+      "sha256": "fb3ce5a4b7ea5270fd68c36aa1302b585172ac147866478f3ea4ee81378591a3"
+    },
+    {
+      "path": "docs/architecture/REQUEST_METERING.md",
+      "sha256": "a5374a526a0d1d943c6e10a18da66a0564475e884b8f3351ed3d5e8b407b526c"
+    }
+  ]
+}

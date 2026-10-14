@@ -1,0 +1,39 @@
+{
+  "scope": "Static direct import boundaries for 87 non-test Go source files in pkg and cmd, including build-tagged sources. Three architecture tests; nine rejecting fixture categories.",
+  "checks": [
+    {
+      "chunk_id": "eadbb7",
+      "wall_time_seconds": 4.4009346,
+      "exit_code": 0,
+      "original_token_count": 270,
+      "output": "ok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.673s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-binding\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-probe\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t1.027s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t0.526s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t0.740s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t1.144s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.294s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t3.070s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t2.095s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t1.875s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t1.497s\nok  \tgithub.com/MemoryGet/memorys/pkg/reflection\t2.269s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t2.323s\nok  \tgithub.com/MemoryGet/memorys/tests/architecture\t2.425s\n"
+    },
+    {
+      "chunk_id": "5a4700",
+      "wall_time_seconds": 1.3794405,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  ],
+  "targeted_check": {
+    "chunk_id": "cb5472",
+    "exit_code": 0,
+    "files_checked": 87
+  },
+  "unverified": [
+    "future internal/frontend boundaries",
+    "runtime service locator/reflection/data access",
+    "actual provider replacement/migration/rollback"
+  ],
+  "sources": [
+    {
+      "path": "tests/architecture/dependencies_test.go",
+      "sha256": "be175426f429440d181b5008cf11007888f7164d58e29c65803a3ac7cc7dd284"
+    },
+    {
+      "path": "docs/architecture/DEPENDENCY_BOUNDARIES.md",
+      "sha256": "dda9f1a74418fed0081f22ecd811bab3cefe54a1cfb3d8d8de145478feea5fd7"
+    }
+  ]
+}
