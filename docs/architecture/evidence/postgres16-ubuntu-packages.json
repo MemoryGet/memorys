@@ -1,0 +1,45 @@
+{
+  "scope": "Cached Ubuntu packages unpacked for WSL fixture; not installed system packages or a full dependency SBOM",
+  "packages": [
+    {
+      "file": "libicu74_74.2-1ubuntu3.1_amd64.deb",
+      "sha256": "c9a70989678660eed9a1e904c74fa043da8bec8e2036856fc16e31ced79b04f8",
+      "size": 10860078
+    },
+    {
+      "file": "libldap2_2.6.10+dfsg-0ubuntu0.24.04.1_amd64.deb",
+      "sha256": "7f3f8e565401256f21d5aa562c9f92dbb63537b73aaea6283e4db5264f1598f4",
+      "size": 197620
+    },
+    {
+      "file": "libpq5_16.15-0ubuntu0.24.04.1_amd64.deb",
+      "sha256": "3f96dd36bcd7841172c1ead4965da20a193bb9ccf9a93a3f5a3ac7f56369dbb1",
+      "size": 151262
+    },
+    {
+      "file": "libsasl2-2_2.1.28+dfsg1-5ubuntu3.1_amd64.deb",
+      "sha256": "eda097f98dcb3a08b9ce157d6191d140e4885c1cba47b683c94b8ca45e88f458",
+      "size": 53194
+    },
+    {
+      "file": "libxml2_2.9.14+dfsg-1.3ubuntu3.10_amd64.deb",
+      "sha256": "c5a065f85c1e6f605741e365e40cad71c3ceb0e85e2791400bd35b8896e12ad1",
+      "size": 763592
+    },
+    {
+      "file": "libxslt1.1_1.1.39-0exp1ubuntu0.24.04.3_amd64.deb",
+      "sha256": "e716daf96ea2526cab92e5cc4708739d5f2f4b89fb76782dfda7f49283eeeb40",
+      "size": 167806
+    },
+    {
+      "file": "postgresql-16_16.15-0ubuntu0.24.04.1_amd64.deb",
+      "sha256": "d60ae76fb862cd4cca7bfdcdcdcc271c5e1d75f6b7915305ce2d962735a4b666",
+      "size": 15610426
+    },
+    {
+      "file": "postgresql-client-16_16.15-0ubuntu0.24.04.1_amd64.deb",
+      "sha256": "4796f72e1a7270ad8c17b1ecb025cd453f692b42c10aaf89f6b476da61761eac",
+      "size": 1301302
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "passed": true,
+  "production_acceptance": false,
+  "scope": "Synchronous document.SubmissionRepository PostgreSQL transaction with real original and submitted/0 initial review request; fixture identity/resource policy",
+  "source_inventory_sha256": "a9cea1d3f319f95ed1ff1e0fa14d64aa936eb2729fbc0cc06b53d7fdc4a7334e",
+  "source_inputs": 461,
+  "checks": [
+    "submission_atomic_revision_review",
+    "submission_audit_outbox_rollback",
+    "submission_concurrent_single_version",
+    "submission_configuration_and_key_scope",
+    "submission_current_authority_recheck",
+    "submission_deferred_effect_gate",
+    "submission_does_not_publish",
+    "submission_immutable_version",
+    "submission_lost_response_cold_replay"
+  ],
+  "reports": [
+    "postgres15-wsl-review.json",
+    "postgres16-wsl-review.json",
+    "postgres18-wsl-review.json"
+  ],
+  "same_probe_binary": true,
+  "go_executable_sha256": "21ab9b16881749bb100ba8f1504b8f79aaed9357b690926fd3e466f3bca26b1c",
+  "independently_confirmed_ports_closed_and_directories_removed": true,
+  "unverified": [
+    "production IAM/RLS/delegation authority",
+    "current approval validity and publication workflow",
+    "public REST/MCP and deployment module assembly",
+    "full metadata UoW/migration journal/export/rollback",
+    "real TCP interruption/crash and cross-process job recovery",
+    "production media/source authenticity and quality",
+    "Recall@10 and production performance"
+  ]
+}

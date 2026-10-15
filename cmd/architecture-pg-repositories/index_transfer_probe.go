@@ -116,5 +116,8 @@ func verifyIndexTransfer(ctx context.Context, db *sql.DB, scope contracts.Access
 	if _, err := db.ExecContext(ctx, `INSERT INTO akos_withdraw_v1.index_projection_rows VALUES('transfer-chunks','gone','{}')`); err == nil {
 		return errors.New("restored chunk fence absent")
 	}
+	if err := verifyConfiguredIndexStores(ctx, db, scope, ids, m, pg, snapshot.Checksum); err != nil {
+		return err
+	}
 	return nil
 }

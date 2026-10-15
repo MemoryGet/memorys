@@ -64,7 +64,7 @@ func (r planRepo) Load(ctx context.Context, scope contracts.AccessScope, id cont
 		return contracts.CleanupPlan{}, ErrRepository
 	}
 	h, err := (historyRepo{r.s}).Load(ctx, scope, p.HistoryID)
-	if err != nil || contracts.ValidateWithdrawalCleanup(p, h) != nil {
+	if err != nil || contracts.ValidatePublicationCleanup(p, h) != nil {
 		return contracts.CleanupPlan{}, ErrRepository
 	}
 	return p, nil
@@ -83,17 +83,17 @@ func (r planRepo) Append(ctx context.Context, scope contracts.AccessScope, p con
 	}
 	p = owned
 	h, err := (historyRepo{r.s}).Load(ctx, scope, p.HistoryID)
-	if err != nil || contracts.ValidateWithdrawalCleanup(p, h) != nil {
+	if err != nil || contracts.ValidatePublicationCleanup(p, h) != nil {
 		return ErrRepository
 	}
 	if r.s.enter(ctx, scope) != nil {
 		return ErrRepository
 	}
 	defer r.s.mu.Unlock()
-	if scope.Action != "publication.withdraw" {
+	if scope.Action != "publication.withdraw" && scope.Action != "publication.publish" || scope.Action == "publication.withdraw" && h.Action != "withdraw" || scope.Action == "publication.publish" && h.Action != "publish" {
 		return ErrRepository
 	}
-	_, err = r.s.tx.ExecContext(ctx, `INSERT INTO akos_withdraw_v1.cleanup_plans(id,history_id,operation_id,space_id,kb_id,document_id,revision_id,generation_set_id,publication_epoch,profile_digest,created_at) VALUES($1::text,$2::text,$3::text,$4::text,$5::text,$6::text,$7::text,$8::text,$9::text::numeric,$10::text,$11::text)`, string(p.ID), string(p.HistoryID), string(p.OperationID), string(p.SpaceID), string(p.KnowledgeBaseID), string(p.DocumentID), string(p.RevisionID), string(p.GenerationSetID), strconv.FormatUint(p.PublicationEpoch, 10), string(p.ProfileDigest), p.CreatedAt.UTC().Format(timeFormat))
+	_, err = r.s.tx.ExecContext(ctx, `INSERT INTO akos_withdraw_v1.cleanup_plans(id,history_id,operation_id,space_id,kb_id,document_id,revision_id,generation_set_id,publication_epoch,profile_digest,created_at,history_action) VALUES($1::text,$2::text,$3::text,$4::text,$5::text,$6::text,$7::text,$8::text,$9::text::numeric,$10::text,$11::text,$12::text)`, string(p.ID), string(p.HistoryID), string(p.OperationID), string(p.SpaceID), string(p.KnowledgeBaseID), string(p.DocumentID), string(p.RevisionID), string(p.GenerationSetID), strconv.FormatUint(p.PublicationEpoch, 10), string(p.ProfileDigest), p.CreatedAt.UTC().Format(timeFormat), h.Action)
 	if err != nil {
 		return ErrRepository
 	}

@@ -17,16 +17,20 @@ const module = "github.com/MemoryGet/memorys/"
 // Explicit package inventory: new packages need a reviewed dependency policy.
 // Tests/fakes can compose implementations; only non-test Go source is gated.
 var localDependencies = map[string][]string{
-	"cmd/architecture-pg-repositories": {"pkg/contracts", "pkg/postgres", "pkg/withdrawal", "pkg/cleanup", "pkg/adapters", "pkg/index"},
+	"pkg/preparation":                  {"pkg/contracts", "pkg/document", "pkg/canonical", "pkg/indexsnapshot"},
+	"cmd/architecture-freeze-draft":    {"pkg/canonical", "pkg/contracts", "pkg/document", "pkg/modulewire"},
+	"cmd/architecture-office-parser":   {"pkg/contracts", "pkg/adapters", "pkg/kernel", "pkg/parserprocess", "pkg/storage", "pkg/document"},
+	"pkg/parserprocess":                {"pkg/parser"},
+	"cmd/architecture-pg-repositories": {"pkg/contracts", "pkg/postgres", "pkg/withdrawal", "pkg/cleanup", "pkg/adapters", "pkg/index", "pkg/kernel", "pkg/document", "pkg/ingestion", "pkg/parser", "pkg/storage", "pkg/preparation", "pkg/chunk", "pkg/modulewire", "pkg/queryread"},
 	"pkg/cleanup":                      {"pkg/contracts", "pkg/canonical"},
 	"pkg/withdrawal":                   {"pkg/contracts", "pkg/canonical"},
-	"pkg/postgres":                     {"pkg/contracts", "pkg/indexsnapshot"},
+	"pkg/postgres":                     {"pkg/contracts", "pkg/indexsnapshot", "pkg/document", "pkg/preparation", "pkg/queryread"},
 	"pkg/indexsnapshot":                {"pkg/contracts", "pkg/canonical"},
 	"pkg/adapters":                     {"pkg/canonical", "pkg/chunk", "pkg/contracts", "pkg/kernel", "pkg/parser", "pkg/cleanup", "pkg/index"},
 	"cmd/memorys-server":               {"pkg/api"},
 	"pkg/api":                          {"pkg/contracts", "pkg/ingestion"},
 	"pkg/chunk":                        {"pkg/contracts"},
-	"pkg/document":                     {"pkg/contracts"},
+	"pkg/document":                     {"pkg/contracts", "pkg/canonical"},
 	"pkg/index":                        {"pkg/contracts", "pkg/indexsnapshot"},
 	"pkg/ingestion":                    {"pkg/contracts", "pkg/document"},
 	"pkg/parser":                       {"pkg/contracts"},
@@ -55,6 +59,7 @@ var localDependencies = map[string][]string{
 }
 
 var purePackages = map[string]bool{
+	"pkg/preparation":   true,
 	"pkg/indexsnapshot": true,
 	"pkg/cleanup":       true,
 	"pkg/withdrawal":    true,

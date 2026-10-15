@@ -9,7 +9,7 @@ import (
 )
 
 func (s *session) loadWithdrawalCurrent(ctx context.Context, scope contracts.AccessScope, doc contracts.ID) (snapshot contracts.WithdrawalSnapshot, err error) {
-	if scope.Action != "publication.withdraw" {
+	if scope.Action != "publication.withdraw" && scope.Action != "publication.publish" {
 		return snapshot, ErrRepository
 	}
 	if err = s.enter(ctx, scope); err != nil {

@@ -2,7 +2,7 @@
 
 查看 [总进度图](PROGRESS.md)：当前处于架构设计与契约基础验证，业务闭环和真实组件验收仍待实施。
 
-当前阶段：架构设计。默认采用 Go 模块化单体、Vue 管理界面、PostgreSQL 权威元数据、Redis 任务投递、本地原件存储和云模型；这些都是实现选择，不能进入产品契约。
+当前阶段：契约基础与知识治理链路的局部实现，完整架构验收保持开放。默认采用 Go 模块化单体、Vue 管理界面、PostgreSQL 权威元数据、Redis 任务投递、本地原件存储和云模型；这些都是实现选择，不能进入产品契约。
 
 | 阅读顺序 | 文档 | 回答的问题 |
 |---|---|---|
@@ -103,3 +103,46 @@
 
 
 [同数据索引交接与回退试验](architecture/INDEX_SNAPSHOT_TRANSFER.md)：公共快照、双实现往返校验和迁移范围。
+
+
+[索引窄能力配置装配](architecture/INDEX_MODULE_ASSEMBLY.md)：受控Provider选择及配置切换的当前证据。
+
+
+[MarkItDown成熟组件接入试验](architecture/MARKITDOWN_ADAPTER.md)：四类文件真实转换及标准候选映射的验证范围。
+
+
+[多格式解析器受控装配](architecture/MARKITDOWN_ASSEMBLY.md)：版本健康、文件依赖和能力不足拒绝的当前实现。
+
+[PDF双解析器替换](architecture/PARSER_REPLACEMENT.md)：同一标准调用入口选择MarkItDown或独立pypdf后端，验证正文、来源及关闭语义。
+
+[解析候选与草稿合并](architecture/PARSED_DRAFT_CANDIDATE.md)：保护人工编辑和已提交草稿，保留迟到解析候选；明确待实现的持久事务边界。
+
+[候选持久化事务](architecture/CANDIDATE_PERSISTENCE.md)：同步候选、草稿CAS、回执、审计与outbox的隔离PostgreSQL实现及运行验证边界。
+
+[候选应用服务](architecture/CANDIDATE_APPLICATION.md)：解析前后授权、配置绑定、供应商隔离和不重新解析的提交重试。
+
+[候选读取与提交核对](architecture/CANDIDATE_READING.md)：独立读取授权、原主体摘要核验和未知结果恢复边界。
+
+[独立WSL PostgreSQL验证](architecture/WSL_POSTGRES_VALIDATION.md)：PG15/16/18隔离实例运行、源码/制品证据及私有实例清理。
+
+[文件到候选数据库串联](architecture/CANDIDATE_E2E_VALIDATION.md)：实际文件解析、应用服务、PG提交、冷连接重试及迟到结果保留。
+
+[PostgreSQL多版本验收矩阵](architecture/POSTGRES_VERSION_MATRIX.md)：同一代码/二进制在15.19、16.15、18.6上执行当前SQL与150项事务/应用及查询读取检查。
+
+[原生草稿冻结映射](architecture/NATIVE_FROZEN_MAPPING.md)：四类内容的规范载荷、双摘要与独立金标验证；权威提交事务待实施。
+
+[草稿提交审核事务](architecture/SUBMISSION_TRANSACTION.md)：冻结Revision、待审核请求、草稿CAS、幂等回执及审计/outbox的原子提交与故障验证。
+
+[审批决定事务](architecture/REVIEW_TRANSACTION.md)：批准/拒绝/撤销、当前决定指针、幂等历史重放及管理Schema对照。
+
+[有效批准与发布准备登记](architecture/PUBLICATION_START.md)：按当前规则核验批准，绑定后端代际并原子保存准备操作、初始任务与outbox；最终发布待实施。
+
+[发布任务租约与内容读取](architecture/PUBLICATION_TASKS.md)：稳定命令回执、续租与接管隔离、原发布者再授权及冻结内容核对。
+
+[实际索引准备与独立读回](architecture/INDEX_PREPARATION.md)：模块化 Worker、文本关键词默认后端、持久 attempt 产物及实际投影验证。
+
+[准备任务完成与未知结果恢复](architecture/PREPARATION_COMPLETION.md)：重新核验真实索引后原子提交completed、产物引用、回执、审计和事件，支持租约到期后的历史对账。
+
+[原子最终发布与替换](architecture/FINAL_PUBLICATION.md)：当前批准/配置/实际索引复核、有效头CAS、历史/审计/事件和旧源清理原子提交；支持正常撤回与历史重放，正式有效检索待接入。
+
+[PostgreSQL查询权威读层](architecture/POSTGRES_QUERY_READS.md)：标准QueryReadUnit的真实同快照分页、当前批准/代际及撤回/轮换验证；正式Retriever和最终输出授权仍待接入。

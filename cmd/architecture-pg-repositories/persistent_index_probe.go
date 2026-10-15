@@ -64,7 +64,7 @@ func verifyPersistentIndex(ctx context.Context, db *sql.DB, scope contracts.Acce
 		return errors.New("old snapshot bypassed generation fence")
 	}
 	writer.Rollback()
-	other, err := sql.Open("pgx", "postgres://postgres@127.0.0.1:5432/postgres?sslmode=disable")
+	other, err := openFixtureDB()
 	if err != nil {
 		return err
 	}

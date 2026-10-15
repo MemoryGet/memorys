@@ -9,7 +9,7 @@
   "image": "postgres:15-alpine",
   "container_removed": true,
   "image_identity": "sha256:fceb6f86328c36f2438fae3b851b0cc57c4a7e69a58c866d9ce24281f2cf0c9c",
-  "go_executable_sha256": "8ab16b70945bcc3d4fb698156ce31bb1ecee5dd9986c9880187419ea02517483",
+  "go_executable_sha256": "1f89b02d9da62984e1e87dbc216515585138cc58d6c403a35901c1871435c5c5",
   "server_version": "15.17",
   "outputs": [
     "BEGIN\nCREATE SCHEMA\nSET\nCREATE DOMAIN\nCREATE DOMAIN\nCREATE DOMAIN\nCREATE DOMAIN\nCREATE TABLE\nCREATE TABLE\nCREATE TABLE\nALTER TABLE\nALTER TABLE\nCREATE TABLE\nCREATE TABLE\nCREATE TABLE\nALTER TABLE\nCREATE TABLE\nCREATE TABLE\nCREATE TABLE\nCREATE TABLE\nCREATE INDEX\nCREATE TABLE\nCREATE FUNCTION\nCREATE TRIGGER\nCREATE TABLE\nCREATE TABLE\nCREATE FUNCTION\nCREATE TRIGGER\nCREATE FUNCTION\nCREATE TRIGGER\nCREATE FUNCTION\nCREATE TRIGGER\nCREATE FUNCTION\nCREATE TRIGGER\nCREATE FUNCTION\nCREATE TRIGGER\nCREATE TABLE\nCREATE TABLE\nALTER TABLE\nCREATE TABLE\nCREATE FUNCTION\nCREATE TRIGGER\nCREATE TRIGGER\nCREATE FUNCTION\nCREATE TRIGGER\nCREATE FUNCTION\nCREATE TRIGGER\nCREATE TRIGGER\nCREATE TRIGGER\nCREATE TRIGGER\nCREATE TRIGGER\nCREATE TRIGGER\nCREATE TRIGGER\nCREATE TRIGGER\nCOMMIT\n",
@@ -59,7 +59,9 @@
       "cleanup_repeatable_snapshot_fenced",
       "index_same_data_roundtrip",
       "index_transfer_failure_rollback",
-      "index_transfer_restores_generation_chunk_fences"
+      "index_transfer_restores_generation_chunk_fences",
+      "index_configured_provider_switch",
+      "index_configured_close_rejects_old_port"
     ],
     "passed": true,
     "production_acceptance": false

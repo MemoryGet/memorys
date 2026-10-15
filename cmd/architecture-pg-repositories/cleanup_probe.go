@@ -64,7 +64,7 @@ func verifyCleanupLeases(ctx context.Context, db *sql.DB, scope contracts.Access
 		return err
 	}
 	// Recreate the adapter and reconnect to show that completion is durable.
-	other, err := sql.Open("pgx", "postgres://postgres@127.0.0.1:5432/postgres?sslmode=disable")
+	other, err := openFixtureDB()
 	if err != nil {
 		return err
 	}

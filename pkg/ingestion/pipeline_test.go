@@ -11,6 +11,7 @@ import (
 
 	"github.com/MemoryGet/memorys/pkg/chunk"
 	"github.com/MemoryGet/memorys/pkg/contracts"
+	"github.com/MemoryGet/memorys/pkg/document"
 	"github.com/MemoryGet/memorys/pkg/ingestion"
 	"github.com/MemoryGet/memorys/pkg/parser"
 	"github.com/MemoryGet/memorys/pkg/storage"
@@ -37,6 +38,35 @@ func TestRealFileParseDraftAndDeterministicUnicodeChunks(t *testing.T) {
 	}
 	if len(result.Blocks) != 1 || result.Blocks[0].Content.Text != text || result.Blocks[0].Content.Source.BlobID != blob.ID || result.Blocks[0].RowVersion != 0 {
 		t.Fatal("file content or draft ownership lost")
+	}
+	candidate, err := p.ProcessCandidate(ctx, contracts.ParseRequest{Request: request, Scope: scope, DraftID: "draft", Input: blob, Format: "markdown"}, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	merge, err := document.MergeParsedCandidate(contracts.Draft{ID: "draft", DocumentID: "document", State: "draft", RowVersion: 1, Blobs: []contracts.BlobRef{blob}}, candidate)
+	if err != nil || !merge.Applied || merge.Draft.Blocks[0].Content.Text != text {
+		t.Fatal("real file did not produce editable candidate", err)
+	}
+	if late, err := document.MergeParsedCandidate(merge.Draft, candidate); err != nil || late.Applied || late.Reason != "draft_changed" {
+		t.Fatal("late parser could overwrite new draft", err)
+	}
+	service := ingestion.CandidateService{Parser: p.Parser, ProfileDigest: request.ProfileDigest, Authorize: func(_ context.Context, c ingestion.DraftParseCommand) error {
+		if c.Principal.SubjectID != "user" || c.Input != blob || c.DocumentID != "document" {
+			return fmt.Errorf("fixture resource denied")
+		}
+		return nil
+	}, Repository: commitCandidateFunc(func(_ context.Context, c document.CandidateCommand) (document.CandidateReceipt, error) {
+		if len(c.Candidate.Blocks) != 1 || c.Candidate.Blocks[0].Content.Text != text || c.Candidate.Input != blob {
+			t.Fatal("application lost original candidate")
+		}
+		return document.CandidateReceipt{CandidateID: c.CandidateID, DraftID: c.Candidate.DraftID, DocumentID: c.DocumentID, Applied: true, DraftVersion: 2}, nil
+	})}
+	prepared, err := service.Prepare(ctx, ingestion.DraftParseCommand{Request: request, Scope: scope, Principal: contracts.Principal{SubjectID: "user", SubjectType: "user", Issuer: "fixture"}, DocumentID: "document", DraftID: "draft", CandidateID: "application-candidate", ExpectedVersion: 1, Input: blob, Format: "markdown"})
+	if err != nil {
+		t.Fatal("real-file application preparation failed", err)
+	}
+	if receipt, err := service.Commit(ctx, prepared); err != nil || !receipt.Applied {
+		t.Fatal("application commit fixture failed", err)
 	}
 	req := contracts.SplitRequest{Request: request, Scope: scope, RevisionID: "rev-a", Policy: contracts.ChunkPolicy{Strategy: "characters", MaxCodepoints: 4, OverlapCodepoints: 1}, Blocks: []contracts.Block{{ID: result.Blocks[0].ID, RevisionID: "rev-a", Content: result.Blocks[0].Content}}}
 	splitter := chunk.SimpleSplitter{}

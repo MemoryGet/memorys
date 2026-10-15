@@ -62,6 +62,25 @@ func TestWithdrawalCleanupBindsOldEpochAndImmutableTargets(t *testing.T) {
 	}
 }
 
+func TestReplacementCleanupUsesOnlyPreviousSource(t *testing.T) {
+	h, p, _ := historyFixture()
+	h.Action = "publish"
+	revision, set := contracts.ID("new-revision"), contracts.ID("new-set")
+	h.RevisionID = &revision
+	h.GenerationSetID = &set
+	if err := contracts.ValidatePublicationCleanup(p, h); err != nil {
+		t.Fatal("replacement cleanup rejected", err)
+	}
+	if contracts.ValidateWithdrawalCleanup(p, h) == nil {
+		t.Fatal("withdrawal-specific validator accepted publish")
+	}
+	p.RevisionID = revision
+	p.GenerationSetID = set
+	if contracts.ValidatePublicationCleanup(p, h) == nil {
+		t.Fatal("replacement cleanup targeted new publication")
+	}
+}
+
 func TestCleanupIndexCoverageRejectsWrongAndDuplicateChannels(t *testing.T) {
 	for _, change := range []func(*contracts.CleanupPlan){func(p *contracts.CleanupPlan) { g := contracts.ID("other"); p.Targets[0].GenerationID = &g }, func(p *contracts.CleanupPlan) { p.Targets[0].ModuleInstanceID = "other" }, func(p *contracts.CleanupPlan) { p.Targets[0].ProfileDigest = contracts.Digest(strings.Repeat("b", 64)) }, func(p *contracts.CleanupPlan) { p.Targets = nil }, func(p *contracts.CleanupPlan) { t := p.Targets[0]; t.ID = "second"; p.Targets = append(p.Targets, t) }} {
 		_, p, s := historyFixture()

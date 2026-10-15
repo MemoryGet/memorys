@@ -1,0 +1,369 @@
+package postgres
+
+import (
+	"context"
+	"crypto/sha256"
+	"database/sql"
+	"encoding/hex"
+	"encoding/json"
+	"sort"
+	"strconv"
+	"time"
+
+	"github.com/MemoryGet/memorys/pkg/contracts"
+	"github.com/MemoryGet/memorys/pkg/document"
+	"github.com/MemoryGet/memorys/pkg/preparation"
+	"github.com/MemoryGet/memorys/pkg/queryread"
+)
+
+// QueryReads provides real, primary-database, read-only Repeatable Read views.
+// Its inventory covers current publications made by the native finalizer. Old
+// fixture sources without verifiable approval/ready metadata never enter it.
+// Readiness here is metadata; callers must verify actual backend effects.
+type QueryReads struct {
+	DB     *sql.DB
+	Verify VerifyScope
+}
+
+var _ contracts.QueryReadUnit = QueryReads{}
+
+func validQueryScope(s contracts.AccessScope) bool {
+	if s.Action != "knowledge.search" || s.PolicyVersion == 0 || !s.ExpiresAt.After(time.Now()) || !commandID(string(s.ScopeID)) || !commandID(string(s.SubjectID)) || !commandID(string(s.SpaceID)) || len(s.KnowledgeBaseIDs) < 1 || len(s.KnowledgeBaseIDs) > 256 {
+		return false
+	}
+	seen := map[contracts.ID]bool{}
+	for _, kb := range s.KnowledgeBaseIDs {
+		if !commandID(string(kb)) || seen[kb] {
+			return false
+		}
+		seen[kb] = true
+	}
+	return true
+}
+func (p QueryReads) WithinRead(ctx context.Context, scope contracts.AccessScope, fn func(context.Context, contracts.QueryReadIdentity, contracts.QueryReadRepository) error) error {
+	if ctx == nil || p.DB == nil || p.Verify == nil || fn == nil || !validQueryScope(scope) {
+		return queryread.ErrInvalid
+	}
+	if _, ok := ctx.Deadline(); !ok {
+		return queryread.ErrInvalid
+	}
+	scope = cloneScope(scope)
+	ctx, cancel := context.WithDeadline(ctx, scope.ExpiresAt)
+	defer cancel()
+	verify := func(c context.Context) error {
+		if c.Err() != nil || p.Verify(c, cloneScope(scope)) != nil || c.Err() != nil {
+			return queryread.ErrRead
+		}
+		return nil
+	}
+	if verify(ctx) != nil {
+		return queryread.ErrRead
+	}
+	tx, err := p.DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelRepeatableRead, ReadOnly: true})
+	if err != nil {
+		return queryread.ErrRead
+	}
+	defer tx.Rollback()
+	var epoch contracts.ID
+	var snapshot, storeVersion string
+	if tx.QueryRowContext(ctx, `SELECT store_epoch_id,row_version::text,pg_current_snapshot()::text FROM akos_withdraw_v1.query_store_head WHERE singleton`).Scan(&epoch, &storeVersion, &snapshot) != nil || !commandID(string(epoch)) {
+		return queryread.ErrRead
+	}
+	readID, err := submissionID("query-view-")
+	if err != nil {
+		return queryread.ErrRead
+	}
+	sum := sha256.Sum256([]byte(string(epoch) + "\x00" + storeVersion + "\x00" + snapshot))
+	identity := contracts.QueryReadIdentity{StoreEpochID: epoch, ReadVersion: string(readID), Watermark: hex.EncodeToString(sum[:])}
+	repo := &queryRepository{tx: tx, scope: scope, identity: identity, verify: verify, cursors: map[string]queryCursor{}, states: map[contracts.ID]contracts.CurrentDocumentState{}}
+	guard, err := queryread.NewGuard(ctx, repo, scope, identity)
+	if err != nil {
+		return err
+	}
+	func() { defer guard.Close(); err = fn(ctx, identity, guard) }()
+	if err != nil {
+		return err
+	}
+	if verify(ctx) != nil {
+		return queryread.ErrRead
+	}
+	if tx.Commit() != nil {
+		return queryread.ErrRead
+	}
+	// This second statement is outside the old view and after its connection is
+	// released, so a one-connection pool cannot deadlock the rotation check.
+	var current contracts.ID
+	var version string
+	if p.DB.QueryRowContext(ctx, `SELECT store_epoch_id,row_version::text FROM akos_withdraw_v1.query_store_head WHERE singleton`).Scan(&current, &version) != nil || current != epoch || version != storeVersion || verify(ctx) != nil {
+		return queryread.ErrRead
+	}
+	return nil
+}
+
+type queryCursor struct {
+	after contracts.ID
+	kbs   string
+}
+type queryRepository struct {
+	tx         *sql.Tx
+	scope      contracts.AccessScope
+	identity   contracts.QueryReadIdentity
+	verify     func(context.Context) error
+	cursors    map[string]queryCursor
+	states     map[contracts.ID]contracts.CurrentDocumentState
+	facts      []contracts.PublishedFact
+	loaded     bool
+	stateBytes int
+}
+
+func copyQuery[T any](v T) (T, error) {
+	var result T
+	raw, err := json.Marshal(v)
+	if err != nil || len(raw) > 4<<20 {
+		return result, queryread.ErrLimit
+	}
+	if json.Unmarshal(raw, &result) != nil {
+		return result, queryread.ErrRead
+	}
+	return result, nil
+}
+func queryKBs(ids []contracts.ID) []string {
+	out := make([]string, 0, len(ids))
+	for _, id := range ids {
+		out = append(out, string(id))
+	}
+	return out
+}
+func (r *queryRepository) save(id contracts.ID, state contracts.CurrentDocumentState) (contracts.CurrentDocumentState, error) {
+	raw, err := json.Marshal(state)
+	if err != nil {
+		return contracts.CurrentDocumentState{}, queryread.ErrRead
+	}
+	if len(raw) > 4<<20-r.stateBytes {
+		return contracts.CurrentDocumentState{}, queryread.ErrLimit
+	}
+	owned, err := copyQuery(state)
+	if err != nil {
+		return contracts.CurrentDocumentState{}, err
+	}
+	r.states[id] = owned
+	r.stateBytes += len(raw)
+	return copyQuery(owned)
+}
+func (r *queryRepository) allowed(kb contracts.ID) bool {
+	for _, v := range r.scope.KnowledgeBaseIDs {
+		if kb == v {
+			return true
+		}
+	}
+	return false
+}
+
+func (r *queryRepository) backend(ctx context.Context, kb contracts.ID) (document.PublicationBackendSnapshot, error) {
+	var b document.PublicationBackendSnapshot
+	var raw []byte
+	var id string
+	if !r.allowed(kb) || r.tx.QueryRowContext(ctx, `SELECT e.payload,h.backend_epoch_id FROM akos_withdraw_v1.publication_backend_heads h JOIN akos_withdraw_v1.publication_backend_epochs e ON e.space_id=h.space_id AND e.kb_id=h.kb_id AND e.id=h.backend_epoch_id WHERE h.space_id=$1::text AND h.kb_id=$2::text`, string(r.scope.SpaceID), string(kb)).Scan(&raw, &id) != nil || len(raw) > 65536 || json.Unmarshal(raw, &b) != nil || string(b.EpochID) != id || b.Number == 0 || !commandID(b.CutoverWatermark) || !commandDigest(b.ProfileDigest) {
+		return b, queryread.ErrRead
+	}
+	return b, nil
+}
+
+func (r *queryRepository) load(ctx context.Context, id contracts.ID) (contracts.CurrentDocumentState, error) {
+	if state, present := r.states[id]; present {
+		return copyQuery(state)
+	}
+	var state contracts.CurrentDocumentState
+	var epoch, version string
+	var revision, set sql.NullString
+	var deleted bool
+	if !commandID(string(id)) || r.tx.QueryRowContext(ctx, `SELECT id,space_id,kb_id,publication_epoch::text,row_version::text,active_revision_id,active_generation_set_id,deleted FROM akos_withdraw_v1.documents WHERE space_id=$1::text AND kb_id=ANY($2::text[]) AND id=$3::text`, string(r.scope.SpaceID), queryKBs(r.scope.KnowledgeBaseIDs), string(id)).Scan(&state.Document.ID, &state.Document.SpaceID, &state.Document.KnowledgeBaseID, &epoch, &version, &revision, &set, &deleted) != nil || deleted {
+		return state, queryread.ErrRead
+	}
+	var err error
+	state.Document.PublicationEpoch, err = strconv.ParseUint(epoch, 10, 64)
+	if err != nil {
+		return state, queryread.ErrRead
+	}
+	state.Document.RowVersion, err = strconv.ParseUint(version, 10, 64)
+	if err != nil || state.Document.RowVersion == 0 {
+		return state, queryread.ErrRead
+	}
+	state.Document.ActiveRevisionID = idPointer(revision)
+	state.Document.ActiveGenerationSetID = idPointer(set)
+	backend, err := r.backend(ctx, state.Document.KnowledgeBaseID)
+	if err != nil {
+		return state, err
+	}
+	state.ActiveBackendEpochID = backend.EpochID
+	if !revision.Valid || !set.Valid {
+		return r.save(id, state)
+	}
+	var planBytes, artifactBytes []byte
+	err = r.tx.QueryRowContext(ctx, `SELECT i.payload,a.payload FROM akos_withdraw_v1.publication_finalizations f JOIN akos_withdraw_v1.publication_history h ON h.id=f.history_id JOIN akos_withdraw_v1.publication_intents i ON i.id=f.operation_id JOIN akos_withdraw_v1.publication_prepared_artifacts a ON a.operation_id=i.id AND a.artifact_digest=f.artifact_digest WHERE f.space_id=$1::text AND f.kb_id=$2::text AND f.document_id=$3::text AND h.publication_epoch=$4::numeric AND h.revision_id=$5::text AND h.generation_set_id=$6::text`, string(state.Document.SpaceID), string(state.Document.KnowledgeBaseID), string(id), epoch, revision.String, set.String).Scan(&planBytes, &artifactBytes)
+	if err == sql.ErrNoRows {
+		return r.save(id, state)
+	} // unverifiable legacy source fails closed
+	var plan document.PublicationStartPlan
+	var artifact preparation.Artifact
+	if err != nil || len(planBytes) > 262144 || len(artifactBytes) > 1<<20 || json.Unmarshal(planBytes, &plan) != nil || json.Unmarshal(artifactBytes, &artifact) != nil || plan.SpaceID != state.Document.SpaceID || plan.KnowledgeBaseID != state.Document.KnowledgeBaseID || plan.Result.Operation.DocumentID != id || plan.Result.Operation.RevisionID != contracts.ID(revision.String) || artifact.GenerationSet.ID != contracts.ID(set.String) || artifact.GenerationSet.RevisionID != contracts.ID(revision.String) || artifact.OperationID != plan.Result.Operation.ID {
+		return state, queryread.ErrRead
+	}
+	if digest, err := preparation.ArtifactDigest(artifact); err != nil || digest != artifact.Digest {
+		return state, queryread.ErrRead
+	}
+	state.GenerationSet = &artifact.GenerationSet
+	var requestBytes, policyBytes []byte
+	var current sql.NullString
+	var policyDigest string
+	if r.tx.QueryRowContext(ctx, `SELECT payload,current_decision_id FROM akos_withdraw_v1.approval_requests WHERE space_id=$1::text AND kb_id=$2::text AND document_id=$3::text AND revision_id=$4::text`, string(state.Document.SpaceID), string(state.Document.KnowledgeBaseID), string(id), revision.String).Scan(&requestBytes, &current) != nil {
+		return state, queryread.ErrRead
+	}
+	if r.tx.QueryRowContext(ctx, `SELECT p.payload,p.digest FROM akos_withdraw_v1.review_policy_heads h JOIN akos_withdraw_v1.review_policy_snapshots p ON p.space_id=h.space_id AND p.kb_id=h.kb_id AND p.version=h.policy_version WHERE h.space_id=$1::text AND h.kb_id=$2::text`, string(state.Document.SpaceID), string(state.Document.KnowledgeBaseID)).Scan(&policyBytes, &policyDigest) != nil {
+		return state, queryread.ErrRead
+	}
+	var q contracts.ApprovalRequest
+	var policy document.ReviewPolicySnapshot
+	if len(requestBytes) > 65536 || len(policyBytes) > 65536 || json.Unmarshal(requestBytes, &q) != nil || json.Unmarshal(policyBytes, &policy) != nil || policy.Digest != contracts.Digest(policyDigest) {
+		return state, queryread.ErrRead
+	}
+	if digest, err := document.ReviewPolicyDigest(policy); err != nil || digest != policy.Digest {
+		return state, queryread.ErrRead
+	}
+	review := plan.Review
+	review.Validity = contracts.ApprovalValidityFact{ApprovalID: review.Approval.ID, ApprovalRowVersion: review.Approval.RowVersion, ReviewPolicyVersion: policy.Version, State: "stale"}
+	if current.Valid {
+		if actual, err := document.CurrentApproval(review.Revision, q, contracts.ID(current.String), plan.Review.Approval, plan.Result.Operation.ApprovalID, policy); err == nil {
+			review = actual
+		}
+	}
+	state.PublicationReview = &review
+	return r.save(id, state)
+}
+
+func (r *queryRepository) inventory(ctx context.Context) error {
+	if r.loaded {
+		return nil
+	}
+	rows, err := r.tx.QueryContext(ctx, `SELECT id FROM akos_withdraw_v1.documents WHERE space_id=$1::text AND kb_id=ANY($2::text[]) AND NOT deleted AND active_revision_id IS NOT NULL ORDER BY id COLLATE "C" LIMIT 1001`, string(r.scope.SpaceID), queryKBs(r.scope.KnowledgeBaseIDs))
+	if err != nil {
+		return queryread.ErrRead
+	}
+	var ids []contracts.ID
+	for rows.Next() {
+		var id contracts.ID
+		if rows.Scan(&id) != nil {
+			rows.Close()
+			return queryread.ErrRead
+		}
+		ids = append(ids, id)
+	}
+	err = rows.Err()
+	rows.Close()
+	if err != nil {
+		return queryread.ErrRead
+	}
+	if len(ids) > 1000 {
+		return queryread.ErrLimit
+	}
+	var facts []contracts.PublishedFact
+	for _, id := range ids {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		s, err := r.load(ctx, id)
+		if err != nil {
+			return err
+		}
+		if s.GenerationSet == nil || s.PublicationReview == nil || s.PublicationReview.Validity.State != "effective" || s.ActiveBackendEpochID != s.GenerationSet.BackendEpochID {
+			continue
+		}
+		d, review := s.Document, s.PublicationReview
+		facts = append(facts, contracts.PublishedFact{DocumentID: d.ID, SpaceID: d.SpaceID, KnowledgeBaseID: d.KnowledgeBaseID, RevisionID: *d.ActiveRevisionID, RowVersion: d.RowVersion, PublicationEpoch: d.PublicationEpoch, ApprovalID: review.Approval.ID, ContentDigest: review.Revision.ContentHash, GenerationSet: *s.GenerationSet})
+	}
+	owned, err := copyQuery(facts)
+	if err != nil {
+		return err
+	}
+	r.facts = owned
+	r.loaded = true
+	return nil
+}
+
+func (r *queryRepository) ReadPublishedPage(ctx context.Context, q contracts.PublishedPageRequest) (contracts.PublishedPage, error) {
+	var page contracts.PublishedPage
+	if r.verify(ctx) != nil || q.Identity != r.identity || contracts.ValidatePublishedPage(contracts.PublishedPage{Identity: r.identity}, q, r.scope, "") != nil {
+		return page, queryread.ErrRead
+	}
+	if err := r.inventory(ctx); err != nil {
+		return page, err
+	}
+	kbs := append([]contracts.ID(nil), q.KnowledgeBaseIDs...)
+	sort.Slice(kbs, func(i, j int) bool { return kbs[i] < kbs[j] })
+	raw, _ := json.Marshal(kbs)
+	binding := string(raw)
+	var after contracts.ID
+	if q.Cursor != "" {
+		cursor, ok := r.cursors[q.Cursor]
+		if !ok || cursor.kbs != binding {
+			return page, queryread.ErrInvalid
+		}
+		after = cursor.after
+	}
+	selected := map[contracts.ID]bool{}
+	for _, kb := range kbs {
+		selected[kb] = true
+	}
+	page.Identity = r.identity
+	for _, f := range r.facts {
+		if f.DocumentID <= after || !selected[f.KnowledgeBaseID] {
+			continue
+		}
+		if len(page.Facts) == q.Limit {
+			if len(r.cursors) >= 1000 {
+				return contracts.PublishedPage{}, queryread.ErrLimit
+			}
+			cursor, err := submissionID("query-cursor-")
+			if err != nil {
+				return contracts.PublishedPage{}, queryread.ErrRead
+			}
+			page.NextCursor = string(cursor)
+			r.cursors[page.NextCursor] = queryCursor{after: page.Facts[len(page.Facts)-1].DocumentID, kbs: binding}
+			break
+		}
+		page.Facts = append(page.Facts, f)
+	}
+	if contracts.ValidatePublishedPage(page, q, r.scope, after) != nil {
+		return contracts.PublishedPage{}, queryread.ErrRead
+	}
+	return copyQuery(page)
+}
+func (r *queryRepository) LoadCurrentDocument(ctx context.Context, id contracts.ID) (contracts.CurrentDocumentState, error) {
+	if r.verify(ctx) != nil {
+		return contracts.CurrentDocumentState{}, queryread.ErrRead
+	}
+	return r.load(ctx, id)
+}
+func (r *queryRepository) LoadActiveEpoch(ctx context.Context, kb contracts.ID) (contracts.BackendEpoch, error) {
+	var epoch contracts.BackendEpoch
+	if r.verify(ctx) != nil {
+		return epoch, queryread.ErrRead
+	}
+	b, err := r.backend(ctx, kb)
+	if err != nil {
+		return epoch, err
+	}
+	if err := r.inventory(ctx); err != nil {
+		return epoch, err
+	}
+	epoch = contracts.BackendEpoch{ID: b.EpochID, KnowledgeBaseID: kb, Number: b.Number, IndexProfile: b.IndexProfile, ProfileDigest: b.ProfileDigest, State: "active", CutoverWatermark: b.CutoverWatermark, RevisionGenerationSets: map[contracts.ID]contracts.ID{}}
+	for _, f := range r.facts {
+		if f.KnowledgeBaseID == kb {
+			if f.GenerationSet.BackendEpochID != b.EpochID {
+				return contracts.BackendEpoch{}, queryread.ErrRead
+			}
+			epoch.RevisionGenerationSets[f.RevisionID] = f.GenerationSet.ID
+		}
+	}
+	return copyQuery(epoch)
+}

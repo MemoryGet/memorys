@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]
 def source_inventory(root=ROOT):
     paths = [root / "go.mod", root / "go.sum",
              root / "docs/architecture/evidence/openapi-validation-requirements.txt"]
-    for tree in ("pkg", "cmd", "tests", "docs/architecture"):
+    for tree in ("pkg", "cmd", "tests", "docs/architecture", "tools/parsers"):
         for p in (root / tree).rglob("*"):
             parts = p.relative_to(root).parts
             if not p.is_file() or "__pycache__" in parts or "evidence" in parts:

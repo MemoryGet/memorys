@@ -106,7 +106,16 @@ func ValidatePublicationHistory(h PublicationHistory) error {
 // The expected history must be independently loaded from the authoritative
 // transaction. A supplier returning a matching plan/history pair is not proof.
 func ValidateWithdrawalCleanup(plan CleanupPlan, history PublicationHistory) error {
-	if ValidatePublicationHistory(history) != nil || history.Action != "withdraw" || plan.HistoryID != history.ID || plan.OperationID != history.OperationID || plan.SpaceID != history.SpaceID || plan.KnowledgeBaseID != history.KnowledgeBaseID || plan.DocumentID != history.DocumentID || plan.PublicationEpoch != history.PreviousEpoch || plan.RevisionID != *history.PreviousRevisionID || plan.GenerationSetID != *history.PreviousGenerationSetID || !historyID(plan.ID) || !validDigest(plan.ProfileDigest) || !historyTime(plan.CreatedAt) || plan.CreatedAt.Before(history.OccurredAt) || len(plan.Targets) == 0 || len(plan.Targets) > 1000 {
+	if history.Action != "withdraw" {
+		return invalidHistory()
+	}
+	return ValidatePublicationCleanup(plan, history)
+}
+
+// Replacement publication and withdrawal invalidate the same immutable old
+// source. First publication has no old source and must not create cleanup.
+func ValidatePublicationCleanup(plan CleanupPlan, history PublicationHistory) error {
+	if ValidatePublicationHistory(history) != nil || history.Action != "withdraw" && history.Action != "publish" || history.PreviousRevisionID == nil || history.PreviousGenerationSetID == nil || plan.HistoryID != history.ID || plan.OperationID != history.OperationID || plan.SpaceID != history.SpaceID || plan.KnowledgeBaseID != history.KnowledgeBaseID || plan.DocumentID != history.DocumentID || plan.PublicationEpoch != history.PreviousEpoch || plan.RevisionID != *history.PreviousRevisionID || plan.GenerationSetID != *history.PreviousGenerationSetID || !historyID(plan.ID) || !validDigest(plan.ProfileDigest) || !historyTime(plan.CreatedAt) || plan.CreatedAt.Before(history.OccurredAt) || len(plan.Targets) == 0 || len(plan.Targets) > 1000 {
 		return invalidHistory()
 	}
 	ids := map[ID]bool{}

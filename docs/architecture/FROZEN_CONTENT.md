@@ -64,7 +64,7 @@ Revision保存HashFormat、BlocksHash、ContentHash和不可变内容。审批�
 
 Go `canonical.Frozen`验证编码及根包络，计算两级哈希，**不替代Schema和领域验证**。Python `check_frozen_content`额外验证结构、顺序及Blob清单引用，也不验证真实文件、权限、媒体尺寸/时长或表格合并覆盖。不能使用哈希存在作为允许审核/发布的充分条件。
 
-管理Revision响应包含hash_format、blocks_hash、content_hash、blobs及标准blocks。客户端若需复核，将blocks去revision_id并按响应顺序增加order，连同排序的blobs构成冻结包；不把创建时间、主体或供应商字段加入。正式传输映射和提交事务仍待实现。
+管理Revision响应包含hash_format、blocks_hash、content_hash、blobs及标准blocks。客户端若需复核，将blocks去revision_id并按响应顺序增加order，连同排序的blobs构成冻结包；不把创建时间、主体或供应商字段加入。同步[提交仓储](SUBMISSION_TRANSACTION.md)已持久化Revision与待审核请求；正式传输映射及完整治理事务仍待完成。
 
 ## 5. 金标及复核
 
@@ -80,7 +80,7 @@ python -m unittest discover -s docs/architecture -p 'test_*.py'
 & '.\.tools\go\bin\go.exe' test -cover ./...
 ```
 
-正常验证不重写金标。规范有意变更时先审查版本兼容性，再显式使用`build_frozen_golden.py --write`生成候选向量；历史格式的向量不得被静默覆盖。HashFormat=akos.freeze/1尚未投产，冻结前仍须补足真实提交、序列化映射与大载荷试验。
+正常验证不重写金标。规范有意变更时先审查版本兼容性，再显式使用`build_frozen_golden.py --write`生成候选向量；历史格式的向量不得被静默覆盖。[原生草稿映射](NATIVE_FROZEN_MAPPING.md)已通过7组既有金标；这不等于所有外部数值词元的无损传输。HashFormat=akos.freeze/1尚未投产，冻结前仍须补足生产提交接入、完整传输映射与大载荷试验。
 
 ## 6. 新增投影摘要域（V1草案）
 

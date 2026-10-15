@@ -14,10 +14,15 @@
 | publicationprojection | contracts、canonical | 标准投影与请求关系校验 |
 | modulewire | contracts、canonical | 显式数据协议映射 |
 | moduletransport | contracts、modulewire | HTTP与流接收实现 |
+| preparation | contracts、document、canonical、indexsnapshot | 已批准内容准备编排与纯校验，禁止SQL/HTTP/供应商SDK |
 | accessgrant | canonical | 隔离签名验证实现 |
 | fusion | contracts、kernel | 本地融合实现及其受控工厂 |
 
 fusion导入kernel是实现提供注册工厂的依赖，kernel不得反向导入fusion。retrievalplan不得直接导入fusion；测试可以组合两者验证标准端口。后续应用服务的装配在入口完成，不能为调用具体实现而扩大编排包的依赖。
+
+2026-10-15登记preparation及postgres对它的依赖：准备器只识别平台任务/分块/后端端口；实际PG租约锁和关键词投影由postgres适配器实现。离线PG入口负责组合，不能将postgres依赖反向引入准备器。远程准备实现、工厂与生产装配仍待实现。
+
+最终发布继续沿用同一方向：preparation定义PublicationStore和纯历史/命令摘要计算，postgres负责真实控制/索引锁、CAS和原子效果；业务纯包不依赖数据库。旧源清理的标准关系校验复用于替换发布和撤回，不能使用新发布源作为清理目标。
 
 contracts、canonical和查询/反思/投影编排包禁止net、net/*、database/*和os/exec。所有当前登记包禁止C、plugin和unsafe，符合首版受控编译注册、重启替换的选择。标准库通过实际GOROOT解析识别，不能因import路径没有点就把它当成标准库。
 
@@ -75,3 +80,6 @@ Metadata、PublicationHistory、CleanupPlan、Idempotency、Audit、Outbox 和 M
 
 
 2026-10-14登记indexsnapshot纯校验包（contracts/canonical），index及postgres通过该公共规范验证快照。业务端口只使用平台IndexProjection/IndexSnapshot；PG目录绑定与内存暂存恢复留在实现内，不放行SQL到纯包。
+
+
+2026-10-14登记parserprocess（仅parser及标准库进程/JSON），与离线architecture-office-parser入口。纯parser包通过OfficeConverter访问转换能力，不导入os/exec或Python SDK；tools/parsers脚本加入统一输入哈希。

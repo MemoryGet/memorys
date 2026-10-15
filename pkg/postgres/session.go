@@ -35,7 +35,7 @@ func cloneScope(s contracts.AccessScope) contracts.AccessScope {
 // WithinPublication supplies only History/Plan ports. Never register it as the
 // complete contracts.UnitOfWork: metadata/audit/outbox/journal ports are absent.
 func WithinPublication(ctx context.Context, db *sql.DB, scope contracts.AccessScope, verify VerifyScope, fn func(context.Context, contracts.PublicationHistoryRepository, contracts.CleanupPlanRepository) error) error {
-	if fn == nil {
+	if fn == nil || scope.Action == "document.parse" || scope.Action == "document.candidate.read" || scope.Action == "document.submit" || scope.Action == "revision.approve" || scope.Action == "publication.start" || scope.Action == "publication.prepare" {
 		return ErrRepository
 	}
 	return withinSession(ctx, db, scope, verify, func(ctx context.Context, s *session) error {
@@ -48,7 +48,7 @@ func withinSession(ctx context.Context, db *sql.DB, scope contracts.AccessScope,
 		return ErrRepository
 	}
 	switch scope.Action {
-	case "publication.withdraw", "publication.publish", "document.delete", "publication.history.read", "publication.cleanup.read", "publication.cleanup.execute", "index.delete", "index.write", "index.export", "index.import":
+	case "publication.withdraw", "publication.publish", "document.delete", "document.parse", "document.candidate.read", "document.submit", "revision.approve", "publication.start", "publication.prepare", "publication.history.read", "publication.cleanup.read", "publication.cleanup.execute", "index.delete", "index.write", "index.export", "index.import":
 	default:
 		return ErrRepository
 	}

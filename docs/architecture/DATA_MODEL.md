@@ -64,7 +64,7 @@ erDiagram
 
 冻结哈希由平台规范化 serializer 定义：UTF-8、稳定字段顺序、显式规范化版本、固定 Block 顺序、显式空值语义；正文保留原始换行/字符，不做会改变引用位置的自动 Unicode 或空白合并。content_hash 覆盖正文/表格结构/来源及附件哈希，排除创建时间、供应商 ID 和派生向量。跨语言 serializer 必须使用同一组测试向量。
 
-精确规则已补齐为 [akos.freeze/1](FROZEN_CONTENT.md)：FrozenBlock去revision_id并明确order，规范数值按精确十进制处理；blocks_hash覆盖规范块数组，content_hash覆盖带格式号/块哈希/附件清单的包络。Revision.HashFormat随不可变记录保存。现有Go/Python金标证明编码一致，真实冻结映射、领域校验及事务仍待实现。
+精确规则已补齐为 [akos.freeze/1](FROZEN_CONTENT.md)：FrozenBlock去revision_id并明确order，规范数值按精确十进制处理；blocks_hash覆盖规范块数组，content_hash覆盖带格式号/块哈希/附件清单的包络。Revision.HashFormat随不可变记录保存。[原生草稿冻结映射](NATIVE_FROZEN_MAPPING.md)已实现结构及引用校验，并经Go/Python金标对照；原生float64的精度边界单独说明。同步[提交事务](SUBMISSION_TRANSACTION.md)已连接Revision、待审核请求及审计/outbox；真实IAM、审批发布、全量UoW及生产完整性验证仍待完成。
 
 签名或哈希证明内容身份，不能证明内容正确。AI 反思和解析器迁移改变权威内容仍需审核。
 
@@ -108,3 +108,7 @@ PostgreSQL 是首版默认实现；未来数据库适配器的映射、DDL 和�
 ## 部署治理的权威信任记录（2026-10-13）
 
 详见[信任激活协议](KEY_TRUST_ACTIVATION.md)。记录TrustDomain/Head、不可变快照、KeyRetirement与激活操作的归属，禁止低版本回退及受损公钥换kid复活；历史恢复必须核对备份之外的受信控制面锚点。现有仓储/BuildLock尚未包含完整机器绑定，也无持久激活/分发证据，后续须补齐。
+
+## 最终发布与替换旧源（2026-10-15）
+
+[最终发布](FINAL_PUBLICATION.md)补充权威finalization回执，将已完成任务及准备产物与发布历史、有效指针、审计/outbox关联。首次发布不产生旧源清理；替换发布以History的PreviousRevision/PreviousGenerationSet/PreviousEpoch冻结清理目标，不能用新源填充旧计划。当前SQL原型的cleanup_plans.history_action支持withdraw/publish，原撤回专用关系检查保持严格，公共旧源检查另外复用。迁移必须一起保留命令/完成/发布回执、绑定及清理高水位，不能只导出当前有效文档。

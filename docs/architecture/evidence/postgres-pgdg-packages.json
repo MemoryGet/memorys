@@ -1,0 +1,72 @@
+{
+  "scope": "PGDG downloaded package identities, not a full loaded-library SBOM",
+  "source": "https://apt.postgresql.org/pub/repos/apt",
+  "suite": "noble-pgdg",
+  "repository_key_source": "https://www.postgresql.org/media/keys/ACCC4CF8.asc",
+  "repository_key_sha256": "0144068502a1eddd2a0280ede10ef607d1ec592ce819940991203941564e8e76",
+  "observed_key_fingerprint": "B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8",
+  "packages": [
+    {
+      "file": "libpq5_18.6-1.pgdg24.04+2_amd64.deb",
+      "sha256": "b487c5ed2ceb9244c6a9d6ae65818ed6707c3c44a2e14488394ae4194c52c53b",
+      "size": 264072
+    },
+    {
+      "file": "postgresql-15_15.19-1.pgdg24.04+2_amd64.deb",
+      "sha256": "c3753999a186bd7b03a4083373a7d94e79f2d3b0e71a4a3acceec4bbb36e82fa",
+      "size": 15337096
+    },
+    {
+      "file": "postgresql-18_18.6-1.pgdg24.04+2_amd64.deb",
+      "sha256": "c0773357df8769abb70e92722196d9b53422d71c0f29a4f39c834b94276cfa3d",
+      "size": 7576708
+    },
+    {
+      "file": "postgresql-client-15_15.19-1.pgdg24.04+2_amd64.deb",
+      "sha256": "7f6b149a8163e7538d600afcf0eef08b9596fc5a8ad0910f6e48cf016b88de8b",
+      "size": 1745356
+    },
+    {
+      "file": "postgresql-client-18_18.6-1.pgdg24.04+2_amd64.deb",
+      "sha256": "b9d10d99a73bf7aa375be2fe36626c40499cfdf553d0ad174674a88a1b256b43",
+      "size": 2114236
+    }
+  ],
+  "common_ubuntu_cached_packages": [
+    {
+      "file": "libicu74_74.2-1ubuntu3.1_amd64.deb",
+      "sha256": "c9a70989678660eed9a1e904c74fa043da8bec8e2036856fc16e31ced79b04f8",
+      "size": 10860078
+    },
+    {
+      "file": "libldap2_2.6.10+dfsg-0ubuntu0.24.04.1_amd64.deb",
+      "sha256": "7f3f8e565401256f21d5aa562c9f92dbb63537b73aaea6283e4db5264f1598f4",
+      "size": 197620
+    },
+    {
+      "file": "libpq5_16.15-0ubuntu0.24.04.1_amd64.deb",
+      "sha256": "3f96dd36bcd7841172c1ead4965da20a193bb9ccf9a93a3f5a3ac7f56369dbb1",
+      "size": 151262
+    },
+    {
+      "file": "libsasl2-2_2.1.28+dfsg1-5ubuntu3.1_amd64.deb",
+      "sha256": "eda097f98dcb3a08b9ce157d6191d140e4885c1cba47b683c94b8ca45e88f458",
+      "size": 53194
+    },
+    {
+      "file": "liburing2_2.5-1build1_amd64.deb",
+      "sha256": "c2aef62accee92a06263c3ad4ef46132c13e409b54296c44792a20491830a7b0",
+      "size": 21092
+    },
+    {
+      "file": "libxml2_2.9.14+dfsg-1.3ubuntu3.10_amd64.deb",
+      "sha256": "c5a065f85c1e6f605741e365e40cad71c3ceb0e85e2791400bd35b8896e12ad1",
+      "size": 763592
+    },
+    {
+      "file": "libxslt1.1_1.1.39-0exp1ubuntu0.24.04.3_amd64.deb",
+      "sha256": "e716daf96ea2526cab92e5cc4708739d5f2f4b89fb76782dfda7f49283eeeb40",
+      "size": 167806
+    }
+  ]
+}
