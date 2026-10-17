@@ -2,8 +2,8 @@
   "passed": true,
   "production_acceptance": false,
   "scope": "Synchronous document.SubmissionRepository PostgreSQL transaction with real original and submitted/0 initial review request; fixture identity/resource policy",
-  "source_inventory_sha256": "a9cea1d3f319f95ed1ff1e0fa14d64aa936eb2729fbc0cc06b53d7fdc4a7334e",
-  "source_inputs": 461,
+  "source_inventory_sha256": "d409a4413b259017ea999224b5de652616fc0354d0188ab98f529dd8502156d4",
+  "source_inputs": 505,
   "checks": [
     "submission_atomic_revision_review",
     "submission_audit_outbox_rollback",
@@ -21,7 +21,7 @@
     "postgres18-wsl-review.json"
   ],
   "same_probe_binary": true,
-  "go_executable_sha256": "21ab9b16881749bb100ba8f1504b8f79aaed9357b690926fd3e466f3bca26b1c",
+  "go_executable_sha256": "e70f8bd169120e055367d7341975577493caf660d4b9610c9173c8afcea2171b",
   "independently_confirmed_ports_closed_and_directories_removed": true,
   "unverified": [
     "production IAM/RLS/delegation authority",

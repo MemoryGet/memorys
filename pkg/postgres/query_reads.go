@@ -28,7 +28,7 @@ type QueryReads struct {
 var _ contracts.QueryReadUnit = QueryReads{}
 
 func validQueryScope(s contracts.AccessScope) bool {
-	if s.Action != "knowledge.search" || s.PolicyVersion == 0 || !s.ExpiresAt.After(time.Now()) || !commandID(string(s.ScopeID)) || !commandID(string(s.SubjectID)) || !commandID(string(s.SpaceID)) || len(s.KnowledgeBaseIDs) < 1 || len(s.KnowledgeBaseIDs) > 256 {
+	if !contracts.IsCurrentContentReadAction(s.Action) || s.PolicyVersion == 0 || !s.ExpiresAt.After(time.Now()) || !commandID(string(s.ScopeID)) || !commandID(string(s.SubjectID)) || !commandID(string(s.SpaceID)) || len(s.KnowledgeBaseIDs) < 1 || len(s.KnowledgeBaseIDs) > 256 {
 		return false
 	}
 	seen := map[contracts.ID]bool{}
@@ -41,6 +41,22 @@ func validQueryScope(s contracts.AccessScope) bool {
 	return true
 }
 func (p QueryReads) WithinRead(ctx context.Context, scope contracts.AccessScope, fn func(context.Context, contracts.QueryReadIdentity, contracts.QueryReadRepository) error) error {
+	if fn == nil {
+		return queryread.ErrInvalid
+	}
+	return p.withinQuery(ctx, scope, func(c context.Context, id contracts.QueryReadIdentity, repo *queryRepository) error {
+		guard, err := queryread.NewGuard(c, repo, repo.scope, id)
+		if err != nil {
+			return err
+		}
+		defer guard.Close()
+		return fn(c, id, guard)
+	})
+}
+
+// withinQuery keeps adapter-private SQL and authority metadata in one read view.
+// Native repositories must not escape this callback.
+func (p QueryReads) withinQuery(ctx context.Context, scope contracts.AccessScope, fn func(context.Context, contracts.QueryReadIdentity, *queryRepository) error) error {
 	if ctx == nil || p.DB == nil || p.Verify == nil || fn == nil || !validQueryScope(scope) {
 		return queryread.ErrInvalid
 	}
@@ -76,11 +92,7 @@ func (p QueryReads) WithinRead(ctx context.Context, scope contracts.AccessScope,
 	sum := sha256.Sum256([]byte(string(epoch) + "\x00" + storeVersion + "\x00" + snapshot))
 	identity := contracts.QueryReadIdentity{StoreEpochID: epoch, ReadVersion: string(readID), Watermark: hex.EncodeToString(sum[:])}
 	repo := &queryRepository{tx: tx, scope: scope, identity: identity, verify: verify, cursors: map[string]queryCursor{}, states: map[contracts.ID]contracts.CurrentDocumentState{}}
-	guard, err := queryread.NewGuard(ctx, repo, scope, identity)
-	if err != nil {
-		return err
-	}
-	func() { defer guard.Close(); err = fn(ctx, identity, guard) }()
+	err = fn(ctx, identity, repo)
 	if err != nil {
 		return err
 	}
@@ -213,29 +225,9 @@ func (r *queryRepository) load(ctx context.Context, id contracts.ID) (contracts.
 		return state, queryread.ErrRead
 	}
 	state.GenerationSet = &artifact.GenerationSet
-	var requestBytes, policyBytes []byte
-	var current sql.NullString
-	var policyDigest string
-	if r.tx.QueryRowContext(ctx, `SELECT payload,current_decision_id FROM akos_withdraw_v1.approval_requests WHERE space_id=$1::text AND kb_id=$2::text AND document_id=$3::text AND revision_id=$4::text`, string(state.Document.SpaceID), string(state.Document.KnowledgeBaseID), string(id), revision.String).Scan(&requestBytes, &current) != nil {
-		return state, queryread.ErrRead
-	}
-	if r.tx.QueryRowContext(ctx, `SELECT p.payload,p.digest FROM akos_withdraw_v1.review_policy_heads h JOIN akos_withdraw_v1.review_policy_snapshots p ON p.space_id=h.space_id AND p.kb_id=h.kb_id AND p.version=h.policy_version WHERE h.space_id=$1::text AND h.kb_id=$2::text`, string(state.Document.SpaceID), string(state.Document.KnowledgeBaseID)).Scan(&policyBytes, &policyDigest) != nil {
-		return state, queryread.ErrRead
-	}
-	var q contracts.ApprovalRequest
-	var policy document.ReviewPolicySnapshot
-	if len(requestBytes) > 65536 || len(policyBytes) > 65536 || json.Unmarshal(requestBytes, &q) != nil || json.Unmarshal(policyBytes, &policy) != nil || policy.Digest != contracts.Digest(policyDigest) {
-		return state, queryread.ErrRead
-	}
-	if digest, err := document.ReviewPolicyDigest(policy); err != nil || digest != policy.Digest {
-		return state, queryread.ErrRead
-	}
-	review := plan.Review
-	review.Validity = contracts.ApprovalValidityFact{ApprovalID: review.Approval.ID, ApprovalRowVersion: review.Approval.RowVersion, ReviewPolicyVersion: policy.Version, State: "stale"}
-	if current.Valid {
-		if actual, err := document.CurrentApproval(review.Revision, q, contracts.ID(current.String), plan.Review.Approval, plan.Result.Operation.ApprovalID, policy); err == nil {
-			review = actual
-		}
+	review, err := r.loadReview(ctx, state.Document.SpaceID, state.Document.KnowledgeBaseID, id, contracts.ID(revision.String), plan.Result.Operation.ApprovalID, plan.Review)
+	if err != nil {
+		return state, err
 	}
 	state.PublicationReview = &review
 	return r.save(id, state)

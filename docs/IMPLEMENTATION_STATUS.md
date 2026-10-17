@@ -1,10 +1,42 @@
 # 实施状态
 
-更新：2026-10-15（北京时间）。总目标：开发 AI Knowledge OS 模块化可替换架构设计 V1。
+2026-10-17补[历史读取跨主体游标隔离](architecture/HISTORICAL_READ_RUNTIME.md)：第二主体的真实令牌、主库登记与独立read/history授权可读取同一历史正文；第一主体游标在第二主体请求下返回ErrReadCursor且无正文/游标。539项输入在PG16通过252项检查，独立身份/授权/正文关系、当前读取回归、Go全量/go vet、228项Python与三份OpenAPI通过，临时资源已独立核对清理。原件授权仍fixture，撤回后重发/删除、跨issuer/客户端及完整生命周期仍开放；已有任务租约间歇失败未关闭。本轮未重验PG15/18。
+
+2026-10-17最新[已发布历史正文读取](architecture/HISTORICAL_READ_RUNTIME.md)：新增标准HistoricalContentReader/HistoricalContentVerifier及可选完整History依赖组，显式旧版本要求当前read和独立knowledge.history.read。PG适配器核对正式发布、当前文档、当前审核规则和原始批准；来源验证每次重读保留历史授权，游标绑定当前与历史快照，签名后再认证/授权及复核历史批准。修复验证基准map浅共享，可变提供方不能同时改写预期与实际；回归先失败后修复。539项输入在PG16通过250项检查，真实同文档换版、旧索引删除后历史原文、REST/MCP继续分页、批准未发布/缺失/更换目标及撤销批准拒绝通过独立复核；当前读取、全量Go/go vet、228项Python与三份OpenAPI通过，测试资源清理已独立确认。本轮未重验PG15/18。治理写入及原件授权仍为fixture，完整历史生命周期、生产装配/Grant/发送屏障、复杂来源和效果/迁移验收仍开放。
+
+2026-10-16最新[按文档读取与签名分页](architecture/PARTNER_READ_DESIGN.md)：应用及PG冻结正文读取器均去掉整库发布扫描；标准ReadCursorCodec端口、本地HMAC实现和应用ReadPage接入REST/MCP。游标绑定身份/委托、权限版本、配置、store epoch、发布/批准/代际、双摘要、块集合和位置；每页重新验证，签名在最终认证/发布复核前。527项输入在PG16通过243项检查，实际两页内容/引用/Schema和双格式完整复核、跨REST游标到MCP继续、篡改和真实令牌撤销拒绝通过；全量Go/go vet、228项Python与三份OpenAPI通过。改正原件预算探针“必须再次缩短”的误判，记录全部实际期限并独立复核；分页样本拆分原文，避免重复索引；查询/输出作为单独20秒fixture阶段，任务租约及业务预算未增加。原件授权仍为fixture，历史/复杂来源/生产密钥与依赖装配/Grant/发送屏障和性能未完成，其他间歇失败仍开放。本轮未重验PG15/18。
+
+2026-10-16最新[当前读取来源验证与REST/MCP](architecture/PARTNER_READ_DESIGN.md)：新增必需且可替换ReadContentVerifier；整块粗定位文本按冻结正文和实际原件逐字验证，结构/derived/精确定位不支持则整次拒绝。来源复核后再次认证/授权及发布检查；REST POST /read与可选MCP knowledge_read复用同一应用。官方SDK客户端读取、严格请求/空块选择/凭据清理及来源故障测试通过。521项输入在PG16通过240项原生检查，独立核对完整原件块、Schema、REST/MCP字段与双格式一致；全量Go/go vet、228项Python及三份OpenAPI通过。原件独立授权仍为fixture，历史/签名游标/正式装配/生产Grant与发送屏障未完成。整体验证先在审核与任务阶段各失败一次，随后通过；失败记录保留，根因未确定，不能称稳定性达标。本轮未重验PG15/18。
+
+2026-10-16新增[MCP搜索运行接入](architecture/MCP_SEARCH_RUNTIME.md)：独立官方SDK适配层、冻结生成目录、严格协议与请求身份隔离，调用统一搜索应用。509项输入在PG15/16/18各235项检查、全量Go/go vet、Python与OpenAPI检查通过；实际MCP工具/响应Schema、双格式及REST证据一致性独立复核已归档。仅搜索工具、受控私有Bearer；其余三工具、OAuth、生产装配与完整产品验收仍开放。
+
+更新：2026-10-16（北京时间）。总目标：开发 AI Knowledge OS 模块化可替换架构设计 V1。
 
 ## 当前阶段：契约基础与治理闭环的局部实现
 
-当前已贯通[文本关键词准备](architecture/INDEX_PREPARATION.md)、[任务完成/对账](architecture/PREPARATION_COMPLETION.md)与[原子最终发布/替换/撤回](architecture/FINAL_PUBLICATION.md)，已新增[PostgreSQL查询权威读层](architecture/POSTGRES_QUERY_READS.md)，正式Retriever与输出复核仍待接入。完整架构验收、真实权限、模块替换/迁移及召回性能目标保持开放；以下日期段落保留各轮当时的成果与边界。
+2026-10-16新增[伙伴搜索POST接入](architecture/PARTNER_SEARCH_RUNTIME.md)：契约路径/api/v1/knowledge-os/search映射到统一应用，公开Trace/证据/Error；严格JSON及准确整数校验、认证401和凭据清理。省略KB从主库当前明确授权解析，显式空列表不进入计划且返回前复查凭据；目录区分正常无授权与失效身份/缺失策略。505项输入在三版PG各229项检查，实际HTTP请求/响应独立Schema与来源复核通过，全量Go/go vet、228项Python及三份OpenAPI通过。生产装配、其余伙伴操作及全值域/错误分类仍开放。
+
+2026-10-16补[重排候选预算与Top K](architecture/SEARCH_RERANKING.md)：启用重排时按配置候选预算召回，用户Top K仅限制重排结果。实库中文查询召回两条，请求Top 1且选中原召回第二名；独立匹配实际索引及原件来源。502项输入在三版PG各224项检查，全量Go/go vet、228项Python与三份OpenAPI通过。预算分层不等于成熟模型、Recall/性能验收。
+
+2026-10-16补[替换融合器前置复核](architecture/SEARCH_MULTI_ROUTE.md)：缺失/失败的前置检查阻止Fuser接收候选，复核/融合输入副本隔离；原始Chunk/代际/贡献形状独立校验。实库曾拒绝超出短阶段授权有效期的原件读取，现修正测试原件授权回调收紧deadline，保留内容校验约束。502项输入在三版PG各223项检查及独立调用前后检查计数通过；全量Go/go vet、228项Python与三份OpenAPI通过。远程Grant/发送屏障和成熟组件验收仍开放。
+
+2026-10-16新增[多路由搜索与融合](architecture/SEARCH_MULTI_ROUTE.md)：各路独立候选预算，统一deadline，合并一致的发布/存储事实，默认RRF或标准Fuser替换；检查正文/引用/代际及贡献不能编造。502项输入在三版PG各220项检查，独立RRF分数/贡献与配置摘要复算、Go全量/go vet、228项Python及三份OpenAPI通过。实库两路复用同一PG实现；第二检索引擎、完整多库规划、降级响应及生产产品验收仍开放。
+
+2026-10-16新增[搜索重排与前后证据复核](architecture/SEARCH_RERANKING.md)：启用重排必须提供实现；候选先复核，再调用有预算的重排器，输出只能排序/筛选/截取已知来源，最终再次复核。500项输入在三版PG各217项检查及独立候选/配置关系复核通过；Go全量/go vet、228项Python及三份OpenAPI通过。使用受控测试重排器，成熟组件、效果和多路由仍待验；反思未接入时明确拒绝启用。
+
+2026-10-16新增[统一搜索应用与临时REST](architecture/KNOWLEDGE_SEARCH_APPLICATION.md)：认证/授权、固定计划、装配检索和最终当前证据复核由SearchService统一执行；HTTP只接受公开参数和临时令牌，拒绝客户端权限/过滤器注入。实际SQL候选与localhost HTTP、撤销令牌拒绝通过。498项输入在三版PG各214项检查、全量Go/go vet、228项Python与三份OpenAPI检查通过。单路由、测试计划准入；正式Bootstrap/Grant、伙伴接口、MCP/UI及完整产品验收仍开放。
+
+2026-10-16新增[配置与模块装配](architecture/PROFILE_MODULE_ASSEMBLY.md)：快照按阶段驱动具名绑定检查，支持同能力多个实例/路由；能力、版本、特性不符在创建前失败。实际PG检索已通过配置装配调用，关闭后旧引用拒绝。493项输入在三版PG各211项检查及独立关系复核通过；正式Bootstrap、制品锁、索引阶段与产品集成仍开放。
+
+2026-10-16新增[完整平台配置快照及摘要校验](architecture/PROFILE_SNAPSHOT_INTEGRITY.md)：数据库目录保存Pipeline/Index/Query配置，当前事实源每次重算三层摘要，检索请求使用实际配置摘要。独立Python复算通过，目录篡改、摘要内容不符和旧配置请求拒绝。489项输入在三版PG各208项检查通过；完整模式语义、制品锁和实际模块编译/装配仍待验。
+
+2026-10-16新增[数据库当前事实源](architecture/POSTGRES_CURRENT_FACTS.md)：主库一致性读取当前配置引用、审核规则及授权版本；配置切换后旧请求拒绝、缺失/旧授权拒绝、引用不可修改、指针不可倒退。487项输入在PG15/16/18各205项检查及独立关系验证通过。当前仅验证已登记配置引用，不证明摘要对应真实运行配置；完整目录、编译装配、管理接口和产品入口仍待完成。
+
+2026-10-16新增[持久化授权](architecture/PERSISTENT_AUTHORIZATION.md)：标准Authorizer接入当前封存ACL，按空间/知识库/动作/主体/客户端明确授权，文档目标校验和默认拒绝；策略先封存后切换且禁止版本倒退。真实证据复核已替换测试授权回调，撤权后拒绝。485项输入在三版PG各198项检查及独立实际授权行关系验证通过；管理API/UI、角色、审计、正式迁移和配置源仍未完成。
+
+2026-10-16新增[访问令牌认证与当前状态](architecture/IDENTITY_ACCESS_TOKENS.md)：独立认证适配器使用SDK验证RS256访问令牌，PostgreSQL按发行方/公钥/主体/客户端/令牌登记重新检查当前状态；原生证据链路已接入。483项输入在PG15/16/18各通过192项检查，Go全量测试/go vet、228项Python及三份OpenAPI检查通过。测试发行方、公钥与授权配置不代表生产IAM完成，生产策略、配置装配和产品入口仍待实现。见[本轮证据](architecture/evidence/identity-access-token-review.json)。
+
+当前已贯通[文本关键词准备](architecture/INDEX_PREPARATION.md)、[任务完成/对账](architecture/PREPARATION_COMPLETION.md)与[原子最终发布/替换/撤回](architecture/FINAL_PUBLICATION.md)，已新增[PostgreSQL查询权威读层](architecture/POSTGRES_QUERY_READS.md)，已接入[实际关键词Retriever](architecture/POSTGRES_KEYWORD_RETRIEVER.md)，已新增[当前发布正文读取器](architecture/PUBLISHED_FROZEN_READER.md)，已接入[PG当前证据后端](architecture/POSTGRES_EVIDENCE_BACKEND.md)，生产CurrentControl和产品输出仍待接入。完整架构验收、真实权限、模块替换/迁移及召回性能目标保持开放；以下日期段落保留各轮当时的成果与边界。
 
 2026-10-14补[多格式受控装配](architecture/MARKITDOWN_ASSEMBLY.md)：Parser工厂、BlobStore依赖、版本/依赖Health、能力不足拒绝与关闭引用；四类真实转换通过装配调用。完整部署/OCR/结构/身份及第二实现仍待验。
 
@@ -387,3 +419,43 @@ D-03新增17项远程模块OpenAPI与传输规则，7项结构/日期/有限数�
 2026-10-15最新进展：已实现[PostgreSQL查询权威读层](architecture/POSTGRES_QUERY_READS.md)，上层使用标准QueryReadUnit/Repository，同一只读Repeatable Read读取有效发布、当前批准/规则及后端代际，分页游标和句柄限制在回调内。真实撤回、撤销批准、对象隔离、权限回调、取消和store epoch轮换均有实库场景；撤回前的当前元数据比对通过，新读取后明确拒绝旧来源。同一461项输入与同一Go探针在PG15.19/16.15/18.6各通过150项累计检查，三组真实观察投影通过独立关系校验；Go全量测试/vet、227项Python与三份OpenAPI通过，测试实例/目录/端口清理已核对。
 
 下一步贯通正式Retriever、真实索引及正文证据核验与输出前复核。当前实现仅证明元数据读取子集，最多1000个有效发布头；真实IAM、生产装配、第二仓储替换/恢复、REST/MCP/UI与Recall/性能验收继续开放。
+
+
+2026-10-15最新进展：已实现[当前发布关键词Retriever](architecture/POSTGRES_KEYWORD_RETRIEVER.md)，通过标准Retriever接口调用，可信发布投影与实际当前发布/批准/代际比对后，在同一主库快照核验真实索引并执行SQL查询，返回前重新授权并另开观察点复核。实际准备投影保留Published=false，检索依据平台当前发布头；未发布、撤回、撤销批准或实际索引删除均会拒绝旧请求。独立对照三版PG共9个实际候选、18条原生索引记录、3组发布投影摘要及模块Schema。相同464项输入与同一Go探针在PG15.19/16.15/18.6各通过164项检查；Go全量测试/vet、227项Python及三份OpenAPI通过，测试资源清理已独立核对。
+
+下一步接最终正文/索引证据提供者与当前输出复核，再贯通REST/MCP和产品入口。当前只有关键词候选检索；真实身份及QueryAuthority/Grant、更多召回通道、第二引擎替换、生产规模延迟、中文Recall@10≥90%、迁移回退均保持开放。
+
+
+2026-10-15最新进展：已实现[当前发布冻结正文读取器](architecture/PUBLISHED_FROZEN_READER.md)，通过标准FrozenContentReader端口读取真实持久化正文。当前发布/批准准入后，以类型化Revision重新构建标准JSON并逐字节及双摘要比对，返回前新观察点复核；与发布准备任务共享底层内容核验，并保留操作/审核文档及版本一致性检查。三版PG共9份实际正文通过独立Schema/canonical/双摘要及归属验证。相同466项输入与同一探针在PG15.19/16.15/18.6各通过172项检查，Go全量测试/vet、227项Python与三份OpenAPI通过，私有测试资源清理已独立核对。
+
+下一步补具体引用位置与原件字节核验，再接完整CurrentBackend/CurrentControl及产品输出。现有原生引用为original/coarse，既有文本核验器仅支持revision定位；不能改写来源类型来跳过校验。真实IAM、混合召回、第二引擎替换、生产迁移/回退、REST/MCP/UI及Recall/性能继续开放。
+
+
+本轮进展：新增[原件字节核验](architecture/ORIGINAL_BYTES_VERIFICATION.md)，通过标准BlobStore读取完整流并验证长度、SHA-256、EOF及成功关闭，保留当前Scope/Action，不自动授予原件读取权限。真实本地存储和拒权、截断/超长/错误摘要、读取/关闭错误、无进展与取消检查通过；当前468项输入的Go全量测试/vet、227项Python及三份OpenAPI均通过。
+
+下一步从已核实的冻结正文绑定BlobRef，并串联来源锚点、摘录/定位与输出前权限复核。本轮没有新增PostgreSQL集成证据；原三版各172项保留为466项输入的历史基线，不能代替新模块或完整输出验收。
+
+
+本轮进展：已实现[批准正文与原件读取绑定](architecture/APPROVED_ORIGINAL_BINDING.md)，只从新读取且双摘要通过的冻结正文清单提取完整BlobRef；经独立原件控制源解析读取授权，实际核验文件后再次核对授权与批准正文。最终正文检查受最新文件授权期限约束，授权已过期或在检查中到期均失败。修复AKOS-CJSON整数指数表示兼容，并用规范字节往返比较拒绝小数舍入、null及超限大小。真实本地文件与测试正文/控制提供者的正反向检查通过；当前470项输入的Go全量测试/vet、227项Python及三份OpenAPI通过。
+
+下一步把具体Evidence绑定到批准块和原件来源锚点，按格式核验摘录及位置，再接CurrentBackend和产品输出。生产控制源与本轮PostgreSQL联调仍未完成；原PG三版各172项保留为466项输入历史证据，不能用于宣称本轮完整输出验收。
+
+
+本轮进展：已实现[文本原件粗粒度引用核验](architecture/ORIGINAL_TEXT_EVIDENCE.md)。Evidence必须匹配指定批准文本块与完整original/coarse锚点，摘录既存在于批准块，也存在于实际核实原件字节的文本投影。只捕获同一已验流交给可注入的文本投影器，投影受原件读取期限限制，完成后再次检查原件和批准状态。默认UTF-8文本/Markdown已通过真实文件正向及错误绑定、损坏、期间批准失效等检查；人工新增文字不能冒充原件引文。当前472项输入的Go全量测试/vet、227项Python及三份OpenAPI通过。
+
+下一步接真实CurrentBackend及PostgreSQL输出复核，并接入PDF/Office等成熟投影组件。页码、表格、OCR与其他精确定位当前明确拒绝；进程内投影端口不代表远程模块/替换验收。生产权限、最终模型/API输出、Recall/性能、迁移回退继续开放；旧PG172项仍为466项输入历史基线。
+
+
+2026-10-16最新进展：已实现[PostgreSQL当前证据后端](architecture/POSTGRES_EVIDENCE_BACKEND.md)，由CheckCurrent实际串联当前发布/审核、真实关键词索引、类型化冻结正文及本地原件摘录。释放SQL读事务后处理原件，再开新观察点重核实际索引和发布；实库覆盖投影期间删除索引、原件独立拒权、最终控制撤权、人工修订不冒充原件，以及撤回/撤销批准。实库复现并修复分块逻辑删除但物理行仍在时旧核验可通过的问题，检索与证据后端现在均拒绝相关旧代际。相同475项输入与同一Go探针在PG15.19/16.15/18.6各通过183项检查；3组完整实际CheckCurrent、12份冻结正文、3个关键词候选和51条样本索引记录的独立复核通过。Go全量测试/vet、227项Python与三份OpenAPI通过；PG测试目录/端口清理已独立核对。
+
+下一步接生产身份/CurrentControl与统一知识应用服务、模型及REST/MCP输出，扩展PDF/Office等来源投影。当前用户/原件授权与最终控制仍为fixture，模块部署装配、精确定位、第二后端替换、完整迁移回退、Recall@10≥90%和固定条件性能仍待验收。局部实库接入不关闭完整CHECK或总体验收。
+
+
+2026-10-16最新进展：已将[PDF/Office原件文本投影](architecture/OFFICE_ORIGINAL_PROJECTION.md)接入现有受控解析工厂。新增可选original.text及original.format特性，按已准入MIME路由成熟转换器，沿用字节限制、健康与关闭状态。Word/Excel/PowerPoint及普通英文PDF通过真实文件上传、解析、冻结正文/原件引用及虚构摘录拒绝检查；三份PDF×MarkItDown/PyPDF验证同一标准调用与关闭后引用拒绝。当前477项输入的Go全量测试/vet、228项Python和三份OpenAPI通过；三版PG各183项及独立运行复核同步通过，测试资源清理已核对。
+
+这是parser实例的复合能力，未完成独立投影远程协议/部署绑定。Office/PDF样本使用测试批准正文/权限，尚未接数据库审核发布和最终模型/API输出；PG证据仍为UTF-8原件。中文复杂/扫描PDF、OCR、精确位置/表格语义、生产身份/CurrentControl、Recall与性能、迁移回退继续开放。
+
+
+2026-10-16最新进展：新增[AuthenticatedControl](architecture/AUTHENTICATED_CURRENT_CONTROL.md)，绑定已准备操作并通过标准Authenticator、Authorizer及CurrentFactsSource逐次重新认证、授权和读取当前配置/审核规则；不复用旧Principal作为认证结果。凭据副本、认证后清除、关闭后拒绝、日志/JSON脱敏、范围/资源/请求绑定和提供者错误隔离已验证；后端期间撤销凭据会在最终重新认证时阻止继续授权。实库CheckCurrent正向链路已使用该编排，认证/授权提供者仍为fixture，规则/索引/正文/原件实际读取。
+
+同一479项输入与同一探针在三版PG各通过184项检查，独立样本确认认证和授权各两次并保留fixture身份标记；Go全量测试/vet、228项Python、三份OpenAPI及成熟组件回归均通过，PG测试资源清理已核对。下一步接入实际身份与策略/配置来源及统一应用服务；生产IAM/RLS、Grant账本、模块部署、最终模型/API/MCP输出、Recall/性能与迁移回退继续开放。

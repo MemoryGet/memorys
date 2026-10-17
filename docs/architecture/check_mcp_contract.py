@@ -3,7 +3,7 @@ import json
 
 from jsonschema import Draft202012Validator
 
-from build_mcp_contract import OUTPUT, generate, serialized
+from build_mcp_contract import OUTPUT, RUNTIME_OUTPUT, generate, serialized
 
 
 def check_local_refs(schema):
@@ -23,6 +23,7 @@ def check_local_refs(schema):
 
 def run():
     assert OUTPUT.read_text(encoding="utf-8") == serialized(), "Stale MCP contract"
+    assert RUNTIME_OUTPUT.read_text(encoding="utf-8") == serialized(), "Stale runtime MCP contract"
     catalogue = json.loads(OUTPUT.read_text(encoding="utf-8"))
     assert catalogue == generate()
     tools = {tool["name"]: tool for tool in catalogue["tools"]}

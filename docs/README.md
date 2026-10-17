@@ -1,8 +1,12 @@
 # AI Knowledge OS 设计文档
 
-查看 [总进度图](PROGRESS.md)：当前处于架构设计与契约基础验证，业务闭环和真实组件验收仍待实施。
+最新增量：[已发布历史正文读取](architecture/HISTORICAL_READ_RUNTIME.md)已接独立read/history授权、当前审核/来源和签名分页；539项输入在PG16通过250项原生检查及独立复核，当前读取与全量本地检查通过。本轮未重验PG15/18；生产装配、完整历史生命周期和完整产品验收仍未通过。总览见[进度图](PROGRESS.md)。
+
+查看 [总进度图](PROGRESS.md)：当前处于架构设计与契约基础验证，知识治理与真实组件已取得局部运行证据，完整产品验收仍待完成。
 
 当前阶段：契约基础与知识治理链路的局部实现，完整架构验收保持开放。默认采用 Go 模块化单体、Vue 管理界面、PostgreSQL 权威元数据、Redis 任务投递、本地原件存储和云模型；这些都是实现选择，不能进入产品契约。
+
+最新增量：[伙伴搜索POST](architecture/PARTNER_SEARCH_RUNTIME.md)，实际HTTP请求、公开Trace/证据及错误响应已按Schema复核；省略与空KB语义已接当前授权，生产装配、其余API和MCP/UI仍待完成。
 
 | 阅读顺序 | 文档 | 回答的问题 |
 |---|---|---|
@@ -127,7 +131,7 @@
 
 [文件到候选数据库串联](architecture/CANDIDATE_E2E_VALIDATION.md)：实际文件解析、应用服务、PG提交、冷连接重试及迟到结果保留。
 
-[PostgreSQL多版本验收矩阵](architecture/POSTGRES_VERSION_MATRIX.md)：同一代码/二进制在15.19、16.15、18.6上执行当前SQL与150项事务/应用及查询读取检查。
+[PostgreSQL多版本验收矩阵](architecture/POSTGRES_VERSION_MATRIX.md)：同一代码/二进制在15.19、16.15、18.6上执行当前SQL与184项事务/应用、检索及真实证据后端检查。
 
 [原生草稿冻结映射](architecture/NATIVE_FROZEN_MAPPING.md)：四类内容的规范载荷、双摘要与独立金标验证；权威提交事务待实施。
 
@@ -146,3 +150,19 @@
 [原子最终发布与替换](architecture/FINAL_PUBLICATION.md)：当前批准/配置/实际索引复核、有效头CAS、历史/审计/事件和旧源清理原子提交；支持正常撤回与历史重放，正式有效检索待接入。
 
 [PostgreSQL查询权威读层](architecture/POSTGRES_QUERY_READS.md)：标准QueryReadUnit的真实同快照分页、当前批准/代际及撤回/轮换验证；正式Retriever和最终输出授权仍待接入。
+
+[PostgreSQL当前发布关键词检索](architecture/POSTGRES_KEYWORD_RETRIEVER.md)：标准Retriever接口、可信投影绑定、真实封存索引和当前发布头过滤、SQL排名及来源引用；最终模型/API输出复核、混合召回和真实IAM仍待验。
+
+[当前发布冻结正文读取器](architecture/PUBLISHED_FROZEN_READER.md)：标准正文读端口、当前批准/发布准入、类型化Revision重建、标准JSON及双摘要比对；原件真实性和最终输出证据复核待验。
+
+[原件字节核验](architecture/ORIGINAL_BYTES_VERIFICATION.md)：可替换BlobStore接口、完整流长度及SHA核验；真实本地读取/拒权与异常流测试通过，批准正文/定位和产品输出接入待完成。
+
+[批准正文与原件读取绑定](architecture/APPROVED_ORIGINAL_BINDING.md)：从已核实的清单提取BlobRef，独立解析原件授权、核实实际字节并再查授权/批准；精确数值与期限边界已验证，来源定位及生产输出待接入。
+
+[文本原件引用核验](architecture/ORIGINAL_TEXT_EVIDENCE.md)：批准块/来源精确绑定，真实原件流校验和可替换文本投影；UTF-8粗粒度引用本地验证通过，其他格式与生产输出待验。
+
+[PostgreSQL当前证据后端](architecture/POSTGRES_EVIDENCE_BACKEND.md)：CheckCurrent实际核验关键词索引、批准正文和真实原件摘录，投影后再次检查实际索引；拒绝物理删除和保留行的逻辑删除。生产控制源、其他格式及产品输出待验。
+
+[PDF/Office原件文本投影](architecture/OFFICE_ORIGINAL_PROJECTION.md)：受控复合解析模块声明原件格式特性，同一实例解析/投影及关闭控制；四格式和三PDF双引擎真实文件验证通过，精确位置/扫描OCR及生产输出待验。
+
+[重新认证与当前授权控制](architecture/AUTHENTICATED_CURRENT_CONTROL.md)：请求绑定、凭据私有副本/清除、每次认证授权及当前配置规则读取；已接实库证据编排，实际身份/策略提供者仍待生产接入。

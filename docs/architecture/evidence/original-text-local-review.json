@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "production_acceptance": false,
+  "scope": "Actual local UTF-8 original/coarse evidence: quote in approved exact block/source and independently hash-verified original byte projection; approval/control providers are test fixtures",
+  "source_inputs": 505,
+  "source_inventory_sha256": "d409a4413b259017ea999224b5de652616fc0354d0188ab98f529dd8502156d4",
+  "evidence": "unified-local-checks.json",
+  "tests": [
+    "TestOriginalTextEvidenceUsesActualBytesAndApprovedBlock",
+    "TestOriginalTextEvidenceRejectsWrongBindingAndUnsupportedGeometry",
+    "TestOriginalTextEvidenceRejectsApprovedEditsAbsentFromOriginal",
+    "TestOriginalTextEvidenceRejectsCorruptBytesAndProjectionRevocation",
+    "TestUTF8OriginalProjectionRejectsUnsupportedFormatsAndInvalidEncoding"
+  ],
+  "unverified": [
+    "PostgreSQL integration and CurrentBackend/CurrentControl output path",
+    "production original/projection authority and remote protocol/module factory",
+    "PDF/Office/OCR/media source projection and exact geometry",
+    "second real projector replacement, performance and concurrency",
+    "Recall, migration/rollback, public REST/MCP/UI"
+  ]
+}

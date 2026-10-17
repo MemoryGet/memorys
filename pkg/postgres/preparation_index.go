@@ -180,14 +180,25 @@ func (p PreparationIndex) InspectOwned(ctx context.Context, r document.Publicati
 }
 
 func readPreparationSnapshot(ctx context.Context, tx *sql.Tx, plan document.PublicationStartPlan, artifact preparation.Artifact) (contracts.IndexSnapshot, error) {
+	return loadPreparationSnapshot(ctx, tx, plan, artifact, true, true)
+}
+
+// Readers use the same structural loader without write locks or the per-row
+// visibility probe. Publication preparation keeps both original checks.
+func loadPreparationSnapshot(ctx context.Context, tx *sql.Tx, plan document.PublicationStartPlan, artifact preparation.Artifact, lock, checkVisibility bool) (contracts.IndexSnapshot, error) {
 	var snapshot contracts.IndexSnapshot
 	generation := artifact.GenerationSet.Channels[contracts.KeywordChannel]
 	if generation.ID == "" || generation.BackendBinding == nil {
 		return snapshot, ErrRepository
 	}
 	var state contracts.IndexDeletionState
-	err := tx.QueryRowContext(ctx, `SELECT g.space_id,g.kb_id,g.document_id,g.revision_id,g.id,g.backend_epoch_id,EXISTS(SELECT 1 FROM akos_withdraw_v1.index_deletion_fences f WHERE f.generation_id=g.id),(SELECT count(*) FROM akos_withdraw_v1.index_projection_rows r WHERE r.generation_id=g.id) FROM akos_withdraw_v1.index_generations g WHERE g.space_id=$1::text AND g.kb_id=$2::text AND g.document_id=$3::text AND g.revision_id=$4::text AND g.id=$5::text AND g.generation_set_id=$6::text AND g.backend_epoch_id=$7::text AND g.profile_digest=$8::text AND g.module_instance_id=$9::text AND g.channel='keyword' FOR SHARE OF g`, string(plan.SpaceID), string(plan.KnowledgeBaseID), string(plan.Result.Operation.DocumentID), string(plan.Result.Operation.RevisionID), string(generation.ID), string(artifact.GenerationSet.ID), string(plan.Backend.EpochID), string(artifact.Profile.Digest), string(generation.BackendBinding.ModuleInstanceID)).Scan(&state.SpaceID, &state.KnowledgeBaseID, &state.DocumentID, &state.RevisionID, &state.GenerationID, &state.BackendEpochID, &state.Deleted, &state.RecordCount)
-	if err != nil || state.Deleted || state.RecordCount < 1 || state.RecordCount > 1000 {
+	var chunkDeleted bool
+	query := `SELECT g.space_id,g.kb_id,g.document_id,g.revision_id,g.id,g.backend_epoch_id,EXISTS(SELECT 1 FROM akos_withdraw_v1.index_deletion_fences f WHERE f.generation_id=g.id),(SELECT count(*) FROM akos_withdraw_v1.index_projection_rows r WHERE r.generation_id=g.id),EXISTS(SELECT 1 FROM akos_withdraw_v1.index_chunk_deletion_fences f WHERE f.generation_id=g.id) FROM akos_withdraw_v1.index_generations g WHERE g.space_id=$1::text AND g.kb_id=$2::text AND g.document_id=$3::text AND g.revision_id=$4::text AND g.id=$5::text AND g.generation_set_id=$6::text AND g.backend_epoch_id=$7::text AND g.profile_digest=$8::text AND g.module_instance_id=$9::text AND g.channel='keyword'`
+	if lock {
+		query += " FOR SHARE OF g"
+	}
+	err := tx.QueryRowContext(ctx, query, string(plan.SpaceID), string(plan.KnowledgeBaseID), string(plan.Result.Operation.DocumentID), string(plan.Result.Operation.RevisionID), string(generation.ID), string(artifact.GenerationSet.ID), string(plan.Backend.EpochID), string(artifact.Profile.Digest), string(generation.BackendBinding.ModuleInstanceID)).Scan(&state.SpaceID, &state.KnowledgeBaseID, &state.DocumentID, &state.RevisionID, &state.GenerationID, &state.BackendEpochID, &state.Deleted, &state.RecordCount, &chunkDeleted)
+	if err != nil || state.Deleted || chunkDeleted || state.RecordCount < 1 || state.RecordCount > 1000 {
 		return snapshot, ErrRepository
 	}
 	snapshot = contracts.IndexSnapshot{Format: indexsnapshot.Format, SpaceID: plan.SpaceID, KnowledgeBaseID: plan.KnowledgeBaseID, Generations: []contracts.IndexDeletionState{state}}
@@ -195,13 +206,15 @@ func readPreparationSnapshot(ctx context.Context, tx *sql.Tx, plan document.Publ
 	if err != nil {
 		return snapshot, ErrRepository
 	}
+	remaining := 4 << 20
 	for rows.Next() {
 		var raw []byte
 		var record contracts.IndexProjection
-		if rows.Scan(&raw) != nil || len(raw) > 4<<20 || json.Unmarshal(raw, &record) != nil {
+		if rows.Scan(&raw) != nil || len(raw) > remaining || json.Unmarshal(raw, &record) != nil {
 			rows.Close()
 			return contracts.IndexSnapshot{}, ErrRepository
 		}
+		remaining -= len(raw)
 		snapshot.Records = append(snapshot.Records, record)
 	}
 	err = rows.Err()
@@ -210,6 +223,9 @@ func readPreparationSnapshot(ctx context.Context, tx *sql.Tx, plan document.Publ
 		return contracts.IndexSnapshot{}, ErrRepository
 	}
 	for _, record := range snapshot.Records {
+		if !checkVisibility {
+			break
+		}
 		query := `SELECT EXISTS(SELECT 1 FROM akos_withdraw_v1.index_projection_rows r JOIN akos_withdraw_v1.index_generations g ON g.id=r.generation_id WHERE g.space_id=$1::text AND g.kb_id=$2::text AND g.revision_id=$3::text AND g.backend_epoch_id=$4::text AND g.id=$5::text AND r.chunk_id=$6::text AND (r.keyword_vector @@ plainto_tsquery('simple'::regconfig,$7::text) OR strpos(r.payload->'Chunk'->>'Text',$7::text)>0))`
 		args := []any{string(plan.SpaceID), string(plan.KnowledgeBaseID), string(plan.Result.Operation.RevisionID), string(plan.Backend.EpochID), string(generation.ID), string(record.Chunk.ID), record.Chunk.Text}
 		var visible bool

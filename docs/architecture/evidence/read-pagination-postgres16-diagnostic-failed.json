@@ -1,0 +1,39 @@
+{
+  "passed": false,
+  "production_acceptance": false,
+  "scope": "WSL PostgreSQL 16 real SQL/repository probe; not production or exact Docker image acceptance",
+  "requested_major": 16,
+  "distribution": "Ubuntu",
+  "port": 55432,
+  "server_stopped": true,
+  "temporary_resources_removed": true,
+  "binary_version": "postgres (PostgreSQL) 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+  "postgres_binary_sha256": "201d8daff9a5bd9df70b820471b965c39f5a776d677f395232c477d051270722",
+  "temporary_directory": "/tmp/akos-pg-4nAKvWJe3S",
+  "server_version": "16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+  "sql_checks": [
+    {
+      "file": "withdraw_contract_v1.sql",
+      "completed": true
+    },
+    {
+      "file": "withdraw_contract_test.sql",
+      "completed": true
+    }
+  ],
+  "go_executable_sha256": "6268c0e26594a02ef81ae7553bebbae9345ba6cd59c602250fa9013a3b3fdd3c",
+  "error": "['wsl', '--distribution', 'Ubuntu'] failed: [DEBUG-paging20261016] review receipt action approve context <nil>\n[DEBUG-paging20261016] review session action approve context <nil>\n[DEBUG-paging20261016] review document action approve context <nil>\n[DEBUG-paging20261016] review prior-select action approve context <nil>\n[DEBUG-paging20261016] review prior-select action approve context <nil>\n[DEBUG-paging20261016] review update action approve context <nil>\n[DEBUG-paging20261016] review update action approve context <nil>\n[DEBUG-paging20261016] review commit action approve context <nil>\n[DEBUG-paging20261016] review commit action approve context <nil>\n[DEBUG-paging20261016] review request-select action approve context <nil>\nPostgreSQL repository probe failed: short-stage original grant was not bounded elapsed: 18.06586729s\n",
+  "fixture_server_error_summaries": [
+    "could not serialize access due to concurrent update",
+    "fixture finalization failure",
+    "fixture finalization failure",
+    "publication requires atomic matching history, head, completion, cleanup, audit and event",
+    "prepared source activation requires publication receipt",
+    "could not obtain lock on row in relation \"documents\"",
+    "could not obtain lock on row in relation \"index_generations\"",
+    "sealed or missing access snapshot",
+    "query profile binding is immutable",
+    "query profile binding is immutable"
+  ],
+  "evidence_boundary": "Earlier or temporary diagnostic source snapshot; not final-source acceptance evidence. Retained failure; resources cleaned by runner."
+}

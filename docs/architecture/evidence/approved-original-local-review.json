@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "production_acceptance": false,
+  "scope": "Verified frozen inventory to separately authorized actual local original bytes, followed by current grant/approval checks; frozen reader/control are test providers, not PostgreSQL/production output integration",
+  "source_inputs": 505,
+  "source_inventory_sha256": "d409a4413b259017ea999224b5de652616fc0354d0188ab98f529dd8502156d4",
+  "evidence": "unified-local-checks.json",
+  "tests": [
+    "TestApprovedOriginalUsesVerifiedInventoryAndSeparateReadGrant",
+    "TestApprovedOriginalRejectsGrantSubstitutionAndLateRevocation",
+    "TestApprovedOriginalRejectsRoundedAndInvalidFrozenSizes"
+  ],
+  "unverified": [
+    "production original-read authority and Grant ledger",
+    "PostgreSQL and product output integration",
+    "per-evidence block/source/excerpt/locator semantics",
+    "CurrentBackend/CurrentControl and final send checks",
+    "hybrid/vector Recall, performance, replacement and migration/rollback"
+  ]
+}

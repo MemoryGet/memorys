@@ -1,0 +1,39 @@
+{
+  "passed": false,
+  "production_acceptance": false,
+  "scope": "WSL PostgreSQL 16 real SQL/repository probe; not production or exact Docker image acceptance",
+  "requested_major": 16,
+  "distribution": "Ubuntu",
+  "port": 55432,
+  "server_stopped": true,
+  "temporary_resources_removed": true,
+  "binary_version": "postgres (PostgreSQL) 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+  "postgres_binary_sha256": "201d8daff9a5bd9df70b820471b965c39f5a776d677f395232c477d051270722",
+  "temporary_directory": "/tmp/akos-pg-4LFe4GviUM",
+  "server_version": "16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+  "sql_checks": [
+    {
+      "file": "withdraw_contract_v1.sql",
+      "completed": true
+    },
+    {
+      "file": "withdraw_contract_test.sql",
+      "completed": true
+    }
+  ],
+  "go_executable_sha256": "ad4980357b7b257236c2690a4001d90b8ce87adb7c0a4ab01d4131e9636550b1",
+  "error": "['wsl', '--distribution', 'Ubuntu'] failed: PostgreSQL repository probe failed: explicit empty partner search failed elapsed: 19.904237407s\n",
+  "fixture_server_error_summaries": [
+    "could not serialize access due to concurrent update",
+    "fixture finalization failure",
+    "fixture finalization failure",
+    "publication requires atomic matching history, head, completion, cleanup, audit and event",
+    "prepared source activation requires publication receipt",
+    "could not obtain lock on row in relation \"documents\"",
+    "could not obtain lock on row in relation \"index_generations\"",
+    "sealed or missing access snapshot",
+    "query profile binding is immutable",
+    "query profile binding is immutable"
+  ],
+  "evidence_boundary": "Earlier or temporary diagnostic source snapshot; not final-source acceptance evidence. Retained failure; resources cleaned by runner."
+}

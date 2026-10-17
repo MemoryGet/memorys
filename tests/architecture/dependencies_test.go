@@ -17,18 +17,23 @@ const module = "github.com/MemoryGet/memorys/"
 // Explicit package inventory: new packages need a reviewed dependency policy.
 // Tests/fakes can compose implementations; only non-test Go source is gated.
 var localDependencies = map[string][]string{
+	"pkg/mcpgateway":                   {"pkg/api", "pkg/canonical", "pkg/contracts"},
+	"pkg/knowledge":                    {"pkg/contracts", "pkg/configprofile", "pkg/queryread", "pkg/fusion", "pkg/canonical"},
+	"pkg/profileassembly":              {"pkg/contracts", "pkg/configprofile", "pkg/kernel"},
+	"pkg/configprofile":                {"pkg/contracts", "pkg/canonical", "pkg/preparation"},
+	"pkg/identitytoken":                {"pkg/contracts", "pkg/canonical"},
 	"pkg/preparation":                  {"pkg/contracts", "pkg/document", "pkg/canonical", "pkg/indexsnapshot"},
 	"cmd/architecture-freeze-draft":    {"pkg/canonical", "pkg/contracts", "pkg/document", "pkg/modulewire"},
-	"cmd/architecture-office-parser":   {"pkg/contracts", "pkg/adapters", "pkg/kernel", "pkg/parserprocess", "pkg/storage", "pkg/document"},
+	"cmd/architecture-office-parser":   {"pkg/contracts", "pkg/adapters", "pkg/kernel", "pkg/parserprocess", "pkg/storage", "pkg/document", "pkg/contentverify"},
 	"pkg/parserprocess":                {"pkg/parser"},
-	"cmd/architecture-pg-repositories": {"pkg/contracts", "pkg/postgres", "pkg/withdrawal", "pkg/cleanup", "pkg/adapters", "pkg/index", "pkg/kernel", "pkg/document", "pkg/ingestion", "pkg/parser", "pkg/storage", "pkg/preparation", "pkg/chunk", "pkg/modulewire", "pkg/queryread"},
+	"cmd/architecture-pg-repositories": {"pkg/contracts", "pkg/postgres", "pkg/withdrawal", "pkg/cleanup", "pkg/adapters", "pkg/index", "pkg/kernel", "pkg/document", "pkg/ingestion", "pkg/parser", "pkg/storage", "pkg/preparation", "pkg/chunk", "pkg/modulewire", "pkg/queryread", "pkg/publicationprojection", "pkg/contentverify", "pkg/identitytoken", "pkg/configprofile", "pkg/profileassembly", "pkg/api", "pkg/knowledge", "pkg/fusion", "pkg/mcpgateway"},
 	"pkg/cleanup":                      {"pkg/contracts", "pkg/canonical"},
 	"pkg/withdrawal":                   {"pkg/contracts", "pkg/canonical"},
-	"pkg/postgres":                     {"pkg/contracts", "pkg/indexsnapshot", "pkg/document", "pkg/preparation", "pkg/queryread"},
+	"pkg/postgres":                     {"pkg/contracts", "pkg/indexsnapshot", "pkg/document", "pkg/preparation", "pkg/queryread", "pkg/publicationprojection", "pkg/contentverify", "pkg/identitytoken", "pkg/configprofile"},
 	"pkg/indexsnapshot":                {"pkg/contracts", "pkg/canonical"},
-	"pkg/adapters":                     {"pkg/canonical", "pkg/chunk", "pkg/contracts", "pkg/kernel", "pkg/parser", "pkg/cleanup", "pkg/index"},
+	"pkg/adapters":                     {"pkg/canonical", "pkg/chunk", "pkg/contracts", "pkg/kernel", "pkg/parser", "pkg/cleanup", "pkg/index", "pkg/contentverify"},
 	"cmd/memorys-server":               {"pkg/api"},
-	"pkg/api":                          {"pkg/contracts", "pkg/ingestion"},
+	"pkg/api":                          {"pkg/contracts", "pkg/ingestion", "pkg/knowledge", "pkg/canonical"},
 	"pkg/chunk":                        {"pkg/contracts"},
 	"pkg/document":                     {"pkg/contracts", "pkg/canonical"},
 	"pkg/index":                        {"pkg/contracts", "pkg/indexsnapshot"},
@@ -59,6 +64,7 @@ var localDependencies = map[string][]string{
 }
 
 var purePackages = map[string]bool{
+	"pkg/knowledge":     true,
 	"pkg/preparation":   true,
 	"pkg/indexsnapshot": true,
 	"pkg/cleanup":       true,
@@ -87,8 +93,11 @@ func allowedImport(owner, dependency string) bool {
 	if owner == "cmd/architecture-pg-repositories" && dependency == "github.com/jackc/pgx/v5/stdlib" {
 		return true
 	}
-	if owner == "pkg/accessgrant" && dependency == "github.com/go-jose/go-jose/v4" {
+	if (owner == "pkg/accessgrant" || owner == "pkg/identitytoken" || owner == "cmd/architecture-pg-repositories") && dependency == "github.com/go-jose/go-jose/v4" {
 		return true // Isolated cryptographic implementation; never exposed in contracts.
+	}
+	if owner == "pkg/mcpgateway" && (dependency == "github.com/modelcontextprotocol/go-sdk/mcp" || dependency == "github.com/google/jsonschema-go/jsonschema") {
+		return true
 	}
 	if dependency == "C" || dependency == "plugin" || dependency == "unsafe" {
 		return false

@@ -17,8 +17,9 @@ var publicationContractSamples []map[string]any
 var publicationPolicySamples []document.ReviewPolicySnapshot
 
 type approvedPublicationFixture struct {
-	Revision contracts.Revision
-	Approval contracts.Approval
+	Revision  contracts.Revision
+	Approval  contracts.Approval
+	Originals contracts.BlobStore
 }
 type lostPublicationStartResponse struct{ inner document.PublicationStarter }
 
@@ -94,7 +95,7 @@ func verifyPublicationStarts(ctx context.Context, db *sql.DB, scope contracts.Ac
 		}
 		return nil
 	}
-	old := command(approvedPublicationFixture{revokedRevision, oldApproval}, "revoked-start")
+	old := command(approvedPublicationFixture{Revision: revokedRevision, Approval: oldApproval}, "revoked-start")
 	if result, err := repository.StartPublication(ctx, old); err == nil || result.Operation.ID != "" {
 		return errors.New("revoked approval started publication")
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/MemoryGet/memorys/pkg/contracts"
 	"github.com/MemoryGet/memorys/pkg/document"
@@ -14,7 +15,19 @@ import (
 
 var queryReadSamples []map[string]any
 
-func verifyQueryReads(ctx context.Context, db *sql.DB, command contracts.CommandContext) error {
+// The suite performs hundreds of sequential transactions. Query/output is a
+// separate bounded fixture phase, not a continuation of a production request.
+// Recreate its fixture request/scope; never extend an existing business grant.
+func verifyQueryReadPhase(db *sql.DB, command contracts.CommandContext, originals contracts.BlobStore) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+	deadline, _ := ctx.Deadline()
+	command.Request.Deadline = deadline
+	command.Scope.ExpiresAt = deadline
+	return verifyQueryReads(ctx, db, command, originals)
+}
+
+func verifyQueryReads(ctx context.Context, db *sql.DB, command contracts.CommandContext, originals contracts.BlobStore) error {
 	scope := command.Scope
 	scope.Action = "knowledge.search"
 	scope.SubjectID = "reader"
@@ -38,13 +51,17 @@ func verifyQueryReads(ctx context.Context, db *sql.DB, command contracts.Command
 	if _, err := db.ExecContext(ctx, `INSERT INTO akos_withdraw_v1.query_store_head VALUES(true,'read-store-a',1)`); err != nil {
 		return err
 	}
+	assertUnsearchable, err := verifyKeywordRetrieval(ctx, db, scope, verify, originals)
+	if err != nil {
+		return err
+	}
 	sample := map[string]any{}
 	var escaped contracts.QueryReadRepository
 	var oldIdentity contracts.QueryReadIdentity
 	var oldCursor string
 	var firstFact, secondFact contracts.PublishedFact
 
-	err := unit.WithinRead(ctx, scope, func(c context.Context, id contracts.QueryReadIdentity, repo contracts.QueryReadRepository) error {
+	err = unit.WithinRead(ctx, scope, func(c context.Context, id contracts.QueryReadIdentity, repo contracts.QueryReadRepository) error {
 		escaped = repo
 		oldIdentity = id
 		page, err := repo.ReadPublishedPage(c, contracts.PublishedPageRequest{Identity: id, KnowledgeBaseIDs: []contracts.ID{"kb"}, Limit: 1})
@@ -152,6 +169,9 @@ func verifyQueryReads(ctx context.Context, db *sql.DB, command contracts.Command
 	if !errors.Is(queryread.MatchCurrentReview(scope, expected, observed, map[contracts.ID]uint64{"kb": 9}), queryread.ErrStale) {
 		return errors.New("real current check accepted withdrawn evidence")
 	}
+	if err := assertUnsearchable(firstFact.DocumentID); err != nil {
+		return err
+	}
 	if err := unit.WithinRead(ctx, scope, func(c context.Context, id contracts.QueryReadIdentity, repo contracts.QueryReadRepository) error {
 		revoked = true
 		return nil
@@ -238,6 +258,9 @@ func verifyQueryReads(ctx context.Context, db *sql.DB, command contracts.Command
 		}
 		return nil
 	}); err != nil {
+		return err
+	}
+	if err := assertUnsearchable(secondFact.DocumentID); err != nil {
 		return err
 	}
 	queryReadSamples = append(queryReadSamples, sample)

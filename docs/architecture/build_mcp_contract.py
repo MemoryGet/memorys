@@ -6,6 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 OUTPUT = ROOT / "mcp/tools.v1.json"
+RUNTIME_OUTPUT = ROOT.parents[1] / "pkg/mcpgateway/tools.v1.json"
 
 
 def bundle(root_schema, schemas):
@@ -72,13 +73,16 @@ def main():
     args = parser.parse_args()
     expected = serialized()
     if args.check:
-        if not OUTPUT.exists() or OUTPUT.read_text(encoding="utf-8") != expected:
-            raise SystemExit("MCP tool contract missing or stale; regenerate after reviewing OpenAPI changes")
-        print("PASS: generated MCP catalogue matches partner OpenAPI")
+        for path in (OUTPUT, RUNTIME_OUTPUT):
+            if not path.exists() or path.read_text(encoding="utf-8") != expected:
+                raise SystemExit("MCP catalogue missing or stale: " + str(path))
+        print("PASS: documentation/runtime MCP catalogues match partner OpenAPI")
     else:
-        OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-        OUTPUT.write_text(expected, encoding="utf-8")
-        print("Generated design catalogue: " + str(OUTPUT))
+        for path in (OUTPUT, RUNTIME_OUTPUT):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(expected, encoding="utf-8")
+        print("Generated documentation and runtime MCP catalogues")
+
 
 
 if __name__ == "__main__":

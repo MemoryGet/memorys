@@ -21,9 +21,9 @@ func PyPDFFactory(converter parser.OfficeConverter, health func(context.Context)
 }
 
 func projectionFactory(id, version string, formats []string, projection string, converter parser.OfficeConverter, health func(context.Context) error) kernel.Factory {
-	features := []string{"source.coarse", projection}
+	features := []string{"source.coarse", projection, "original.text"}
 	for _, format := range formats {
-		features = append(features, "format."+format)
+		features = append(features, "format."+format, "original.format."+format)
 	}
 	validate := func(raw json.RawMessage) error {
 		if missingPort(converter) || health == nil {
@@ -51,7 +51,11 @@ func projectionFactory(id, version string, formats []string, projection string, 
 		if err := health(ctx); err != nil {
 			return nil, err
 		}
-		service := &managedOffice{parser: parser.OfficeParser{Store: store, Converter: converter, MaxBytes: settings.MaxBytes}, formats: append([]string(nil), formats...)}
+		original, err := newOfficeOriginalText(converter, formats, settings.MaxBytes)
+		if err != nil {
+			return nil, err
+		}
+		service := &managedOffice{parser: parser.OfficeParser{Store: store, Converter: converter, MaxBytes: settings.MaxBytes}, formats: append([]string(nil), formats...), original: original}
 		return &kernel.Instance{Services: map[contracts.Capability]any{contracts.Parsing: service}, Health: func(c context.Context) error {
 			if err := service.check(c); err != nil {
 				return err
@@ -62,9 +66,10 @@ func projectionFactory(id, version string, formats []string, projection string, 
 }
 
 type managedOffice struct {
-	parser  parser.OfficeParser
-	closed  atomic.Bool
-	formats []string
+	parser   parser.OfficeParser
+	closed   atomic.Bool
+	formats  []string
+	original *officeOriginalText
 }
 
 func (p *managedOffice) check(ctx context.Context) error {

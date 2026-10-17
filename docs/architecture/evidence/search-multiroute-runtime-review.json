@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "production_acceptance": false,
+  "scope": "Shared application enumerates configured route budgets, merges consistent publication facts and executes two routes against the same real PostgreSQL reader; RRF lineage/source and route failure rejection; independent RRF scores/configuration commitments",
+  "source_inputs": 505,
+  "source_inventory_sha256": "d409a4413b259017ea999224b5de652616fc0354d0188ab98f529dd8502156d4",
+  "checks": [
+    "knowledge_multiroute_native_pipeline",
+    "knowledge_multiroute_fusion_lineage",
+    "knowledge_multiroute_failure_no_partial"
+  ],
+  "unit_tests": [
+    "TestMultiRouteUsesAllBudgetsAndPreservesFusionOrigins",
+    "TestMultiRouteRejectsFailureAndMixedStoreBeforeRetrieval",
+    "TestReplaceableFuserCannotInventSourcesOrGenerations",
+    "TestSearchRejectsMissingExplicitFusionBinding"
+  ],
+  "reports": [
+    "postgres15-wsl-review.json",
+    "postgres16-wsl-review.json",
+    "postgres18-wsl-review.json"
+  ],
+  "independent_relations": "evidence-backend-runtime-review.json",
+  "same_probe_binary": true,
+  "unverified": [
+    "second mature retrieval implementation and vector/keyword hybrid quality",
+    "complete multi-KB target inventory/allocation and bounded parallel scheduling",
+    "degraded-result status and optional-route continuation",
+    "production plan/Grant/bootstrap, MCP/UI and reflection",
+    "sealed Chinese Recall@10, performance and complete migration/rollback"
+  ]
+}

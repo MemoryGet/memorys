@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io"
 	"reflect"
+	"strings"
 	"sync"
 
 	"github.com/MemoryGet/memorys/pkg/contracts"
@@ -145,6 +146,28 @@ func verifySubmissions(ctx context.Context, db *sql.DB, readScope contracts.Acce
 		if json.Unmarshal(raw, &d) != nil {
 			return document.SubmissionCommand{}, errors.New("seed clone failed")
 		}
+		if name == "evidence-original" || name == "history-source" {
+			stream, err := store.Open(ctx, contracts.BlobReadRequest{Request: request, Scope: readScope, Blob: original})
+			if err != nil {
+				return document.SubmissionCommand{}, err
+			}
+			raw, err := io.ReadAll(io.LimitReader(stream, original.Size+1))
+			closeErr := stream.Close()
+			if err != nil || closeErr != nil || int64(len(raw)) != original.Size || !strings.Contains(string(raw), "中文设备维护") {
+				return document.SubmissionCommand{}, errors.New("original source fixture unavailable")
+			}
+			d.Blocks[0].Content.Text = string(raw)
+			// Partition the actual source into two pages without duplicating its
+			// index workload. Unicode boundaries preserve the original bytes/text.
+			second := d.Blocks[0]
+			second.ID = "original-page-second-block"
+			second.Order = len(d.Blocks)
+			text := []rune(string(raw))
+			middle := len(text) / 2
+			d.Blocks[0].Content.Text = string(text[:middle])
+			second.Content.Text = string(text[middle:])
+			d.Blocks = append(d.Blocks, second)
+		}
 		d.ID = contracts.ID(name + "-draft")
 		d.DocumentID = contracts.ID(name + "-document")
 		d.State = "draft"
@@ -278,7 +301,7 @@ func verifySubmissions(ctx context.Context, db *sql.DB, readScope contracts.Acce
 	if cold.QueryRowContext(ctx, `SELECT publication_epoch::text,active_revision_id IS NULL AND active_generation_set_id IS NULL FROM akos_withdraw_v1.documents WHERE id='app-document'`).Scan(&epoch, &inactive) != nil || epoch != "0" || !inactive {
 		return errors.New("submission published content")
 	}
-	return verifyReviewTransactions(ctx, db, scope, request, revision, func(name string) (contracts.SubmitResult, error) {
+	return verifyReviewTransactions(ctx, db, scope, request, revision, store, func(name string) (contracts.SubmitResult, error) {
 		cmd, err := seed(name)
 		if err != nil {
 			return contracts.SubmitResult{}, err

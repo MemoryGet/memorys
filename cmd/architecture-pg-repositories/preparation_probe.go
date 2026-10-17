@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"reflect"
 	"sync"
 	"time"
@@ -91,6 +92,9 @@ func verifyPreparationIndex(ctx context.Context, db *sql.DB, scope contracts.Acc
 		s.ScopeID = "index-worker-scope"
 		s.Action = "publication.prepare"
 		claim, err := tasks.Claim(ctx, document.PublicationClaimRequest{CommandID: contracts.ID(name + "-claim"), ClaimRequest: contracts.ClaimRequest{Request: r, Scope: s, JobID: f.Start.Job.ID, WorkerID: "worker-a", LeaseDuration: duration}})
+		if err != nil {
+			return f, document.PublicationReadWorkRequest{}, fmt.Errorf("preparation fixture claim case=%s requested_lease=%s: %w", name, duration, err)
+		}
 		r.RequestID = contracts.ID(name + "-prepare")
 		return f, document.PublicationReadWorkRequest{Request: r, Scope: s, Lease: claim.Lease}, err
 	}

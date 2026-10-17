@@ -1,7 +1,6 @@
 package postgres
 
 import (
-	"bytes"
 	"context"
 	"crypto/sha256"
 	"database/sql"
@@ -341,24 +340,12 @@ func (p PublicationTasks) ReadOwned(ctx context.Context, r document.PublicationR
 }
 
 func readPublicationWork(cx context.Context, tx *sql.Tx, plan document.PublicationStartPlan, head publicationTaskHead) (document.PublicationWork, error) {
-	var revisionBytes, payload []byte
-	if tx.QueryRowContext(cx, `SELECT payload,frozen_payload FROM akos_withdraw_v1.revision_contents WHERE space_id=$1::text AND kb_id=$2::text AND document_id=$3::text AND revision_id=$4::text`, string(plan.SpaceID), string(plan.KnowledgeBaseID), string(plan.Result.Operation.DocumentID), string(plan.Result.Operation.RevisionID)).Scan(&revisionBytes, &payload) != nil {
+	if plan.Review.Revision.DocumentID != plan.Result.Operation.DocumentID || plan.Review.Revision.ID != plan.Result.Operation.RevisionID {
 		return document.PublicationWork{}, ErrRepository
 	}
-	var revision contracts.Revision
-	if len(revisionBytes) > 8<<20 || len(payload) > 4<<20 || json.Unmarshal(revisionBytes, &revision) != nil || revision.ID != plan.Review.Revision.ID || revision.DocumentID != plan.Review.Revision.DocumentID || revision.HashFormat != plan.Review.Revision.HashFormat || revision.ContentHash != plan.Review.Revision.ContentHash || revision.BlocksHash != plan.Review.Revision.BlocksHash {
-		return document.PublicationWork{}, ErrRepository
-	}
-	draft := contracts.Draft{ID: "work-content-check", DocumentID: revision.DocumentID, RowVersion: 1, State: "draft", Blobs: revision.Blobs}
-	for _, block := range revision.Blocks {
-		if block.RevisionID != revision.ID {
-			return document.PublicationWork{}, ErrRepository
-		}
-		draft.Blocks = append(draft.Blocks, contracts.DraftBlock{ID: block.ID, DraftID: draft.ID, RowVersion: 1, Order: block.Order, Content: block.Content})
-	}
-	frozen, err := document.BuildFrozenContent(draft)
-	if err != nil || !bytes.Equal(frozen.Payload, payload) || frozen.ContentHash != revision.ContentHash || frozen.BlocksHash != revision.BlocksHash {
-		return document.PublicationWork{}, ErrRepository
+	revision, payload, err := readFrozenRevision(cx, tx, plan.SpaceID, plan.KnowledgeBaseID, plan.Review.Revision)
+	if err != nil {
+		return document.PublicationWork{}, err
 	}
 	work := document.PublicationWork{Plan: plan, Job: head.job, Lease: head.lease, Revision: revision, FrozenPayload: append([]byte(nil), payload...)}
 	return work, nil

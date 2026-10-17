@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "production_acceptance": false,
+  "scope": "Injected Fuser receives candidates only after actual current/source checks; raw candidate shape validation independent of fuser; immutable provider argument copies; native local injected RRF has one backend check before invocation and second check before application return; original grant clipped to shorter stage deadline",
+  "source_inputs": 505,
+  "source_inventory_sha256": "d409a4413b259017ea999224b5de652616fc0354d0188ab98f529dd8502156d4",
+  "checks": [
+    "knowledge_multiroute_fuser_preverification",
+    "knowledge_multiroute_fuser_postverification",
+    "knowledge_multiroute_original_budget_clipped"
+  ],
+  "unit_tests": [
+    "TestReplaceableFuserRequiresSuccessfulPreverification",
+    "TestRouteCandidateValidationDoesNotDependOnFuser",
+    "TestReplaceableFuserCannotInventSourcesOrGenerations"
+  ],
+  "reports": [
+    "postgres15-wsl-review.json",
+    "postgres16-wsl-review.json",
+    "postgres18-wsl-review.json"
+  ],
+  "independent_relations": "evidence-backend-runtime-review.json",
+  "same_probe_binary": true,
+  "unverified": [
+    "actual remote fusion service/transport and module lifecycle",
+    "Grant ledger, egress admission and send/revoke barrier",
+    "second mature retrieval implementation and recall/performance",
+    "production bootstrap/MCP/UI and complete migration/rollback"
+  ]
+}

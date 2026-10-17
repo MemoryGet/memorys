@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "production_acceptance": false,
+  "scope": "Configured candidate budget remains independent of final requested top K; actual PostgreSQL Chinese query returns two candidates, test reranker selects original second rank and returns only top 1; independent indexed content/citation relations and final source checks",
+  "source_inputs": 505,
+  "source_inventory_sha256": "d409a4413b259017ea999224b5de652616fc0354d0188ab98f529dd8502156d4",
+  "checks": [
+    "knowledge_reranking_candidate_budget_topk"
+  ],
+  "unit_tests": [
+    "TestRerankCandidateBudgetIsIndependentOfRequestedTopK"
+  ],
+  "reports": [
+    "postgres15-wsl-review.json",
+    "postgres16-wsl-review.json",
+    "postgres18-wsl-review.json"
+  ],
+  "independent_relations": "evidence-backend-runtime-review.json",
+  "same_probe_binary": true,
+  "unverified": [
+    "production reranker quality/latency/cost and sealed Recall@10",
+    "second mature retrieval engine and full multi-KB planning",
+    "production bootstrap/Grant/MCP/UI and reflection",
+    "complete stateful migration and rollback"
+  ]
+}

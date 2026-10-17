@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"reflect"
 	"sync"
 	"time"
@@ -36,11 +37,11 @@ func verifyPublicationCompletion(ctx context.Context, db *sql.DB, tasks postgres
 		}
 		a, err := worker.Prepare(ctx, access)
 		if err != nil {
-			return f, preparation.CompletionRequest{}, err
+			return f, preparation.CompletionRequest{}, fmt.Errorf("completion fixture prepare case=%s lease_remaining=%s context=%v: %w", name, time.Until(access.Lease.ExpiresAt), ctx.Err(), err)
 		}
 		work, err := tasks.ReadOwned(ctx, access)
 		if err != nil {
-			return f, preparation.CompletionRequest{}, err
+			return f, preparation.CompletionRequest{}, fmt.Errorf("completion fixture owned read case=%s lease_remaining=%s context=%v: %w", name, time.Until(access.Lease.ExpiresAt), ctx.Err(), err)
 		}
 		return f, preparation.CompletionRequest{Access: access, CommandID: contracts.ID(name + "-complete"), ArtifactDigest: a.Digest, ExpectedJobVersion: work.Job.RowVersion}, nil
 	}

@@ -255,6 +255,16 @@ func createModule(ctx context.Context, module *plannedModule, runtime *Runtime) 
 // Build consumes a resolved internal plan and caller-specified requirements.
 // It does not infer full product readiness from a parser-only plan.
 func Build(ctx context.Context, config Config, factories []Factory, requirements ...Requirement) (*Runtime, error) {
+	return buildBound(ctx, config, factories, requirements, nil)
+}
+
+// BuildBound validates named profile bindings before creating any provider.
+// It supports multiple instances offering the same capability.
+func BuildBound(ctx context.Context, config Config, factories []Factory, bindings []contracts.ModuleBinding) (*Runtime, error) {
+	return buildBound(ctx, config, factories, nil, bindings)
+}
+
+func buildBound(ctx context.Context, config Config, factories []Factory, requirements []Requirement, bindings []contracts.ModuleBinding) (*Runtime, error) {
 	if ctx == nil {
 		return nil, errors.New("module build context is missing")
 	}
@@ -265,6 +275,12 @@ func Build(ctx context.Context, config Config, factories []Factory, requirements
 	modules, order, err := preflight(config, factories, requirements)
 	if err != nil {
 		return nil, err
+	}
+	for _, b := range bindings {
+		m := modules[string(b.InstanceID)]
+		if m == nil || b.ContractVersion == "" || !supports(m.factory.Manifest, Requirement{Capability: b.Capability, ContractVersion: b.ContractVersion, Features: b.RequiredFeatures}) {
+			return nil, errors.New("profile module binding is unsupported")
+		}
 	}
 	runtime := &Runtime{instances: make(map[string]*Instance), closeDone: make(chan struct{}), snapshot: makeSnapshot(config, modules, order)}
 	for _, id := range order {

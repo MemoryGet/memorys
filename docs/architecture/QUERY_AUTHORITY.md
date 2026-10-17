@@ -172,3 +172,13 @@ ReadPublishedPage核对固定观察点和Scope、字段关系，并避免底层�
 此前章节中的“真实读仓储待实现”为当时边界；现已实现[QueryReads](POSTGRES_QUERY_READS.md)，同一主库只读Repeatable Read观察发布头、批准与当前规则、正式准备产物和后端代际。实际撤回/撤销批准、同快照分页与新读取，以及store轮换已有实库探针和独立返回关系复核。句柄与游标限制在回调内，返回独立复制。
 
 默认范围最多1000个有效发布头，超限拒绝；旧来源缺少本平台正式发布证据时排除。部署需显式初始化/轮换store head，后端定义补Number及CutoverWatermark；缺字段的旧配置需创建合格新定义并迁移。它不是完整QueryAuthority服务；实际检索、真实IAM、正文及索引后端证据、最终输出、生产装配、跨仓储替换/恢复保持待验。AUTHORITY六项门槛仅取得部分子项证据，不整体关闭。
+
+
+## 19. 当前发布关键词检索接入
+
+[PostgreSQL默认Retriever](POSTGRES_KEYWORD_RETRIEVER.md)已接到标准检索接口，并复用读层内部同一事务核验发布事实及真实封存索引。它强制可信发布投影/调用授权回调，查询后重新授权、另开读观察点并调用MatchCurrentReview。当前实际授权/投影提供者为实库测试替身；生产Prepare/子授权、Grant账本及完整QueryAuthority服务尚未实现。实际候选也不能替代最终正文/索引证据和输出前当前权限复核。
+
+
+## 20. 实际当前证据后端
+
+[原生EvidenceBackend](POSTGRES_EVIDENCE_BACKEND.md)与真实QueryReadUnit/FrozenContentReader及本地原件接入CheckCurrent，Fresh观察点核验元数据与实际索引，期间物理/逻辑删除均拒绝。生产CurrentControl、完整QueryAuthority/子授权及Grant账本、模块装配与实际产品输出仍未验收，不能将当前组合探针等同生产查询授权服务。

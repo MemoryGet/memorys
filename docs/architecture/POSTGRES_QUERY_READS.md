@@ -40,4 +40,8 @@
 
 尚待实施：正式 Retriever、当前正文/索引证据提供者、真实身份与权限、REST/MCP 及模型输出接入，生产规模分页、仓储替换和恢复回退演练。
 
-当前证据：[查询读取运行复核](evidence/query-read-runtime-review.json)、[三版PG矩阵](evidence/postgres-version-matrix.json)和[统一本地检查](evidence/unified-local-checks.json)。同一461项输入、同一个Go探针，在PG15.19/16.15/18.6各通过150项累计检查，其中12项为本次查询读取场景；三份真实观察样本独立核对发布、批准、代际、撤回及轮换关系。Go全量测试/vet、227项Python与三份OpenAPI检查通过，私有实例停止、目录删除和端口关闭已独立核对。
+当前证据：[查询读取运行复核](evidence/query-read-runtime-review.json)、[三版PG矩阵](evidence/postgres-version-matrix.json)和[统一本地检查](evidence/unified-local-checks.json)。同一479项输入、同一个Go探针，在PG15.19/16.15/18.6各通过184项累计检查，其中12项为本次查询读取场景；三份真实观察样本独立核对发布、批准、代际、撤回及轮换关系。Go全量测试/vet、227项Python与三份OpenAPI检查通过，私有实例停止、目录删除和端口关闭已独立核对。
+
+后续状态：已实现[默认关键词Retriever](POSTGRES_KEYWORD_RETRIEVER.md)，在同一私有读事务核验实际索引与当前发布，返回前新读取再比对；本页此前“Retriever待实施”描述为该阶段边界，完整输出前证据复核仍未完成。
+
+2026-10-16后续接入：[EvidenceBackend](POSTGRES_EVIDENCE_BACKEND.md)已在实库串联索引、冻结正文及原件引用复核，原文中的“当前后端待实现”为该阶段历史边界。生产CurrentControl/IAM、最终模型/API输出及完整运行验收仍待完成。

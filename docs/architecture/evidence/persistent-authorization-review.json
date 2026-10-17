@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "production_acceptance": false,
+  "scope": "Native PostgreSQL sealed ACL authorizer and current reference facts in the evidence chain; actual SDK authentication with test issuer; policy and profile data seeded by probe",
+  "source_inputs": 505,
+  "source_inventory_sha256": "d409a4413b259017ea999224b5de652616fc0354d0188ab98f529dd8502156d4",
+  "checks": [
+    "authorization_current_check_revocation",
+    "authorization_default_deny",
+    "authorization_native_sealed_acl",
+    "authorization_policy_revocation",
+    "authorization_policy_rollback_rejected",
+    "authorization_sealed_grant_immutable"
+  ],
+  "reports": [
+    "postgres15-wsl-review.json",
+    "postgres16-wsl-review.json",
+    "postgres18-wsl-review.json"
+  ],
+  "independent_relations": "evidence-backend-runtime-review.json",
+  "same_probe_binary": true,
+  "unverified": [
+    "role/group management and policy administration API/UI/audit",
+    "production issuer provisioning and CurrentFacts configuration source",
+    "formal migration/RLS/module assembly and full REST/MCP product integration"
+  ]
+}

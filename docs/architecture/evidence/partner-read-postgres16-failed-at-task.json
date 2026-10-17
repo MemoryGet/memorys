@@ -1,0 +1,39 @@
+{
+  "passed": false,
+  "production_acceptance": false,
+  "scope": "WSL PostgreSQL 16 real SQL/repository probe; not production or exact Docker image acceptance",
+  "requested_major": 16,
+  "distribution": "Ubuntu",
+  "port": 55432,
+  "server_stopped": true,
+  "temporary_resources_removed": true,
+  "binary_version": "postgres (PostgreSQL) 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+  "postgres_binary_sha256": "201d8daff9a5bd9df70b820471b965c39f5a776d677f395232c477d051270722",
+  "temporary_directory": "/tmp/akos-pg-gnuKP9MAEf",
+  "server_version": "16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+  "sql_checks": [
+    {
+      "file": "withdraw_contract_v1.sql",
+      "completed": true
+    },
+    {
+      "file": "withdraw_contract_test.sql",
+      "completed": true
+    }
+  ],
+  "go_executable_sha256": "5e2de953b4ed116e296841395a6e73ac9a8507d254aa212d2a78efe49639212a",
+  "error": "['wsl', '--distribution', 'Ubuntu'] failed: [DEBUG-read20261016] review receipt context context canceled\n[DEBUG-read20261016] review session context context canceled\n[DEBUG-read20261016] review document context context canceled\n[DEBUG-read20261016] review decode-request context context canceled\n[DEBUG-read20261016] review decode-request context context canceled\n[DEBUG-read20261016] review update-request context context canceled\n[DEBUG-read20261016] review update-request context context canceled\n[DEBUG-read20261016] review commit context context canceled\n[DEBUG-read20261016] review commit context context canceled\n[DEBUG-read20261016] review approval-request context context canceled\nPostgreSQL repository probe failed: task content aliased caller memory elapsed: 816.911792ms\n",
+  "fixture_server_error_summaries": [
+    "fixture review failure",
+    "review requires atomic head, receipt, audit and event",
+    "could not serialize access due to concurrent update",
+    "fixture publication start failure",
+    "fixture publication start failure",
+    "publication intent requires atomic job, audit and outbox",
+    "could not obtain lock on row in relation \"review_policy_heads\"",
+    "could not obtain lock on row in relation \"publication_backend_heads\"",
+    "could not obtain lock on row in relation \"documents\"",
+    "duplicate key value violates unique constraint \"publication_intents_space_id_actor_id_command_key_key\""
+  ],
+  "evidence_boundary": "temporary diagnostic source; removed before final checks; not acceptance evidence for the final source snapshot"
+}

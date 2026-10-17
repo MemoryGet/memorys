@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"reflect"
 	"sync"
 	"time"
@@ -142,7 +143,10 @@ func verifyPublicationTasks(ctx context.Context, db *sql.DB, scope contracts.Acc
 	work.FrozenPayload[0] = '!'
 	work.Revision.Blocks[0].Content.Text = "caller edit"
 	fresh, err := store.ReadOwned(ctx, read(f, first.Lease))
-	if err != nil || fresh.FrozenPayload[0] != '{' || fresh.Revision.Blocks[0].Content.Text != "人工修订" {
+	if err != nil {
+		return fmt.Errorf("task content reread rejected: lease_remaining=%s context=%v: %w", time.Until(first.Lease.ExpiresAt), ctx.Err(), err)
+	}
+	if len(fresh.FrozenPayload) == 0 || len(fresh.Revision.Blocks) == 0 || fresh.FrozenPayload[0] != '{' || fresh.Revision.Blocks[0].Content.Text != "人工修订" {
 		return errors.New("task content aliased caller memory")
 	}
 	renewRequest := document.PublicationRenewRequest{Request: original.Request, Scope: original.Scope, Lease: first.Lease, Duration: 3 * time.Second, CommandID: "task-renew-original"}

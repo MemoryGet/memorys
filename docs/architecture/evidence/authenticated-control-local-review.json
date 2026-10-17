@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "production_acceptance": false,
+  "scope": "Request-bound CurrentControl orchestration through standard Authenticator/Authorizer and current facts provider; credential ownership/erasure/redaction, binding and revocation tests; identity/policy implementations are fixtures",
+  "source_inputs": 505,
+  "source_inventory_sha256": "d409a4413b259017ea999224b5de652616fc0354d0188ab98f529dd8502156d4",
+  "evidence": "unified-local-checks.json",
+  "tests": [
+    "TestAuthenticatedControlReauthenticatesAndErasesTemporaryCredentials",
+    "TestAuthenticatedControlStopsOnIdentityPolicyAndFactsFailures",
+    "TestAuthenticatedControlBindsRequestAndRejectsMissingProviders",
+    "TestAuthenticatedControlRejectsCredentialRevokedDuringBackendWork"
+  ],
+  "native_evidence": "evidence-backend-runtime-review.json",
+  "unverified": [
+    "production authentication/OIDC/user directory and policy store",
+    "production current configuration/review source binding and module assembly",
+    "IAM/RLS and Grant ledger",
+    "model/REST/MCP output, Recall/performance and migrations/rollback"
+  ]
+}

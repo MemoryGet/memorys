@@ -445,5 +445,31 @@ func verifyPublicationFinalization(ctx context.Context, db *sql.DB, tasks postgr
 	if err := assertInactive(other); err != nil {
 		return err
 	}
-	return verifyQueryReads(ctx, db, r.Command)
+	originalFixture, originalRequest, _, err := ready("evidence-original")
+	if err != nil {
+		return err
+	}
+	if _, err := store.Finalize(ctx, originalRequest); err != nil {
+		return err
+	}
+	_, deletionRequest, _, err := ready("keyword-deleted")
+	if err != nil {
+		return err
+	}
+	if _, err := store.Finalize(ctx, deletionRequest); err != nil {
+		return err
+	}
+	historyFixture, historyRequest, historyCompletion, err := ready("history-source")
+	if err != nil {
+		return err
+	}
+	historyPublished, err := store.Finalize(ctx, historyRequest)
+	if err != nil {
+		return err
+	}
+	if err := createHistoricalReplacement(ctx, db, historyFixture, historyPublished, historyRequest.Command, tasks, worker, backend, store); err != nil {
+		return err
+	}
+	historicalTarget.OldGeneration = historyCompletion.Artifact.GenerationSet.Channels[contracts.KeywordChannel].ID
+	return verifyQueryReadPhase(db, r.Command, originalFixture.Approved.Originals)
 }

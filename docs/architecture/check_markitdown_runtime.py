@@ -87,13 +87,16 @@ def run_in_directory(folder, worker, records, before):
         if (go_evidence.get("passed") is not True or go_evidence.get("production_acceptance") is not False
                 or go_evidence.get("configured_factory") is not True
                 or go_evidence.get("closed_reference_rejected") is not True
+                or go_evidence.get("closed_projector_rejected") is not True
+                or go_evidence.get("original_quote_verified") is not True
+                or go_evidence.get("invented_quote_rejected") is not True
                 or go_evidence.get("format") != format_name):
             raise RuntimeError(f"{format_name}: Go assembly evidence incomplete")
-        records.append({"go_parser_chain": True, "configured_factory": True, "closed_reference_rejected": True, "format": format_name, "source_sha256": request["sha256"], "output_sha256": hashlib.sha256(parsed["markdown"].encode()).hexdigest(), "elapsed_seconds": round(time.monotonic() - start, 3), "contains_expected": True})
+        records.append({"original_quote_verified": True, "invented_quote_rejected": True, "closed_projector_rejected": True, "go_parser_chain": True, "configured_factory": True, "closed_reference_rejected": True, "format": format_name, "source_sha256": request["sha256"], "output_sha256": hashlib.sha256(parsed["markdown"].encode()).hexdigest(), "elapsed_seconds": round(time.monotonic() - start, 3), "contains_expected": True})
     if before != source_inventory():
         raise RuntimeError("probe sources changed during validation")
     import importlib.metadata
-    report = {"passed": True, "production_acceptance": False, "scope": "Four synthetic source fixtures; Office Chinese text and ASCII born-digital PDF", "version": importlib.metadata.version("markitdown"), "worker_sha256": hashlib.sha256(worker.read_bytes()).hexdigest(), "records": records, "unverified": ["scanned/Chinese/multicolumn PDF", "precise page/cell provenance and structured tables", "process-tree/resource isolation", "real authorization and lifecycle integration", "full dependency licenses/artifact identities"]}
+    report = {"passed": True, "production_acceptance": False, "scope": "Four real source fixtures through configured parser/original projector, verified object bytes and approved original quotes; Office Chinese and ASCII born-digital PDF, fixture authorization/frozen reader", "version": importlib.metadata.version("markitdown"), "worker_sha256": hashlib.sha256(worker.read_bytes()).hexdigest(), "records": records, "unverified": ["scanned/Chinese/multicolumn PDF", "precise page/cell provenance and structured tables", "process-tree/resource isolation", "real authorization and lifecycle integration", "full dependency licenses/artifact identities"]}
     report.update(sources=before, sources_unchanged_during_checks=True, probe_executable_sha256=executable_sha256)
     report["dependency_lock_sha256"] = hashlib.sha256((ROOT / "docs/architecture/markitdown-requirements.lock.txt").read_bytes()).hexdigest()
     return report

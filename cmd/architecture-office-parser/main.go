@@ -12,12 +12,37 @@ import (
 	"time"
 
 	"github.com/MemoryGet/memorys/pkg/adapters"
+	"github.com/MemoryGet/memorys/pkg/contentverify"
 	"github.com/MemoryGet/memorys/pkg/contracts"
 	"github.com/MemoryGet/memorys/pkg/document"
 	"github.com/MemoryGet/memorys/pkg/kernel"
 	"github.com/MemoryGet/memorys/pkg/parserprocess"
 	"github.com/MemoryGet/memorys/pkg/storage"
 )
+
+type originalFixtureReader struct{ record contracts.FrozenContentRecord }
+
+func (r originalFixtureReader) ReadFrozenContent(ctx context.Context, q contracts.FrozenContentReadRequest) (contracts.FrozenContentRecord, error) {
+	if ctx.Err() != nil || q.DocumentID != r.record.DocumentID || q.RevisionID != r.record.RevisionID {
+		return contracts.FrozenContentRecord{}, fmt.Errorf("fixture frozen read denied")
+	}
+	out := r.record
+	out.Payload = append([]byte(nil), out.Payload...)
+	return out, nil
+}
+
+type originalFixtureControl struct{}
+
+func (originalFixtureControl) ResolveOriginalRead(ctx context.Context, q contracts.FrozenContentReadRequest, b contracts.BlobRef) (contracts.BlobReadRequest, error) {
+	if ctx.Err() != nil || q.Scope.SubjectID != "actor" {
+		return contracts.BlobReadRequest{}, fmt.Errorf("fixture original grant denied")
+	}
+	s := q.Scope
+	s.Action = "original.verify"
+	s.ScopeID = "fixture-original"
+	s.KnowledgeBaseIDs = append([]contracts.ID(nil), s.KnowledgeBaseIDs...)
+	return contracts.BlobReadRequest{Request: q.Request, Scope: s, Blob: b}, nil
+}
 
 func run() error {
 	python := flag.String("python", "", "trusted Python executable")
@@ -43,7 +68,11 @@ func run() error {
 		}
 		return nil
 	}}
-	blob, err := store.Put(ctx, contracts.BlobWriteRequest{Request: request, Scope: scope, Size: int64(len(raw)), ExpectedSHA256: contracts.Digest(hex.EncodeToString(digest[:])), MediaType: "application/octet-stream", IdempotencyKey: *format}, bytes.NewReader(raw))
+	media := map[string]string{"pdf": "application/pdf", "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation"}[*format]
+	if media == "" {
+		return fmt.Errorf("unsupported source format")
+	}
+	blob, err := store.Put(ctx, contracts.BlobWriteRequest{Request: request, Scope: scope, Size: int64(len(raw)), ExpectedSHA256: contracts.Digest(hex.EncodeToString(digest[:])), MediaType: media, IdempotencyKey: *format}, bytes.NewReader(raw))
 	if err != nil {
 		return err
 	}
@@ -60,7 +89,7 @@ func run() error {
 		return &kernel.Instance{Services: map[contracts.Capability]any{contracts.BlobStorage: store}, Health: func(c context.Context) error { return c.Err() }, Close: func(context.Context) error { return nil }}, nil
 	}}
 	plan := kernel.Config{Version: 1, Modules: []kernel.ModuleConfig{{ID: "blobs", Provider: "fixture.blob-store", Settings: json.RawMessage(`{}`)}, {ID: "parser", Provider: *provider, Settings: json.RawMessage(`{"max_bytes":8388608}`), DependencyBindings: map[string]string{"blob_store": "blobs"}}}, Bindings: map[contracts.Capability]string{contracts.Parsing: "parser"}}
-	runtime, err := kernel.Build(ctx, plan, []kernel.Factory{blobFactory, factory}, kernel.Requirement{Capability: contracts.Parsing, Features: []string{"format." + *format, "source.coarse"}})
+	runtime, err := kernel.Build(ctx, plan, []kernel.Factory{blobFactory, factory}, kernel.Requirement{Capability: contracts.Parsing, Features: []string{"format." + *format, "source.coarse", "original.text", "original.format." + *format}})
 	if err != nil {
 		return err
 	}
@@ -90,13 +119,38 @@ func run() error {
 	if err != nil || late.Applied || late.Reason != "draft_changed" || len(late.Candidate.Blocks) != 1 {
 		return fmt.Errorf("late candidate overwrote newer draft")
 	}
+	projector, err := kernel.Resolve[contentverify.OriginalTextProjector](runtime, contracts.Parsing)
+	if err != nil {
+		return err
+	}
+	frozen, err := document.BuildFrozenContent(merged.Draft)
+	if err != nil {
+		return err
+	}
+	searchScope := scope
+	searchScope.Action = "knowledge.search"
+	read := contracts.FrozenContentReadRequest{Request: request, Scope: searchScope, DocumentID: "document", RevisionID: "revision"}
+	reader := originalFixtureReader{record: contracts.FrozenContentRecord{DocumentID: read.DocumentID, RevisionID: read.RevisionID, Payload: frozen.Payload}}
+	expected := contracts.FrozenRevisionFact{ID: read.RevisionID, DocumentID: read.DocumentID, ContentHash: frozen.ContentHash, BlocksHash: frozen.BlocksHash, HashFormat: frozen.HashFormat}
+	evidence := []contracts.Evidence{{Rank: 1, SourceExcerpt: merged.Draft.Blocks[0].Content.Text, Citation: contracts.Citation{DocumentID: read.DocumentID, RevisionID: read.RevisionID, BlockID: merged.Draft.Blocks[0].ID, Source: merged.Draft.Blocks[0].Content.Source}}}
+	if err := contentverify.VerifyOriginalTextEvidence(ctx, reader, store, originalFixtureControl{}, projector, read, expected, evidence); err != nil {
+		return fmt.Errorf("actual original quote verification failed")
+	}
+	invented := append([]contracts.Evidence(nil), evidence...)
+	invented[0].SourceExcerpt = "invented-quote-not-in-approved-original-42861"
+	if contentverify.VerifyOriginalTextEvidence(ctx, reader, store, originalFixtureControl{}, projector, read, expected, invented) == nil {
+		return fmt.Errorf("invented original quote accepted")
+	}
 	if err := runtime.Close(ctx); err != nil {
 		return err
 	}
 	if _, err := p.Parse(ctx, contracts.ParseRequest{}); err == nil {
 		return fmt.Errorf("closed parser reference usable")
 	}
-	return json.NewEncoder(os.Stdout).Encode(map[string]any{"passed": true, "production_acceptance": false, "configured_factory": true, "closed_reference_rejected": true, "candidate_merge": true, "late_candidate_preserved": true, "format": *format, "provider": *provider, "parser_version": result.ParserVersion, "text": result.Blocks[0].Content.Text, "source_sha256": blob.SHA256, "source_precision": result.Blocks[0].Content.Source.Locator.Precision, "scope": "Real blob/Go parser/process/converter; fixture authorization and nonpersistent draft merge"})
+	if _, err := projector.ProjectOriginalText(ctx, media, raw); err == nil {
+		return fmt.Errorf("closed original projector reference usable")
+	}
+	return json.NewEncoder(os.Stdout).Encode(map[string]any{"passed": true, "production_acceptance": false, "configured_factory": true, "closed_reference_rejected": true, "closed_projector_rejected": true, "original_quote_verified": true, "invented_quote_rejected": true, "candidate_merge": true, "late_candidate_preserved": true, "format": *format, "provider": *provider, "parser_version": result.ParserVersion, "text": result.Blocks[0].Content.Text, "source_sha256": blob.SHA256, "source_precision": result.Blocks[0].Content.Source.Locator.Precision, "scope": "Real blob/Go composite parser/process/converter and original quote; fixture authorization/frozen content and nonpersistent draft merge"})
 }
 func main() {
 	if err := run(); err != nil {

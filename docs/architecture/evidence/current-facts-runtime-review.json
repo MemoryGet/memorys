@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "production_acceptance": false,
+  "scope": "Primary current profile/review/ACL heads; actual full platform profile content and transitive digest validation; independent three-layer Python hashes; full deployment compilation/assembly remains unverified",
+  "source_inputs": 505,
+  "source_inventory_sha256": "d409a4413b259017ea999224b5de652616fc0354d0188ab98f529dd8502156d4",
+  "checks": [
+    "query_facts_acl_version_binding",
+    "query_facts_catalog_immutable",
+    "query_facts_changed_profile_rejected",
+    "query_facts_head_rollback_rejected",
+    "query_facts_missing_binding_denied",
+    "query_facts_not_request_echo",
+    "query_facts_primary_heads",
+    "query_facts_profile_corruption_denied",
+    "query_facts_profile_immutable",
+    "query_facts_profile_payload_verified"
+  ],
+  "reports": [
+    "postgres15-wsl-review.json",
+    "postgres16-wsl-review.json",
+    "postgres18-wsl-review.json"
+  ],
+  "independent_relations": "evidence-backend-runtime-review.json",
+  "same_probe_binary": true,
+  "unverified": [
+    "full immutable profile catalog, digest validation, compilation and runtime module assembly",
+    "configuration administration authorization/audit and formal migration/RLS",
+    "product REST/MCP/UI, production issuer and policy management",
+    "Recall@10, performance and full migration/rollback"
+  ]
+}

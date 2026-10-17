@@ -89,7 +89,7 @@ def main():
             run([str(ROOT / ".tools/go/bin/go.exe"), "build", "-o", str(executable), "./cmd/architecture-pg-repositories"], env=environment, timeout=120)
             report["go_executable_sha256"] = hashlib.sha256(executable.read_bytes()).hexdigest()
             linux_executable = run(prefix + ["wslpath", "-a", str(executable)]).stdout.strip()
-            proof = json.loads(wsl("env", "AKOS_TEST_PG_PORT=" + str(args.port), linux_executable, timeout=60).stdout)
+            proof = json.loads(wsl("env", "AKOS_TEST_PG_PORT=" + str(args.port), "AKOS_TEST_ROOT="+linux_root, linux_executable, timeout=60).stdout)
             if proof.get("passed") is not True or proof.get("production_acceptance") is not False:
                 raise RuntimeError("repository probe rejected")
             report["go_repository_proof"] = proof

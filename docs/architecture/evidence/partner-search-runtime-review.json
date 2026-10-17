@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "production_acceptance": false,
+  "scope": "Actual localhost POST at partner OpenAPI server/path using shared application with SDK authentication, PostgreSQL authorization/directory/configuration/retrieval and source checks; omitted KB vs explicit empty; disabled identity/missing policy denied and revoked credential safe 401; nine actual request/response samples independently validated against SearchRequest/SearchResult/Error",
+  "source_inputs": 505,
+  "source_inventory_sha256": "d409a4413b259017ea999224b5de652616fc0354d0188ab98f529dd8502156d4",
+  "checks": [
+    "partner_search_openapi_post",
+    "partner_search_omitted_kb_current_acl",
+    "partner_search_explicit_empty_no_expansion",
+    "partner_search_revoked_safe_error",
+    "partner_search_directory_current_identity"
+  ],
+  "unit_tests": [
+    "TestPartnerSearchStrictBodyAndTopK",
+    "TestPartnerSearchPreservesOmittedAndEmptyKnowledgeBases",
+    "TestPartnerSearchMapsTypedAuthenticationFailure",
+    "TestSearchResolvesOmittedKBsButKeepsExplicitEmpty",
+    "TestEmptySearchRechecksCredentialAfterDirectoryResolution",
+    "TestInitialAuthenticationFailureKeepsSafeTypedError",
+    "TestPartnerSearchRouteFailsClosedWithoutBootstrap"
+  ],
+  "reports": [
+    "postgres15-wsl-review.json",
+    "postgres16-wsl-review.json",
+    "postgres18-wsl-review.json"
+  ],
+  "independent_relations": "evidence-backend-runtime-review.json",
+  "same_probe_binary": true,
+  "unverified": [
+    "full input value-domain/feature limits and complete status/error classification",
+    "production dependency/bootstrap/issuer and policy administration",
+    "read/ask/feedback partner operations, MCP and Vue",
+    "complete multi-KB planning and mature hybrid/model quality",
+    "Grant/send-revoke barrier, Recall/performance and migration/rollback"
+  ]
+}

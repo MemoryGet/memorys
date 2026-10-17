@@ -1,0 +1,39 @@
+{
+  "passed": false,
+  "production_acceptance": false,
+  "scope": "WSL PostgreSQL 16 real SQL/repository probe; not production or exact Docker image acceptance",
+  "requested_major": 16,
+  "distribution": "Ubuntu",
+  "port": 55432,
+  "server_stopped": true,
+  "temporary_resources_removed": true,
+  "binary_version": "postgres (PostgreSQL) 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+  "postgres_binary_sha256": "201d8daff9a5bd9df70b820471b965c39f5a776d677f395232c477d051270722",
+  "temporary_directory": "/tmp/akos-pg-f1GuKsvJNj",
+  "server_version": "16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+  "sql_checks": [
+    {
+      "file": "withdraw_contract_v1.sql",
+      "completed": true
+    },
+    {
+      "file": "withdraw_contract_test.sql",
+      "completed": true
+    }
+  ],
+  "go_executable_sha256": "46e0d2cd15b375b32e9847581285764cadb9eb137f7350af95f20ec2786a218f",
+  "error": "['wsl', '--distribution', 'Ubuntu'] failed: PostgreSQL repository probe failed: real review lost response: review rejected without effects from this invocation\npublication repository unavailable or rejected elapsed: 472.550761ms\n",
+  "fixture_server_error_summaries": [
+    "new row for relation \"candidate_audit\" violates check constraint \"candidate_failure\"",
+    "new row for relation \"candidate_outbox\" violates check constraint \"candidate_outbox_failure\"",
+    "immutable authoritative record",
+    "immutable authoritative record",
+    "immutable authoritative record",
+    "duplicate key value violates unique constraint \"submission_receipts_pkey\"",
+    "fixture write failure",
+    "fixture write failure",
+    "submission requires atomic version, draft, audit and outbox",
+    "could not serialize access due to concurrent update"
+  ],
+  "evidence_boundary": "pre-instrumentation failure; not acceptance evidence for the final source snapshot"
+}

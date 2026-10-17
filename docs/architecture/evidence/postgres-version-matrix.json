@@ -1,18 +1,18 @@
 {
   "passed": true,
   "production_acceptance": false,
-  "scope": "Same current SQL schema and 150 repository/application/query-read checks including actual snapshot pagination, withdrawal/revocation visibility and store epoch fencing on PG15/16/18 owned WSL fixtures",
+  "scope": "Same 235 native checks including actual official-SDK MCP search, REST parity, current authentication/authorization and source verification; controlled private bearer, not full MCP/OAuth or production acceptance",
   "same_source_inventory": true,
   "same_probe_binary": true,
-  "source_inventory_sha256": "a9cea1d3f319f95ed1ff1e0fa14d64aa936eb2729fbc0cc06b53d7fdc4a7334e",
+  "source_inventory_sha256": "220d4f0181ae7a5b5ab6ac65f6fe9cb6ac509c53151c18f1cb9a30448b996065",
   "rows": [
     {
       "major": 15,
       "server_version": "15.19 (Ubuntu 15.19-1.pgdg24.04+2)",
       "evidence": "postgres15-wsl-review.json",
-      "checks_count": 150,
-      "source_inputs": 461,
-      "go_executable_sha256": "21ab9b16881749bb100ba8f1504b8f79aaed9357b690926fd3e466f3bca26b1c",
+      "checks_count": 235,
+      "source_inputs": 509,
+      "go_executable_sha256": "9ae7d208de457e0052da495b855c7d4eca8d93c8f3a66cc76ef6e264c2386cc5",
       "postgres_binary_sha256": "e7f380772fbccefe4be16e291499dfda26898ea0d9d799938e29ae71b730b093",
       "server_stopped": true,
       "temporary_resources_removed": true
@@ -21,9 +21,9 @@
       "major": 16,
       "server_version": "16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
       "evidence": "postgres16-wsl-review.json",
-      "checks_count": 150,
-      "source_inputs": 461,
-      "go_executable_sha256": "21ab9b16881749bb100ba8f1504b8f79aaed9357b690926fd3e466f3bca26b1c",
+      "checks_count": 235,
+      "source_inputs": 509,
+      "go_executable_sha256": "9ae7d208de457e0052da495b855c7d4eca8d93c8f3a66cc76ef6e264c2386cc5",
       "postgres_binary_sha256": "201d8daff9a5bd9df70b820471b965c39f5a776d677f395232c477d051270722",
       "server_stopped": true,
       "temporary_resources_removed": true
@@ -32,23 +32,13 @@
       "major": 18,
       "server_version": "18.6 (Ubuntu 18.6-1.pgdg24.04+2)",
       "evidence": "postgres18-wsl-review.json",
-      "checks_count": 150,
-      "source_inputs": 461,
-      "go_executable_sha256": "21ab9b16881749bb100ba8f1504b8f79aaed9357b690926fd3e466f3bca26b1c",
+      "checks_count": 235,
+      "source_inputs": 509,
+      "go_executable_sha256": "9ae7d208de457e0052da495b855c7d4eca8d93c8f3a66cc76ef6e264c2386cc5",
       "postgres_binary_sha256": "492c356851c073d65e77b8cc5d22d10e05a07d54699c6427dcb01d36567af7d5",
       "server_stopped": true,
       "temporary_resources_removed": true
     }
-  ],
-  "unverified": [
-    "exact Docker image parity",
-    "production roles/RLS/current IAM",
-    "full Metadata UnitOfWork and administrative policy governance",
-    "published retriever/current evidence output checks",
-    "changed-content revision replacement, external index fencing and continuous workers",
-    "stateful migration/restart/rollback",
-    "public HTTP/MCP and production workload",
-    "sealed Chinese Recall@10 and performance"
   ],
   "independently_confirmed_ports_closed_and_directories_removed": true
 }

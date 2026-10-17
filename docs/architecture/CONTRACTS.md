@@ -152,7 +152,7 @@ REST 前缀 `/api/v1/knowledge-os`。MCP 使用官方 SDK 实现协议协商和 
 | 能力 | REST | MCP 工具 | 必需输入 | 返回 |
 |---|---|---|---|---|
 | 检索 | POST /search | knowledge_search | query、space_id；可选 kb_ids、top_k（1–100，默认10） | evidence[]、request_id、profile_version、timings、degraded |
-| 读取 | POST /read | knowledge_read | document_id；可选 revision_id、block_ids、cursor | 标准内容块、citations、next_cursor；历史版本额外鉴权 |
+| 读取 | POST /read | knowledge_read | document_id；可选 revision_id、block_ids、cursor | 标准内容块、citations、next_cursor；历史版本须同时具备当前knowledge.read与独立knowledge.history.read，且曾发布、批准仍有效；见[历史读取](HISTORICAL_READ_RUNTIME.md) |
 | 问答 | POST /ask | knowledge_ask | question、space_id；可选 kb_ids、reflection、stream | answer、citations、status、request_id、timings、degraded |
 | 反馈 | POST /feedback | knowledge_feedback | target citation/request_id、kind、comment、idempotency_key | feedback_id、state、draft_id（若已生成） |
 

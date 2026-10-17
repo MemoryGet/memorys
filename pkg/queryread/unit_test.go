@@ -12,6 +12,28 @@ import (
 
 type unitFunc func(context.Context, contracts.AccessScope, func(context.Context, contracts.QueryReadIdentity, contracts.QueryReadRepository) error) error
 
+func TestCurrentReadActionsPreservedAndUnknownRejected(t *testing.T) {
+	for _, action := range []contracts.Action{"knowledge.search", "knowledge.read", "knowledge.read.history", "knowledge.*", "knowledge.write", ""} {
+		t.Run(string(action), func(t *testing.T) {
+			calls := 0
+			u, _ := queryread.ProtectUnit(unitFunc(func(c context.Context, scope contracts.AccessScope, cb func(context.Context, contracts.QueryReadIdentity, contracts.QueryReadRepository) error) error {
+				calls++
+				if scope.Action != action {
+					t.Fatal("action rewritten")
+				}
+				return cb(c, identity, &repository{})
+			}))
+			s := guardScope()
+			s.Action = action
+			err := u.WithinRead(ctx(t), s, func(context.Context, contracts.QueryReadIdentity, contracts.QueryReadRepository) error { return nil })
+			allowed := action == "knowledge.search" || action == "knowledge.read"
+			if allowed && (err != nil || calls != 1) || !allowed && (err == nil || calls != 0) {
+				t.Fatalf("action=%q calls=%d err=%v", action, calls, err)
+			}
+		})
+	}
+}
+
 func (f unitFunc) WithinRead(c context.Context, s contracts.AccessScope, cb func(context.Context, contracts.QueryReadIdentity, contracts.QueryReadRepository) error) error {
 	return f(c, s, cb)
 }

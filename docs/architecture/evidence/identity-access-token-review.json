@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "production_acceptance": false,
+  "scope": "SDK RS256 authentication and primary-database current status, bound to actual current-evidence Principal; database sealed ACL now replaces authorization callback; test issuer and configuration binding remain",
+  "source_inputs": 505,
+  "source_inventory_sha256": "d409a4413b259017ea999224b5de652616fc0354d0188ab98f529dd8502156d4",
+  "checks": [
+    "identity_token_disabled_client",
+    "identity_token_disabled_key",
+    "identity_token_disabled_subject",
+    "identity_token_public_key_binding",
+    "identity_token_revoked_token",
+    "identity_token_rs256_current_status",
+    "identity_token_status_failure_closed",
+    "identity_token_unknown_token"
+  ],
+  "reports": [
+    "postgres15-wsl-review.json",
+    "postgres16-wsl-review.json",
+    "postgres18-wsl-review.json"
+  ],
+  "same_probe_binary": true,
+  "public_sample_relations_checked": true,
+  "raw_tokens_or_private_keys_recorded": false,
+  "independent_signature_verification": false,
+  "unverified": [
+    "production issuer/key management and token registration/revocation administration",
+    "persistent authorizer and current configuration source",
+    "REST/MCP entrypoints, IAM/RLS and full migration/rollback"
+  ]
+}

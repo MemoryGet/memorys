@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "production_acceptance": false,
+  "scope": "Verified snapshot drives named query-stage binding checks and actual PostgreSQL retrieval instance; actual candidates and managed reference close; independent profile/route/instance/provider/result relations",
+  "source_inputs": 505,
+  "source_inventory_sha256": "d409a4413b259017ea999224b5de652616fc0354d0188ab98f529dd8502156d4",
+  "checks": [
+    "profile_assembly_native_retrieval",
+    "profile_assembly_actual_snapshot",
+    "profile_assembly_closed_reference"
+  ],
+  "unit_tests": [
+    "TestNamedRoutesAndProviderReplacement",
+    "TestUnsupportedBindingsFailBeforeCreate"
+  ],
+  "reports": [
+    "postgres15-wsl-review.json",
+    "postgres16-wsl-review.json",
+    "postgres18-wsl-review.json"
+  ],
+  "independent_relations": "evidence-backend-runtime-review.json",
+  "same_probe_binary": true,
+  "unverified": [
+    "production deployment normalization/artifact verification/credential resolution",
+    "full index-stage writer and factory assembly",
+    "all module lifecycle implementations and active call drain",
+    "product REST/MCP/UI and model integration",
+    "sealed Chinese recall/performance, stateful migration/rollback"
+  ]
+}

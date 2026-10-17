@@ -65,6 +65,7 @@ def main():
                 result = json.loads(output.stdout)
                 assert result["passed"] is True and result["production_acceptance"] is False
                 assert result["configured_factory"] is True and result["closed_reference_rejected"] is True
+                assert result["original_quote_verified"] is True and result["invented_quote_rejected"] is True and result["closed_projector_rejected"] is True
                 assert result["candidate_merge"] is True and result["late_candidate_preserved"] is True
                 assert result["provider"] == provider and result["parser_version"] == version
                 assert result["source_sha256"] == source_sha and result["source_precision"] == "coarse"
@@ -73,7 +74,7 @@ def main():
                 request = {"format": "pdf", "sha256": "0" * 64, "data_base64": base64.b64encode(raw).decode()}
                 rejected = subprocess.run([str(python), "-I", str(script)], input=json.dumps(request), capture_output=True, text=True, encoding="utf-8", timeout=45)
                 assert rejected.returncode != 0
-                records.append({"provider": provider, "parser_version": version, "source_sha256": source_sha, "expected_text_sha256": hashlib.sha256(expected.encode()).hexdigest(), "same_text": True, "source_preserved": True, "configured_factory": True, "closed_reference_rejected": True, "corrupt_digest_rejected": True, "candidate_merge": True, "late_candidate_preserved": True})
+                records.append({"original_quote_verified": True, "invented_quote_rejected": True, "closed_projector_rejected": True, "provider": provider, "parser_version": version, "source_sha256": source_sha, "expected_text_sha256": hashlib.sha256(expected.encode()).hexdigest(), "same_text": True, "source_preserved": True, "configured_factory": True, "closed_reference_rejected": True, "corrupt_digest_rejected": True, "candidate_merge": True, "late_candidate_preserved": True})
         for name, raw in negative_pdfs().items():
             for provider, environment, worker in (
                     ("platform.markitdown-office", "markitdown-env", "markitdown_worker.py"),
@@ -82,9 +83,9 @@ def main():
                 result = subprocess.run([str(ROOT / ".local" / environment / "Scripts/python.exe"), "-I", str(ROOT / "tools/parsers" / worker)], input=json.dumps(request), capture_output=True, text=True, encoding="utf-8", timeout=45)
                 if result.returncode == 0 or result.stdout:
                     raise RuntimeError(f"{provider}: unsupported {name} PDF produced a candidate")
-                negative_records.append({"provider": provider, "case": name, "source_sha256": request["sha256"], "rejected_without_candidate": True})
+                negative_records.append({"original_quote_verified": True, "invented_quote_rejected": True, "closed_projector_rejected": True, "provider": provider, "case": name, "source_sha256": request["sha256"], "rejected_without_candidate": True})
     assert before == source_inventory(), "sources changed during validation"
-    report = {"passed": True, "production_acceptance": False, "scope": "Three ASCII born-digital PDFs, two independently installed extraction backends, same standard Parser caller", "records": records, "sources": before, "sources_unchanged_during_checks": True, "probe_executable_sha256": executable_sha, "temporary_resources_removed": not folder.exists(), "unverified": ["Chinese/complex/scanned PDF and structured tables", "full UI/API/MCP and current authorization", "deployment loader, candidate review/publish and migration rollback", "OS process-tree and memory isolation", "quality/latency/cost on a sealed evaluation corpus"]}
+    report = {"passed": True, "production_acceptance": False, "scope": "Three ASCII born-digital PDFs, two independently installed extraction backends, same configured Parser and OriginalTextProjector caller, actual bytes and fixture approved original quotes", "records": records, "sources": before, "sources_unchanged_during_checks": True, "probe_executable_sha256": executable_sha, "temporary_resources_removed": not folder.exists(), "unverified": ["Chinese/complex/scanned PDF and structured tables", "full UI/API/MCP and current authorization", "deployment loader, candidate review/publish and migration rollback", "OS process-tree and memory isolation", "quality/latency/cost on a sealed evaluation corpus"]}
     report["negative_records"] = negative_records
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("Parser replacement: three PDFs x two real backends passed")

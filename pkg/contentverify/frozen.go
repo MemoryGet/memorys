@@ -23,7 +23,7 @@ func VerifyFrozen(ctx context.Context, reader contracts.FrozenContentReader, req
 }
 
 func readVerifiedFrozen(ctx context.Context, reader contracts.FrozenContentReader, request contracts.FrozenContentReadRequest, expected contracts.FrozenRevisionFact) ([]byte, error) {
-	if ctx == nil || reader == nil || request.Request.RequestID == "" || request.Request.Deadline.IsZero() || request.Scope.SubjectID == "" || request.Scope.ScopeID == "" || request.Scope.SpaceID == "" || request.Scope.Action != "knowledge.search" || request.Scope.PolicyVersion == 0 || len(request.Scope.KnowledgeBaseIDs) == 0 || len(request.Scope.KnowledgeBaseIDs) > 256 || expected.ID == "" || expected.DocumentID == "" || request.DocumentID != expected.DocumentID || request.RevisionID != expected.ID || expected.HashFormat != canonical.FrozenFormat || !digestShape(expected.ContentHash) || !digestShape(expected.BlocksHash) {
+	if ctx == nil || reader == nil || request.Request.RequestID == "" || request.Request.Deadline.IsZero() || request.Scope.SubjectID == "" || request.Scope.ScopeID == "" || request.Scope.SpaceID == "" || !contracts.IsCurrentContentReadAction(request.Scope.Action) || request.Scope.PolicyVersion == 0 || len(request.Scope.KnowledgeBaseIDs) == 0 || len(request.Scope.KnowledgeBaseIDs) > 256 || expected.ID == "" || expected.DocumentID == "" || request.DocumentID != expected.DocumentID || request.RevisionID != expected.ID || expected.HashFormat != canonical.FrozenFormat || !digestShape(expected.ContentHash) || !digestShape(expected.BlocksHash) {
 		return nil, ErrContent
 	}
 	if _, ok := ctx.Deadline(); !ok {

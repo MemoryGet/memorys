@@ -13,6 +13,21 @@ func refreshPrincipal() contracts.Principal {
 	return contracts.Principal{SubjectID: "subject", SubjectType: "service", Issuer: "identity", ClientID: "agent", Delegation: &contracts.Delegation{UserID: "user", ClientID: "agent", ProofReference: "verified-proof"}}
 }
 
+func TestRefreshedReadScopeCannotBecomeSearch(t *testing.T) {
+	c, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+	p := refreshPrincipal()
+	before, after := currentScope(), currentScope()
+	before.Action, after.Action = "knowledge.read", "knowledge.read"
+	if err := queryread.MatchRefreshedScope(c, p, before, p, after, []contracts.ID{"kb"}); err != nil {
+		t.Fatal(err)
+	}
+	after.Action = "knowledge.search"
+	if err := queryread.MatchRefreshedScope(c, p, before, p, after, []contracts.ID{"kb"}); err != queryread.ErrStale {
+		t.Fatalf("action substitution accepted: %v", err)
+	}
+}
+
 func TestRefreshedScopeRejectsIdentityAndScopeSubstitution(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()

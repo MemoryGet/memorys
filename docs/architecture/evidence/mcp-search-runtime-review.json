@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "production_acceptance": false,
+  "scope": "Official SDK localhost controlled-private-bearer search only; three PostgreSQL versions, real RS256/current ACL/config/retrieval/source verification; independently validated actual tool and response schemas and structured/text identity",
+  "source_inputs": 509,
+  "source_inventory_sha256": "220d4f0181ae7a5b5ab6ac65f6fe9cb6ac509c53151c18f1cb9a30448b996065",
+  "checks": [
+    "mcp_sdk_revoked_before_dispatch",
+    "mcp_sdk_native_initialize",
+    "mcp_sdk_search_rest_parity",
+    "mcp_sdk_structured_text_identity",
+    "mcp_sdk_invalid_actor_rejected",
+    "mcp_sdk_version_whitelist"
+  ],
+  "independent_relations": "evidence-backend-runtime-review.json",
+  "reports": [
+    "postgres15-wsl-review.json",
+    "postgres16-wsl-review.json",
+    "postgres18-wsl-review.json"
+  ],
+  "unverified": [
+    "OAuth discovery and general client interoperability",
+    "read/ask/feedback tools",
+    "production bootstrap/TLS/per-subject quotas",
+    "cross-request cancellation notifications",
+    "Recall/performance/migration/rollback"
+  ]
+}

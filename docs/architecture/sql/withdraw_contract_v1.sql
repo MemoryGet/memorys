@@ -716,4 +716,90 @@ BEGIN
  RETURN NEW;
 END; $$;
 CREATE TRIGGER query_store_head_guard BEFORE UPDATE ON query_store_head FOR EACH ROW EXECUTE FUNCTION guard_query_store_head();
+-- Authentication status read model; provisioning/audit/RLS remain separate.
+CREATE TABLE identity_issuers(issuer text PRIMARY KEY CHECK(length(issuer) BETWEEN 1 AND 2048),enabled boolean NOT NULL);
+CREATE TABLE identity_signing_keys(
+ issuer text NOT NULL REFERENCES identity_issuers(issuer),key_id platform_id NOT NULL,
+ public_key_digest sha256_value NOT NULL,enabled boolean NOT NULL,
+ valid_from bigint NOT NULL CHECK(valid_from>=0),valid_until bigint NOT NULL CHECK(valid_until>valid_from),
+ PRIMARY KEY(issuer,key_id));
+CREATE TABLE identity_subjects(
+ issuer text NOT NULL REFERENCES identity_issuers(issuer),subject_id platform_id NOT NULL,
+ subject_type text NOT NULL CHECK(subject_type IN ('user','service')),enabled boolean NOT NULL,
+ PRIMARY KEY(issuer,subject_id));
+CREATE TABLE identity_clients(
+ issuer text NOT NULL REFERENCES identity_issuers(issuer),client_id platform_id NOT NULL,enabled boolean NOT NULL,
+ PRIMARY KEY(issuer,client_id));
+CREATE TABLE identity_tokens(
+ issuer text NOT NULL,token_id platform_id NOT NULL,key_id platform_id NOT NULL,
+ subject_id platform_id NOT NULL,client_id platform_id NOT NULL,
+ issued_at bigint NOT NULL CHECK(issued_at>=0),expires_at bigint NOT NULL CHECK(expires_at>issued_at),revoked boolean NOT NULL,
+ PRIMARY KEY(issuer,token_id),
+ FOREIGN KEY(issuer,key_id) REFERENCES identity_signing_keys(issuer,key_id),
+ FOREIGN KEY(issuer,subject_id) REFERENCES identity_subjects(issuer,subject_id),
+ FOREIGN KEY(issuer,client_id) REFERENCES identity_clients(issuer,client_id));
+
+-- Explicit ACL snapshots are assembled, sealed, then atomically activated.
+CREATE TABLE access_policy_snapshots(
+ space_id platform_id NOT NULL,version uint64_value NOT NULL CHECK(version>0),sealed boolean NOT NULL DEFAULT false,
+ PRIMARY KEY(space_id,version));
+CREATE TABLE access_policy_grants(
+ space_id platform_id NOT NULL,version uint64_value NOT NULL,issuer text NOT NULL,
+ subject_id platform_id NOT NULL,client_id platform_id NOT NULL,kb_id platform_id NOT NULL,action platform_id NOT NULL,
+ PRIMARY KEY(space_id,version,issuer,subject_id,client_id,kb_id,action),
+ FOREIGN KEY(space_id,version) REFERENCES access_policy_snapshots(space_id,version),
+ FOREIGN KEY(issuer,subject_id) REFERENCES identity_subjects(issuer,subject_id),
+ FOREIGN KEY(issuer,client_id) REFERENCES identity_clients(issuer,client_id));
+CREATE TABLE access_policy_heads(
+ space_id platform_id PRIMARY KEY,version uint64_value NOT NULL,
+ FOREIGN KEY(space_id,version) REFERENCES access_policy_snapshots(space_id,version));
+CREATE FUNCTION guard_access_snapshot() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP='DELETE' OR OLD.sealed OR NEW.space_id<>OLD.space_id OR NEW.version<>OLD.version OR NOT NEW.sealed
+ THEN RAISE EXCEPTION 'access snapshot is immutable except sealing' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END; $$;
+CREATE TRIGGER access_snapshot_guard BEFORE UPDATE OR DELETE ON access_policy_snapshots FOR EACH ROW EXECUTE FUNCTION guard_access_snapshot();
+CREATE FUNCTION guard_access_grant() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE closed boolean;
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'access grants are append-only before sealing' USING ERRCODE='23514'; END IF;
+ SELECT sealed INTO closed FROM akos_withdraw_v1.access_policy_snapshots WHERE space_id=NEW.space_id AND version=NEW.version FOR UPDATE;
+ IF closed IS DISTINCT FROM false THEN RAISE EXCEPTION 'sealed or missing access snapshot' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END; $$;
+CREATE TRIGGER access_grant_guard BEFORE INSERT OR UPDATE OR DELETE ON access_policy_grants FOR EACH ROW EXECUTE FUNCTION guard_access_grant();
+CREATE FUNCTION guard_access_head() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP='DELETE' THEN RAISE EXCEPTION 'access head cannot be removed' USING ERRCODE='23514'; END IF;
+ IF TG_OP='UPDATE' AND (NEW.space_id<>OLD.space_id OR NEW.version<=OLD.version)
+ THEN RAISE EXCEPTION 'access policy version must advance' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM akos_withdraw_v1.access_policy_snapshots WHERE space_id=NEW.space_id AND version=NEW.version AND sealed)
+ THEN RAISE EXCEPTION 'access head requires sealed snapshot' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END; $$;
+CREATE TRIGGER access_head_guard BEFORE INSERT OR UPDATE OR DELETE ON access_policy_heads FOR EACH ROW EXECUTE FUNCTION guard_access_head();
+
+-- Active pipeline references; full profile compilation is a separate boundary.
+CREATE TABLE query_profile_catalog(
+ profile_digest sha256_value PRIMARY KEY,payload bytea NOT NULL CHECK(octet_length(payload) BETWEEN 1 AND 1048576));
+CREATE TABLE query_profile_bindings(
+ space_id platform_id NOT NULL,kb_id platform_id NOT NULL,version uint64_value NOT NULL CHECK(version>0),
+ profile_digest sha256_value NOT NULL REFERENCES query_profile_catalog(profile_digest),PRIMARY KEY(space_id,kb_id,version));
+CREATE TABLE query_profile_heads(
+ space_id platform_id NOT NULL,kb_id platform_id NOT NULL,version uint64_value NOT NULL,
+ PRIMARY KEY(space_id,kb_id),FOREIGN KEY(space_id,kb_id,version) REFERENCES query_profile_bindings(space_id,kb_id,version));
+CREATE FUNCTION guard_query_profile_binding() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN RAISE EXCEPTION 'query profile binding is immutable' USING ERRCODE='23514'; END; $$;
+CREATE TRIGGER query_profile_catalog_guard BEFORE UPDATE OR DELETE ON query_profile_catalog FOR EACH ROW EXECUTE FUNCTION guard_query_profile_binding();
+CREATE TRIGGER query_profile_binding_guard BEFORE UPDATE OR DELETE ON query_profile_bindings FOR EACH ROW EXECUTE FUNCTION guard_query_profile_binding();
+CREATE FUNCTION guard_query_profile_head() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP='DELETE' THEN RAISE EXCEPTION 'query profile head cannot be deleted' USING ERRCODE='23514'; END IF;
+ IF TG_OP='UPDATE' AND (NEW.space_id<>OLD.space_id OR NEW.kb_id<>OLD.kb_id OR NEW.version<=OLD.version)
+ THEN RAISE EXCEPTION 'query profile binding version must advance' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END; $$;
+CREATE TRIGGER query_profile_head_guard BEFORE UPDATE OR DELETE ON query_profile_heads FOR EACH ROW EXECUTE FUNCTION guard_query_profile_head();
+
 COMMIT;

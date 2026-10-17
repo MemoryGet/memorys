@@ -1,0 +1,38 @@
+{
+  "passed": false,
+  "production_acceptance": false,
+  "scope": "WSL PostgreSQL 16 real SQL/repository probe; not production or exact Docker image acceptance",
+  "requested_major": 16,
+  "distribution": "Ubuntu",
+  "port": 55432,
+  "server_stopped": true,
+  "temporary_resources_removed": true,
+  "binary_version": "postgres (PostgreSQL) 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+  "postgres_binary_sha256": "201d8daff9a5bd9df70b820471b965c39f5a776d677f395232c477d051270722",
+  "temporary_directory": "/tmp/akos-pg-xuZ0BEQiMl",
+  "server_version": "16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+  "sql_checks": [
+    {
+      "file": "withdraw_contract_v1.sql",
+      "completed": true
+    },
+    {
+      "file": "withdraw_contract_test.sql",
+      "completed": true
+    }
+  ],
+  "go_executable_sha256": "485e73d2bb9816649b8b7489939183578d2fee3806c3c8f62985c517fc216121",
+  "error": "['wsl', '--distribution', 'Ubuntu'] failed: PostgreSQL repository probe failed: completion fixture prepare case=completion-renewed lease_remaining=-265.939909ms context=<nil>: publication task unavailable or stale elapsed: 7.050061033s\n",
+  "fixture_server_error_summaries": [
+    "fixture task failure",
+    "publication task requires atomic receipt audit and event",
+    "publication task requires atomic receipt audit and event",
+    "could not serialize access due to concurrent update",
+    "sealed preparation cannot move to another generation",
+    "fixture preparation failure",
+    "fixture preparation failure",
+    "preparation requires matching generation audit and event",
+    "could not obtain lock on row in relation \"publication_task_heads\"",
+    "duplicate key value violates unique constraint \"generation_sets_pkey\""
+  ]
+}

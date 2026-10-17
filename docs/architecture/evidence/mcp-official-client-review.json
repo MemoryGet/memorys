@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "production_acceptance": false,
+  "scope": "Official SDK v1.8.0 client and server on localhost with fixture application; controlled Bearer, protocol 2025-11-25, standalone SSE disabled",
+  "test": "TestOfficialClientStreamableSearch",
+  "file": "pkg/mcpgateway/gateway_test.go",
+  "file_sha256": "69c12f1706659969e6eb7eeedaf226cae26ab65d0aac81e4168767e3d3a469c3",
+  "commands": [
+    "go test ./pkg/mcpgateway ./tests/architecture -count=1",
+    "go vet ./pkg/mcpgateway"
+  ],
+  "covers": [
+    "SDK initialization and initialized notification",
+    "tools/list",
+    "tools/call",
+    "structured/text JSON equality"
+  ],
+  "unverified": [
+    "production application bootstrapping",
+    "OAuth",
+    "other client implementations",
+    "cross-request cancellation"
+  ]
+}

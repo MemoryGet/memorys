@@ -27,7 +27,8 @@ class MarkItDownProbeTests(unittest.TestCase):
             return subprocess.CompletedProcess(command, 0, json.dumps(go_evidence), "")
 
         evidence = {"passed": True, "production_acceptance": False, "configured_factory": True,
-                    "closed_reference_rejected": True, "format": "pdf"}
+                    "closed_reference_rejected": True, "closed_projector_rejected": True,
+                    "original_quote_verified": True, "invented_quote_rejected": True, "format": "pdf"}
         if go_evidence is None:
             go_evidence = evidence
         with patch.object(probe, "ROOT", folder), patch.object(probe, "fixtures", return_value={"pdf": (b"source", "expected")}), \
@@ -52,6 +53,8 @@ class MarkItDownProbeTests(unittest.TestCase):
             self.assertTrue(report["sources_unchanged_during_checks"])
             self.assertEqual(len(report["probe_executable_sha256"]), 64)
             self.assertTrue(report["records"][0]["closed_reference_rejected"])
+            self.assertTrue(report["records"][0]["original_quote_verified"])
+            self.assertTrue(report["records"][0]["closed_projector_rejected"])
             self.assertEqual(list((folder / ".local/architecture-check").iterdir()), [])
 
     def test_build_timeout_and_false_evidence_clean_owned_resources(self):
@@ -67,6 +70,23 @@ class MarkItDownProbeTests(unittest.TestCase):
             folder = self.root(directory)
             with self.assertRaisesRegex(RuntimeError, "sources changed"):
                 self.invoke(folder, changed=True)
+
+    def test_missing_or_false_original_evidence_is_rejected(self):
+        valid = {"passed": True, "production_acceptance": False, "configured_factory": True,
+                 "closed_reference_rejected": True, "closed_projector_rejected": True,
+                 "original_quote_verified": True, "invented_quote_rejected": True, "format": "pdf"}
+        for key in ("closed_projector_rejected", "original_quote_verified", "invented_quote_rejected"):
+            for missing in (True, False):
+                evidence = dict(valid)
+                if missing:
+                    del evidence[key]
+                else:
+                    evidence[key] = False
+                with self.subTest(key=key, missing=missing), tempfile.TemporaryDirectory() as directory:
+                    folder = self.root(directory)
+                    with self.assertRaisesRegex(RuntimeError, "assembly evidence incomplete"):
+                        self.invoke(folder, evidence)
+                    self.assertEqual(list((folder / ".local/architecture-check").iterdir()), [])
 
     def test_failed_run_replaces_previous_green_report(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "production_acceptance": false,
+  "scope": "Configured standard test reranker resolved through profile assembly; actual PostgreSQL candidates are current/source checked before and after reranking; forged excerpt and credential revoked inside reranker rejected; independent lineage/order/profile hashes",
+  "source_inputs": 505,
+  "source_inventory_sha256": "d409a4413b259017ea999224b5de652616fc0354d0188ab98f529dd8502156d4",
+  "checks": [
+    "knowledge_reranking_native_pipeline",
+    "knowledge_reranking_fabrication_rejected",
+    "knowledge_reranking_final_revocation"
+  ],
+  "unit_tests": [
+    "TestRerankingPreservesLineageAndRejectsFabrication",
+    "TestSearchRequiresConfiguredRerankerAndVerifiesBeforeCallingIt",
+    "TestSearchRejectsReflectionUntilExecutorSupportsIt"
+  ],
+  "reports": [
+    "postgres15-wsl-review.json",
+    "postgres16-wsl-review.json",
+    "postgres18-wsl-review.json"
+  ],
+  "independent_relations": "evidence-backend-runtime-review.json",
+  "same_probe_binary": true,
+  "provider": "test reverse-order fixture, not production model",
+  "unverified": [
+    "production reranker adapter and quality/latency/cost",
+    "full reranker lifecycle/network authorization/Grant ledger and send boundary",
+    "multi-route/fusion and reflection executor",
+    "formal partner OpenAPI/MCP/UI/bootstrap and production operations",
+    "sealed Chinese Recall@10 and complete migration/rollback"
+  ]
+}

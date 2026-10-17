@@ -1,0 +1,33 @@
+{
+  "passed": true,
+  "production_acceptance": false,
+  "scope": "Shared single-route SearchService: actual SDK identity, PostgreSQL ACL/configuration, assembled SQL retriever and final source checks; localhost HTTP public projection; independent candidates/response/original relations; host test plan and invocation binding",
+  "source_inputs": 505,
+  "source_inventory_sha256": "d409a4413b259017ea999224b5de652616fc0354d0188ab98f529dd8502156d4",
+  "checks": [
+    "knowledge_application_native_search",
+    "knowledge_application_localhost_rest",
+    "knowledge_application_revoked_credential"
+  ],
+  "unit_tests": [
+    "TestSearchReauthenticatesAndOwnsCredentials",
+    "TestSearchRejectsPlannerEscalationAndUnverifiedOutput",
+    "TestSearchRejectsMalformedIdentityBeforeAuthorization",
+    "TestApplicationSearchRejectsCredentialsAndInternalArguments",
+    "TestApplicationSearchProjectsPublicResultsAndClearsCredential"
+  ],
+  "reports": [
+    "postgres15-wsl-review.json",
+    "postgres16-wsl-review.json",
+    "postgres18-wsl-review.json"
+  ],
+  "independent_relations": "evidence-backend-runtime-review.json",
+  "same_probe_binary": true,
+  "unverified": [
+    "multi-route execution/fusion/reranking and model/reflection",
+    "production plan source/Grant ledger, bootstrap and issuer administration",
+    "formal partner OpenAPI, MCP, Vue and feedback services",
+    "network send/revoke barrier and production concurrency",
+    "sealed Chinese Recall@10 and migration/rollback"
+  ]
+}

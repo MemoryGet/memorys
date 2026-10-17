@@ -29,7 +29,7 @@ func (u *guardedUnit) WithinRead(ctx context.Context, scope contracts.AccessScop
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	if scope.ScopeID == "" || scope.SubjectID == "" || scope.SpaceID == "" || scope.Action != "knowledge.search" || scope.PolicyVersion == 0 || len(scope.KnowledgeBaseIDs) < 1 || len(scope.KnowledgeBaseIDs) > 256 {
+	if scope.ScopeID == "" || scope.SubjectID == "" || scope.SpaceID == "" || !contracts.IsCurrentContentReadAction(scope.Action) || scope.PolicyVersion == 0 || len(scope.KnowledgeBaseIDs) < 1 || len(scope.KnowledgeBaseIDs) > 256 {
 		return ErrInvalid
 	}
 	if !scope.ExpiresAt.After(time.Now()) {

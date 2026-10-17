@@ -1,5 +1,7 @@
 # MCP Server 接入架构 V1
 
+2026-10-16运行增量：[MCP搜索接入](MCP_SEARCH_RUNTIME.md)已实现独立SDK适配、受控Bearer与搜索工具；下文首轮设计证据的“未安装/未运行”描述保留为历史边界，当前其余三工具、OAuth和完整互操作仍待验。
+
 ## 1. 选定验证基线
 
 首轮协议基线为2025-11-25，官方Go SDK候选锁定v1.8.0，commit `3f3b699b2b67e1ed033a63d6651671dab53c2d32`。其兼容表包含该协议，go.mod要求Go1.25.0；源码证据和哈希见 [SDK核验清单](evidence/mcp-go-sdk-v1.8.0-source-review.json)、[固定README](https://github.com/modelcontextprotocol/go-sdk/blob/3f3b699b2b67e1ed033a63d6651671dab53c2d32/README.md)。SDK支持范围不代表本产品已测试全部版本。首轮只接受基线版本，更新兼容列表必须另做协议与授权回归。

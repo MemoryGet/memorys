@@ -66,7 +66,7 @@ func principalShape(p contracts.Principal) bool {
 }
 
 func scopeKBs(s contracts.AccessScope, p contracts.Principal) (map[contracts.ID]bool, bool) {
-	if !scopeText(string(s.ScopeID)) || s.SubjectID != p.SubjectID || !scopeText(string(s.SpaceID)) || s.Action != "knowledge.search" || s.PolicyVersion == 0 || s.ExpiresAt.IsZero() || len(s.KnowledgeBaseIDs) == 0 || len(s.KnowledgeBaseIDs) > 256 {
+	if !scopeText(string(s.ScopeID)) || s.SubjectID != p.SubjectID || !scopeText(string(s.SpaceID)) || !contracts.IsCurrentContentReadAction(s.Action) || s.PolicyVersion == 0 || s.ExpiresAt.IsZero() || len(s.KnowledgeBaseIDs) == 0 || len(s.KnowledgeBaseIDs) > 256 {
 		return nil, false
 	}
 	result := make(map[contracts.ID]bool, len(s.KnowledgeBaseIDs))

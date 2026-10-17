@@ -127,3 +127,23 @@ CheckOperation新增Evidence，CurrentBackend.Verify新增证据批次参数（�
 ## 12. 多格式核验的替换边界
 
 CurrentBackend进一步拆分的角色、固定路由、缓存范围、版本迁移/回退和6项EV运行门槛见[可替换证据核验模块](EVIDENCE_VERIFICATION_MODULES.md)。正文局部实现不能宣称支持所有多格式引用；音频引用时间定位字段及专用端口/能力配置仍需先冻结。
+
+
+## 当前发布关键词候选的接入状态（2026-10-15）
+
+[默认PG Retriever](POSTGRES_KEYWORD_RETRIEVER.md)现已核验查询观察点中的真实索引快照，并在返回候选前另开当前元数据观察点。它不是本章完整CheckCurrent的生产实现：CurrentControl、最终CurrentBackend、正文/原件引用验证及模型/REST/MCP输出接入仍待完成，CHECK六项门槛保持开放。尤其不能把检索期间的索引验证视作稍后输出时仍有效的证明。
+
+
+## 已发布冻结正文的真实读取提供者（2026-10-15）
+
+[PublishedFrozenReader](PUBLISHED_FROZEN_READER.md)现已实现FrozenContentReader，并实际调用VerifyFrozen通过实库检查，替代仅模拟的正文读取。它检查当前发布/批准、类型化Revision与保存正文及双摘要；不检验原件/媒体字节及Evidence位置，也不检查索引。原生original/coarse候选不能直接传给仅接受revision文本定位的VerifyTextEvidence；相关来源/位置核验与CurrentBackend/Control、模型/API输出接入仍待完成。
+
+
+## 原生CurrentBackend实库接入（2026-10-16）
+
+[EvidenceBackend](POSTGRES_EVIDENCE_BACKEND.md)已实现真实端口，核验实际关键词快照、冻结正文和原件文本引用，结束前再次观察实际索引。它与Retriever共用实际产物/快照读取器，拒绝物理删除及保留行的逻辑分块删除。CheckCurrent已通过真实DB/文件的组合运行及错误/撤权场景；CurrentControl和原件授权为测试控制源，生产身份、其他格式/定位、正式模块装配和模型/REST/MCP输出仍待完成，六项CHECK门槛不整体关闭。
+
+
+## AuthenticatedControl编排实现（2026-10-16）
+
+[请求绑定控制器](AUTHENTICATED_CURRENT_CONTROL.md)已接入标准Authenticator/Authorizer和CurrentFactsSource，每次Refresh重新调用，实库正向组合已替代直接回显状态的控制器。测试认证与策略仍为fixture，实际令牌/目录/ACL及配置权威源和最终产品输出尚未接入，六项CHECK门槛保持开放。

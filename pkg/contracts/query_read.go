@@ -1,9 +1,31 @@
 package contracts
 
-import "context"
+import (
+	"context"
+	"time"
+)
+
+// ReadableDocumentLocator resolves ownership under current knowledge.read
+// grants. Principal must be authenticated by the caller. It returns no content
+// and must hide both nonexistent and unauthorized documents behind one error.
+type ReadableDocumentLocator interface {
+	LocateReadableDocument(context.Context, Principal, ID) (ReadableDocument, error)
+}
+
+type ReadableDocument struct {
+	DocumentID, SpaceID, KnowledgeBaseID ID
+	Scope                                AccessScope
+}
 
 // QueryReadIdentity is provider-neutral; it is not a vendor transaction ID or
 // proof of consistency. Implementations must provide the promised observation.
+// IsCurrentContentReadAction admits only current-content observation actions.
+// It grants no authority and deliberately excludes history, writes and wildcards.
+// Search executors must still require knowledge.search at their own boundary.
+func IsCurrentContentReadAction(action Action) bool {
+	return action == "knowledge.search" || action == "knowledge.read"
+}
+
 type QueryReadIdentity struct {
 	StoreEpochID ID
 	ReadVersion  string
@@ -80,6 +102,27 @@ type FrozenContentRecord struct {
 	Payload                []byte // Standard JSON, not a vendor envelope; at most 4MiB.
 }
 
+// ReadContentVerifier checks every output block and its source against the
+// approval-bound record. Unsupported source/content types must fail the whole
+// read, never silently omit blocks. This port does not authorize a network send.
+type ReadContentVerifier interface {
+	VerifyReadContent(context.Context, FrozenContentReadRequest, FrozenRevisionFact, FrozenContentRecord) error
+}
+
+// ReadCursorState carries commitments only, never credentials or content.
+// A valid signature is not authorization; the application must recompute the
+// current identity/publication binding before continuing a page.
+type ReadCursorState struct {
+	Binding, Selection Digest
+	Position, PageSize int
+	ExpiresAt          time.Time
+}
+
+type ReadCursorCodec interface {
+	SealReadCursor(context.Context, ReadCursorState) (string, error)
+	OpenReadCursor(context.Context, string) (ReadCursorState, error)
+}
+
 // A repository is scoped to WithinRead's identity and authorized scope. It
 // cannot write or escape the callback. Returned snapshots must be independent.
 type QueryReadRepository interface {
@@ -98,7 +141,7 @@ type QueryReadUnit interface {
 func ValidatePublishedPage(page PublishedPage, request PublishedPageRequest, scope AccessScope, afterDocumentID ID) error {
 	invalid := func() error { return PublicError{Code: "validation_failed", SafeMessage: "Invalid published page"} }
 	id := request.Identity
-	if id.StoreEpochID == "" || id.ReadVersion == "" || id.Watermark == "" || page.Identity != id || request.Limit < 1 || request.Limit > 1000 || len(page.Facts) > request.Limit || len(request.KnowledgeBaseIDs) == 0 || len(request.KnowledgeBaseIDs) > 256 || scope.ScopeID == "" || scope.SubjectID == "" || scope.SpaceID == "" || scope.Action != "knowledge.search" || scope.PolicyVersion == 0 {
+	if id.StoreEpochID == "" || id.ReadVersion == "" || id.Watermark == "" || page.Identity != id || request.Limit < 1 || request.Limit > 1000 || len(page.Facts) > request.Limit || len(request.KnowledgeBaseIDs) == 0 || len(request.KnowledgeBaseIDs) > 256 || scope.ScopeID == "" || scope.SubjectID == "" || scope.SpaceID == "" || !IsCurrentContentReadAction(scope.Action) || scope.PolicyVersion == 0 {
 		return invalid()
 	}
 	allowed := map[ID]bool{}

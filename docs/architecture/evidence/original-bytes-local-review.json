@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "production_acceptance": false,
+  "scope": "Independent original/media byte integrity helper using standard BlobStore; real local filesystem positive/denied reads and stream faults; not yet integrated with actual PostgreSQL query/output pipeline",
+  "source_inputs": 505,
+  "source_inventory_sha256": "d409a4413b259017ea999224b5de652616fc0354d0188ab98f529dd8502156d4",
+  "evidence": "unified-local-checks.json",
+  "test_package": "github.com/MemoryGet/memorys/pkg/contentverify",
+  "tests": [
+    "TestOriginalBytesWithActualLocalStorage",
+    "TestOriginalBytesRejectsShortLongCorruptAndFailedReads",
+    "TestOriginalBytesCancellationAndAdmission"
+  ],
+  "unverified": [
+    "binding approved frozen BlobRef and current original-read scope in application service",
+    "excerpt/locator and parser/OCR source semantics",
+    "actual CurrentBackend/CurrentControl and final output path",
+    "remote BlobStore cancellation and implementation replacement",
+    "production IAM, migrations/rollback, Recall and performance"
+  ]
+}

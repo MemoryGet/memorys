@@ -26,7 +26,7 @@ func (p lostReviewResponse) DecideReview(ctx context.Context, c document.ReviewC
 	return contracts.Approval{}, document.ErrReviewUnknown
 }
 
-func verifyReviewTransactions(ctx context.Context, db *sql.DB, scope contracts.AccessScope, request contracts.RequestContext, revision contracts.Revision, newRevision func(string) (contracts.SubmitResult, error)) error {
+func verifyReviewTransactions(ctx context.Context, db *sql.DB, scope contracts.AccessScope, request contracts.RequestContext, revision contracts.Revision, originals contracts.BlobStore, newRevision func(string) (contracts.SubmitResult, error)) error {
 	scope.SubjectID = "reviewer"
 	scope.Action = "revision.approve"
 	scope.ScopeID = "review-scope"
@@ -65,7 +65,8 @@ func verifyReviewTransactions(ctx context.Context, db *sql.DB, scope contracts.A
 	reviewContractSamples = append(reviewContractSamples, reviewRequestSample(initial))
 	command := makeCommand(revision, "approve-original", "approve", 0)
 	if result, err := (lostReviewResponse{repository}).DecideReview(ctx, command); !errors.Is(err, document.ErrReviewUnknown) || result.ID != "" {
-		return fmt.Errorf("real review lost response: %w", err)
+		_, preparationErr := document.PrepareReview(initial, contracts.FrozenRevisionFact{ID: revision.ID, DocumentID: revision.DocumentID, HashFormat: revision.HashFormat, ContentHash: revision.ContentHash, BlocksHash: revision.BlocksHash}, 0, "diagnostic-decision", "reviewer", "approve", command.Request.Reason, 7, time.Now().UTC())
+		return fmt.Errorf("real review lost response: preparation_valid=%t request_remaining=%s scope_remaining=%s context=%v: %w", preparationErr == nil, time.Until(request.Deadline), time.Until(scope.ExpiresAt), ctx.Err(), err)
 	}
 	cold, err := openFixtureDB()
 	if err != nil {
@@ -277,7 +278,7 @@ func verifyReviewTransactions(ctx context.Context, db *sql.DB, scope contracts.A
 		}
 		cmd := makeCommand(submitted.Revision, "approve-"+name, "approve", 0)
 		decision, err := repository.DecideReview(ctx, cmd)
-		return approvedPublicationFixture{submitted.Revision, decision}, err
+		return approvedPublicationFixture{Revision: submitted.Revision, Approval: decision, Originals: originals}, err
 	}, func(f approvedPublicationFixture) error {
 		_, err := repository.DecideReview(ctx, makeCommand(f.Revision, "revoke-"+string(f.Revision.ID), "revoke", f.Approval.RowVersion))
 		return err
