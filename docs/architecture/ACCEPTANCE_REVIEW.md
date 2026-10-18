@@ -1,3 +1,5 @@
+2026-10-18最新增量：生产制品装配改为单次字节快照解码并记录三份SHA-256，避免重开可变路径造成JWKS/Profile/模块配置代际混用；当前626项本地与PG16证据通过。
+
 2026-10-18最新增量：删除控制outbox使用identity-backed `event_seq`和固定20位游标，避免随机请求ID keyset在并发写入时跳过事件；当前626项源码快照的本地/PG16证据均通过。
 
 2026-10-18最新增量：生产Runtime新增可选`ProductionArtifactAssembler`路径，按同一代JWKS/Profile/模块目录快照调用宿主，制品加载失败即拒绝启动；基础assembler接口保持兼容。

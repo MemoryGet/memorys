@@ -22,6 +22,17 @@ func LoadConfigFile(path string) (Config, error) {
 	if err != nil || len(raw) == 0 || len(raw) > 1<<20 {
 		return out, ErrConfigFile
 	}
+	return DecodeConfigFile(raw)
+}
+
+// DecodeConfigFile validates one detached module configuration byte
+// snapshot. Production assemblers can read all deployment inputs once and
+// decode those snapshots without reopening mutable paths.
+func DecodeConfigFile(raw []byte) (Config, error) {
+	var out Config
+	if len(raw) == 0 || len(raw) > 1<<20 {
+		return out, ErrConfigFile
+	}
 	decoder := json.NewDecoder(bytes.NewReader(raw))
 	decoder.DisallowUnknownFields()
 	if decoder.Decode(&out) != nil {

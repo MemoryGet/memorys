@@ -3,6 +3,8 @@ package bootstrap
 import (
 	"context"
 	"crypto/rsa"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"net/url"
 	"os"
@@ -34,6 +36,9 @@ type ProductionArtifacts struct {
 	PublicKeys map[string]*rsa.PublicKey
 	Profile    configprofile.Snapshot
 	Modules    kernel.Config
+	// Digests are SHA-256 values of the exact bytes decoded above. The map is
+	// intentionally descriptive; the assembler must treat it as immutable.
+	Digests map[string]string
 }
 
 type EnvLookup func(string) (string, bool)
@@ -108,27 +113,57 @@ func LoadProductionSettingsFromEnv() (ProductionSettings, error) {
 	return LoadProductionSettings(os.LookupEnv)
 }
 
-// LoadProductionArtifacts loads one coherent deployment generation. It does
-// not open the database or create modules; the assembler must bind these
-// immutable inputs to verified factories and current identity status.
+// LoadProductionArtifacts loads one coherent deployment generation. Each
+// file is read exactly once, hashed from those bytes, and decoded from the
+// same snapshot; the assembler must bind these immutable inputs to verified
+// factories and current identity status.
 func LoadProductionArtifacts(settings ProductionSettings) (ProductionArtifacts, error) {
 	var out ProductionArtifacts
 	if validateProductionSettings(settings) != nil {
 		return out, ErrProductionConfig
 	}
-	keys, err := identitytoken.LoadRS256PublicKeys(settings.JWKSFile)
+	jwks, jwksDigest, err := readArtifactSnapshot(settings.JWKSFile)
 	if err != nil {
 		return out, ErrProductionConfig
 	}
-	profile, err := configprofile.LoadFile(settings.ProfileFile)
+	profileRaw, profileDigest, err := readArtifactSnapshot(settings.ProfileFile)
 	if err != nil {
 		return out, ErrProductionConfig
 	}
-	modules, err := kernel.LoadConfigFile(settings.ModuleCatalogFile)
+	modulesRaw, modulesDigest, err := readArtifactSnapshot(settings.ModuleCatalogFile)
 	if err != nil {
 		return out, ErrProductionConfig
 	}
-	return ProductionArtifacts{PublicKeys: keys, Profile: profile, Modules: modules}, nil
+	keys, err := identitytoken.ParseRS256PublicKeys(jwks)
+	if err != nil {
+		return out, ErrProductionConfig
+	}
+	profile, err := configprofile.Decode(profileRaw)
+	if err != nil {
+		return out, ErrProductionConfig
+	}
+	modules, err := kernel.DecodeConfigFile(modulesRaw)
+	if err != nil {
+		return out, ErrProductionConfig
+	}
+	return ProductionArtifacts{
+		PublicKeys: keys,
+		Profile:    profile,
+		Modules:    modules,
+		Digests:    map[string]string{"jwks": jwksDigest, "profile": profileDigest, "modules": modulesDigest},
+	}, nil
+}
+
+func readArtifactSnapshot(path string) ([]byte, string, error) {
+	if path == "" {
+		return nil, "", ErrProductionConfig
+	}
+	raw, err := os.ReadFile(path)
+	if err != nil || len(raw) == 0 || len(raw) > 1<<20 {
+		return nil, "", ErrProductionConfig
+	}
+	sum := sha256.Sum256(raw)
+	return raw, hex.EncodeToString(sum[:]), nil
 }
 
 // ProductionAssembler is the host boundary for real DB pools, identity

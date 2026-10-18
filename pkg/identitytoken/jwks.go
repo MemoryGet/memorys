@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"encoding/json"
 	"errors"
+	"io"
 	"math/big"
 	"os"
 
@@ -26,10 +27,24 @@ func LoadRS256PublicKeys(path string) (map[string]*rsa.PublicKey, error) {
 	if err != nil || len(raw) == 0 || len(raw) > 1<<20 {
 		return nil, ErrJWKS
 	}
+	return ParseRS256PublicKeys(raw)
+}
+
+// ParseRS256PublicKeys validates one detached JWKS byte snapshot. Callers
+// that need a coherent deployment generation should read each input once and
+// pass the bytes here instead of reopening mutable paths during assembly.
+func ParseRS256PublicKeys(raw []byte) (map[string]*rsa.PublicKey, error) {
+	if len(raw) == 0 || len(raw) > 1<<20 {
+		return nil, ErrJWKS
+	}
 	var set jose.JSONWebKeySet
 	decoder := json.NewDecoder(bytes.NewReader(raw))
 	decoder.DisallowUnknownFields()
 	if decoder.Decode(&set) != nil || len(set.Keys) == 0 || len(set.Keys) > 100 {
+		return nil, ErrJWKS
+	}
+	var extra any
+	if decoder.Decode(&extra) != io.EOF {
 		return nil, ErrJWKS
 	}
 	keys := make(map[string]*rsa.PublicKey, len(set.Keys))

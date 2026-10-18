@@ -56,3 +56,17 @@ func TestLoadRS256PublicKeysRejectsUnsafeSets(t *testing.T) {
 		t.Fatal("missing JWKS accepted")
 	}
 }
+
+func TestParseRS256PublicKeysRejectsTrailingJSON(t *testing.T) {
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := json.Marshal(jose.JSONWebKeySet{Keys: []jose.JSONWebKey{{Key: &key.PublicKey, KeyID: "key-1", Algorithm: string(jose.RS256), Use: "sig"}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = identitytoken.ParseRS256PublicKeys(append(raw, []byte(" {}")...)); err == nil {
+		t.Fatal("trailing JWKS JSON accepted")
+	}
+}

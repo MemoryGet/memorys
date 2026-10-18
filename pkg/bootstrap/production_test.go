@@ -102,8 +102,9 @@ func TestLoadProductionArtifactsFailsClosedForMissingDeploymentFiles(t *testing.
 }
 
 type artifactAssembler struct {
-	called bool
-	keys   int
+	called  bool
+	keys    int
+	digests map[string]string
 }
 
 func (a *artifactAssembler) Assemble(_ context.Context, _ ProductionSettings) (Config, *events.Runner, func() error, error) {
@@ -113,6 +114,7 @@ func (a *artifactAssembler) Assemble(_ context.Context, _ ProductionSettings) (C
 func (a *artifactAssembler) AssembleWithArtifacts(_ context.Context, _ ProductionSettings, artifacts ProductionArtifacts) (Config, *events.Runner, func() error, error) {
 	a.called = true
 	a.keys = len(artifacts.PublicKeys)
+	a.digests = artifacts.Digests
 	return Config{}, nil, func() error { return nil }, nil
 }
 
@@ -159,8 +161,8 @@ func TestNewProductionRuntimePassesVerifiedArtifactsToAwareAssembler(t *testing.
 	}
 	a := &artifactAssembler{}
 	runtime, err := NewProductionRuntime(context.Background(), settings, a)
-	if err != nil || runtime == nil || !a.called || a.keys != 1 {
-		t.Fatal("verified artifacts were not passed to aware assembler", err, a.called, a.keys)
+	if err != nil || runtime == nil || !a.called || a.keys != 1 || len(a.digests) != 3 || a.digests["jwks"] == "" || a.digests["profile"] == "" || a.digests["modules"] == "" {
+		t.Fatal("verified artifacts were not passed to aware assembler", err, a.called, a.keys, a.digests)
 	}
 	if err := runtime.Stop(); err != nil {
 		t.Fatal(err)
