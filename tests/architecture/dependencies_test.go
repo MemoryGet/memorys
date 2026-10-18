@@ -21,7 +21,7 @@ var localDependencies = map[string][]string{
 	"pkg/knowledge":                    {"pkg/contracts", "pkg/configprofile", "pkg/queryread", "pkg/fusion", "pkg/canonical", "pkg/publicationprojection", "pkg/clockhealth"},
 	"pkg/clockhealth":                  {},
 	"pkg/events":                       {"pkg/contracts"},
-	"pkg/bootstrap":                    {"pkg/api", "pkg/events", "pkg/identitytoken", "pkg/configprofile", "pkg/kernel"},
+	"pkg/bootstrap":                    {"pkg/api", "pkg/events", "pkg/identitytoken", "pkg/configprofile", "pkg/kernel", "pkg/buildlock"},
 	"pkg/buildlock":                     {"pkg/canonical"},
 	"pkg/profileassembly":              {"pkg/contracts", "pkg/configprofile", "pkg/kernel"},
 	"pkg/configprofile":                {"pkg/contracts", "pkg/canonical", "pkg/preparation"},

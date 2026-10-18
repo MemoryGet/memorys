@@ -109,6 +109,13 @@ type artifactAssembler struct {
 	digests map[string]string
 }
 
+type lockedArtifactAssembler struct{ called bool }
+
+func (a *lockedArtifactAssembler) AssembleWithLockedArtifacts(_ context.Context, _ ProductionSettings, _ ProductionLockedArtifacts) (Config, *events.Runner, func() error, error) {
+	a.called = true
+	return Config{}, nil, func() error { return nil }, nil
+}
+
 type productionTokenStatus struct{}
 
 func (productionTokenStatus) Active(context.Context, identitytoken.StatusQuery) (bool, error) {
@@ -181,5 +188,19 @@ func TestNewProductionRuntimePassesVerifiedArtifactsToAwareAssembler(t *testing.
 	}
 	if err := runtime.Stop(); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestNewProductionRuntimeWithBuildLockRejectsBeforeAssembler(t *testing.T) {
+	settings, err := LoadProductionSettings(productionEnv(nil))
+	if err != nil {
+		t.Fatal(err)
+	}
+	a := &lockedArtifactAssembler{}
+	if _, err = NewProductionRuntimeWithBuildLock(context.Background(), settings, ProductionLockInput{}, a); !errors.Is(err, ErrProductionConfig) {
+		t.Fatal("missing BuildLock inputs accepted", err)
+	}
+	if a.called {
+		t.Fatal("assembler invoked before BuildLock verification")
 	}
 }

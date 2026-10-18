@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/MemoryGet/memorys/pkg/buildlock"
 	"github.com/MemoryGet/memorys/pkg/configprofile"
 	"github.com/MemoryGet/memorys/pkg/events"
 	"github.com/MemoryGet/memorys/pkg/identitytoken"
@@ -40,6 +41,22 @@ type ProductionArtifacts struct {
 	// Digests are SHA-256 values of the exact bytes decoded above. The map is
 	// intentionally descriptive; the assembler must treat it as immutable.
 	Digests map[string]string
+}
+
+// ProductionLockInput contains only operator-supplied paths. No path is
+// loaded from JSON lock content; manifests and artifacts must be explicitly
+// mapped by the deployment host.
+type ProductionLockInput struct {
+	DeploymentFile string
+	LockFile       string
+	RetentionFile  string
+	Manifests      map[buildlock.Key]string
+	Artifacts      map[buildlock.Key]string
+}
+
+type ProductionLockedArtifacts struct {
+	Artifacts ProductionArtifacts
+	Lock      buildlock.Report
 }
 
 type EnvLookup func(string) (string, bool)
@@ -155,6 +172,26 @@ func LoadProductionArtifacts(settings ProductionSettings) (ProductionArtifacts, 
 	}, nil
 }
 
+// LoadProductionLockedArtifacts verifies the operator-supplied BuildLock
+// inputs before loading the runtime artifacts. The lock verifier never
+// executes artifacts or follows paths from JSON; the assembler receives the
+// offline report separately and must still perform runtime health/IAM checks.
+func LoadProductionLockedArtifacts(settings ProductionSettings, input ProductionLockInput) (ProductionLockedArtifacts, error) {
+	var out ProductionLockedArtifacts
+	if validateProductionSettings(settings) != nil {
+		return out, ErrProductionConfig
+	}
+	lockReport, err := buildlock.VerifyFiles(input.DeploymentFile, input.LockFile, input.RetentionFile, input.Manifests, input.Artifacts)
+	if err != nil {
+		return out, ErrProductionConfig
+	}
+	artifacts, err := LoadProductionArtifacts(settings)
+	if err != nil {
+		return out, err
+	}
+	return ProductionLockedArtifacts{Artifacts: artifacts, Lock: lockReport}, nil
+}
+
 func readArtifactSnapshot(path string) ([]byte, string, error) {
 	if path == "" {
 		return nil, "", ErrProductionConfig
@@ -208,6 +245,10 @@ type ProductionArtifactAssembler interface {
 // consumer is assembled from the same deployment generation.
 type ProductionRunnerGroupAssembler interface {
 	AssembleWithRunnerGroup(context.Context, ProductionSettings, ProductionArtifacts) (Config, *events.RunnerGroup, func() error, error)
+}
+
+type ProductionLockedArtifactAssembler interface {
+	AssembleWithLockedArtifacts(context.Context, ProductionSettings, ProductionLockedArtifacts) (Config, *events.Runner, func() error, error)
 }
 
 type ProductionRuntime struct {
@@ -264,6 +305,33 @@ func NewProductionRuntimeWithRunnerGroup(ctx context.Context, settings Productio
 		return nil, ErrProductionConfig
 	}
 	runtime, err := NewRuntimeWithRunnerGroup(config, group)
+	if err != nil {
+		_ = closeFn()
+		return nil, err
+	}
+	if err = runtime.Start(ctx); err != nil {
+		_ = closeFn()
+		return nil, err
+	}
+	return &ProductionRuntime{Runtime: runtime, close: closeFn}, nil
+}
+
+// NewProductionRuntimeWithBuildLock is the strict production constructor for
+// a single event consumer. It does not invoke the assembler until all lock
+// inputs have passed offline verification.
+func NewProductionRuntimeWithBuildLock(ctx context.Context, settings ProductionSettings, input ProductionLockInput, assembler ProductionLockedArtifactAssembler) (*ProductionRuntime, error) {
+	if ctx == nil || assembler == nil || validateProductionSettings(settings) != nil {
+		return nil, ErrProductionConfig
+	}
+	locked, err := LoadProductionLockedArtifacts(settings, input)
+	if err != nil {
+		return nil, err
+	}
+	config, runner, closeFn, err := assembler.AssembleWithLockedArtifacts(ctx, settings, locked)
+	if err != nil || closeFn == nil {
+		return nil, ErrProductionConfig
+	}
+	runtime, err := NewRuntime(config, runner)
 	if err != nil {
 		_ = closeFn()
 		return nil, err
