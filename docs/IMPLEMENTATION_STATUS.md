@@ -1,3 +1,5 @@
+2026-10-18最新增量：严格BuildLock构造路径现在要求assembler实现`ProductionHealthAssembler`，在启动HTTP/Runner前检查真实DB、IAM和模块健康；检查失败会关闭资源并拒绝启动。当前本地630项门禁通过。
+
 2026-10-18最新增量：严格BuildLock构造路径新增`CoversRuntimeModules`，在调用assembler前核对实际kernel模块目录与锁定provider/release集合精确一致，拒绝缺失、额外或重复模块；本地630项门禁通过。
 
 2026-10-18最新增量：生产Bootstrap新增严格`ProductionLockInput`/`NewProductionRuntimeWithBuildLock`路径，先执行Go BuildLock离线摘要校验，失败时不会调用assembler；成功后传入锁定报告与单次字节快照。当前本地630项门禁通过，PG新轮次仍受宿主时钟门禁影响。

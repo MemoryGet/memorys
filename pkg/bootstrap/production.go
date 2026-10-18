@@ -267,6 +267,13 @@ type ProductionLockedArtifactAssembler interface {
 	AssembleWithLockedArtifacts(context.Context, ProductionSettings, ProductionLockedArtifacts) (Config, *events.Runner, func() error, error)
 }
 
+// ProductionHealthAssembler is required by the strict BuildLock constructor.
+// The host owns the real DB/IAM/module clients and must check them after
+// assembly, before any event consumer or HTTP traffic is started.
+type ProductionHealthAssembler interface {
+	CheckProductionHealth(context.Context, Config) error
+}
+
 type ProductionRuntime struct {
 	Runtime  *Runtime
 	close    func() error
@@ -345,6 +352,11 @@ func NewProductionRuntimeWithBuildLock(ctx context.Context, settings ProductionS
 	}
 	config, runner, closeFn, err := assembler.AssembleWithLockedArtifacts(ctx, settings, locked)
 	if err != nil || closeFn == nil {
+		return nil, ErrProductionConfig
+	}
+	health, ok := assembler.(ProductionHealthAssembler)
+	if !ok || health.CheckProductionHealth(ctx, config) != nil {
+		_ = closeFn()
 		return nil, ErrProductionConfig
 	}
 	runtime, err := NewRuntime(config, runner)

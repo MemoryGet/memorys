@@ -16,4 +16,4 @@
 
 `NewProductionAuthenticator`提供推荐的身份绑定辅助：它把已校验的公钥、部署issuer/audience、显式subject type和token lifetime交给`identitytoken.Authenticator`，同时要求宿主注入真实数据库状态源；不会为subject type、过期时间或撤销状态提供默认值。
 
-严格制品部署可使用`ProductionLockInput`和`NewProductionRuntimeWithBuildLock`：Bootstrap先调用`buildlock.VerifyFiles`核对部署/锁/保留策略/清单/制品的显式路径映射，失败时不会调用assembler；成功后把`ProductionLockedArtifacts`和离线报告传入宿主。报告仍不证明签名来源、实际运行制品、后端依赖、持久epoch或IAM健康。
+严格制品部署可使用`ProductionLockInput`和`NewProductionRuntimeWithBuildLock`：Bootstrap先调用`buildlock.VerifyFiles`核对部署/锁/保留策略/清单/制品的显式路径映射，失败时不会调用assembler；成功后把`ProductionLockedArtifacts`和离线报告传入宿主，并要求assembler实现`ProductionHealthAssembler`完成真实DB/IAM/模块健康检查，检查失败会关闭资源并拒绝启动。报告仍不证明签名来源、实际运行制品、后端依赖或持久epoch。
