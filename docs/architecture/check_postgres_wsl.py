@@ -6,12 +6,19 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import sys
 import tempfile
 import uuid
 
 from check_architecture import source_inventory
 
 ROOT = Path(__file__).resolve().parents[2]
+
+# Windows PowerShell may expose a GBK stdout while PostgreSQL diagnostics can
+# contain Unicode units such as µs. Keep failure reporting structured instead
+# of allowing the diagnostic print itself to crash the verifier.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")
 
 
 def governance_rounds(value):
