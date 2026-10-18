@@ -1,0 +1,38 @@
+{
+  "passed": false,
+  "production_acceptance": false,
+  "scope": "WSL PostgreSQL 16 real SQL/repository probe; not production or exact Docker image acceptance",
+  "requested_major": 16,
+  "distribution": "Ubuntu",
+  "port": 55432,
+  "server_stopped": true,
+  "temporary_resources_removed": true,
+  "binary_version": "postgres (PostgreSQL) 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+  "postgres_binary_sha256": "201d8daff9a5bd9df70b820471b965c39f5a776d677f395232c477d051270722",
+  "temporary_directory": "/tmp/akos-pg-TOAR3H7lKc",
+  "server_version": "16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+  "sql_checks": [
+    {
+      "file": "withdraw_contract_v1.sql",
+      "completed": true
+    },
+    {
+      "file": "withdraw_contract_test.sql",
+      "completed": true
+    }
+  ],
+  "go_executable_sha256": "1b0f54bdee6b6b5bcc2b83c73e51a9174836cd5538b1bd8ea3df763acfbbde5a",
+  "error": "['wsl', '--distribution', 'Ubuntu'] failed: PostgreSQL repository probe failed: sql: no rows in result set elapsed: 12.360476759s\n",
+  "fixture_server_error_summaries": [
+    "query profile binding is immutable",
+    "query profile binding version must advance",
+    "access policy version must advance",
+    "fixture delete event failure",
+    "delete requires matching tombstone, receipt, cleanup, audit and event",
+    "document tombstone requires deletion receipt",
+    "deleted document cannot be republished or restored",
+    "immutable authoritative record",
+    "delete job completion lacks actual native effects",
+    "immutable authoritative record"
+  ]
+}

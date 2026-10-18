@@ -1,8 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"github.com/MemoryGet/memorys/pkg/api"
+	"github.com/MemoryGet/memorys/pkg/bootstrap"
 	"log"
 	"net/http"
 	"time"
@@ -21,19 +21,23 @@ func newMuxWithServices(search api.PartnerSearchApplication, mcpHandler http.Han
 }
 
 func newMuxWithRead(search api.PartnerSearchApplication, read api.CurrentReadApplication, mcpHandler http.Handler) http.Handler {
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{"status": "ok", "time": time.Now().UTC().Format(time.RFC3339)})
-	})
-	mux.HandleFunc("/api/documents/upload", (api.UploadHandler{}).Handle)
-	mux.Handle("/api/knowledge/search", api.ApplicationSearchHandler{Service: search})
-	mux.Handle("/api/v1/knowledge-os/search", api.PartnerSearchHandler{Service: search})
-	mux.Handle("/api/v1/knowledge-os/read", api.PartnerReadHandler{Service: read, Profile: search})
-	if mcpHandler == nil {
-		mux.HandleFunc("/mcp", func(w http.ResponseWriter, r *http.Request) { http.Error(w, "MCP not configured", 503) })
-	} else {
-		mux.Handle("/mcp", mcpHandler)
+	return newMuxWithDeletion(search, read, mcpHandler, nil, search)
+}
+
+func newMuxWithDeletion(search api.PartnerSearchApplication, read api.CurrentReadApplication, mcpHandler http.Handler, deletion api.DocumentDeletionApplication, deletionProfile api.ProfileIdentitySource) http.Handler {
+	return newMuxWithJobStatus(search, read, mcpHandler, deletion, deletionProfile, nil)
+}
+
+func newMuxWithJobStatus(search api.PartnerSearchApplication, read api.CurrentReadApplication, mcpHandler http.Handler, deletion api.DocumentDeletionApplication, deletionProfile api.ProfileIdentitySource, jobs api.JobStatusApplication) http.Handler {
+	return newMuxWithJobControl(search, read, mcpHandler, deletion, deletionProfile, jobs, nil)
+}
+
+func newMuxWithJobControl(search api.PartnerSearchApplication, read api.CurrentReadApplication, mcpHandler http.Handler, deletion api.DocumentDeletionApplication, deletionProfile api.ProfileIdentitySource, jobs api.JobStatusApplication, cancel api.JobCancellationApplication) http.Handler {
+	mux, err := bootstrap.New(bootstrap.Config{Search: search, Read: read, MCP: mcpHandler, Deletion: deletion, DeletionProfile: deletionProfile, Jobs: jobs, Cancel: cancel})
+	if err != nil {
+		return http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			http.Error(w, "invalid bootstrap", http.StatusServiceUnavailable)
+		})
 	}
 	return mux
 }

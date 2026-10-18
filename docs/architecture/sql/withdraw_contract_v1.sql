@@ -84,7 +84,7 @@ CREATE TABLE cleanup_plans(
  id platform_id PRIMARY KEY,history_id platform_id NOT NULL UNIQUE,operation_id platform_id NOT NULL,
  space_id platform_id NOT NULL,kb_id platform_id NOT NULL,document_id platform_id NOT NULL,
  revision_id platform_id NOT NULL,generation_set_id platform_id NOT NULL,publication_epoch uint64_value NOT NULL,
- history_action text NOT NULL DEFAULT 'withdraw' CHECK(history_action IN('withdraw','publish')),
+ history_action text NOT NULL DEFAULT 'withdraw' CHECK(history_action IN('withdraw','publish','delete')),
  profile_digest sha256_value NOT NULL,created_at utc_nanos NOT NULL,
  UNIQUE(space_id,kb_id,document_id,id,history_id,operation_id),UNIQUE(space_id,kb_id,id),UNIQUE(space_id,kb_id,document_id,revision_id,generation_set_id,id),
  FOREIGN KEY(space_id,kb_id,document_id,history_id,operation_id,publication_epoch,revision_id,generation_set_id,history_action)
@@ -131,7 +131,7 @@ CREATE TABLE cleanup_progress(
  row_version uint64_value NOT NULL DEFAULT 1 CHECK(row_version>0),
  worker_id platform_id,lease_until timestamptz,result_reference platform_id,
  PRIMARY KEY(plan_id,target_id),FOREIGN KEY(plan_id,target_id) REFERENCES cleanup_targets(plan_id,id),
- CHECK((state='pending' AND worker_id IS NULL AND lease_until IS NULL AND fencing_token=0 AND attempt=0)
+ CHECK((state='pending' AND worker_id IS NULL AND lease_until IS NULL AND result_reference IS NULL AND ((fencing_token=0 AND attempt=0) OR (fencing_token>0 AND attempt>0)))
   OR (state='running' AND worker_id IS NOT NULL AND lease_until IS NOT NULL AND fencing_token>0 AND attempt>0)
   OR (state IN('succeeded','failed','unknown') AND worker_id IS NOT NULL AND lease_until IS NULL AND fencing_token>0 AND attempt>0)),
  CHECK((state='succeeded' AND result_reference IS NOT NULL) OR (state<>'succeeded' AND result_reference IS NULL))
@@ -801,5 +801,231 @@ BEGIN
  RETURN NEW;
 END; $$;
 CREATE TRIGGER query_profile_head_guard BEFORE UPDATE OR DELETE ON query_profile_heads FOR EACH ROW EXECUTE FUNCTION guard_query_profile_head();
+
+-- Logical document deletion is a separate command with atomic delivery.
+CREATE TABLE document_delete_jobs(
+ id platform_id PRIMARY KEY,operation_id platform_id NOT NULL UNIQUE,history_id platform_id NOT NULL UNIQUE,
+ space_id platform_id NOT NULL,kb_id platform_id NOT NULL,document_id platform_id NOT NULL,profile_digest sha256_value NOT NULL,
+ job jsonb NOT NULL CHECK(jsonb_typeof(job)='object'),
+ FOREIGN KEY(space_id,kb_id,document_id,history_id,operation_id) REFERENCES publication_history(space_id,kb_id,document_id,id,operation_id),
+ CHECK((job->>'ID'=id AND job->>'OperationID'=operation_id AND job->>'SpaceID'=space_id AND job->>'ProfileDigest'=profile_digest AND job->>'Stage'='document.delete.cleanup' AND job->>'State'='queued' AND (job->>'RowVersion')::numeric=1 AND (job->>'Attempt')::numeric=0 AND (job->>'FencingToken')::numeric=0 AND job->'LeaseUntil'='null'::jsonb AND (job->>'Progress')::numeric=0 AND job->'Error'='null'::jsonb) IS TRUE)
+);
+CREATE INDEX document_delete_job_scope_order ON document_delete_jobs(space_id,kb_id,id COLLATE "C");
+CREATE TABLE document_delete_job_targets(
+ job_id platform_id NOT NULL REFERENCES document_delete_jobs(id),plan_id platform_id NOT NULL,target_id platform_id NOT NULL,
+ PRIMARY KEY(job_id,plan_id,target_id),FOREIGN KEY(plan_id,target_id) REFERENCES cleanup_targets(plan_id,id)
+);
+CREATE TABLE document_delete_job_progress(
+ job_id platform_id PRIMARY KEY REFERENCES document_delete_jobs(id),state text NOT NULL DEFAULT 'queued' CHECK(state IN('queued','running','completed','failed','cancelled')),
+ attempt uint64_value NOT NULL DEFAULT 0,row_version uint64_value NOT NULL DEFAULT 1 CHECK(row_version>0),
+ total_targets uint64_value NOT NULL DEFAULT 0,completed_targets uint64_value NOT NULL DEFAULT 0 CHECK(completed_targets<=total_targets),error_request_id platform_id,
+ CHECK((state='queued' AND attempt=0 AND row_version=1 AND completed_targets=0) OR (state<>'queued' AND attempt>0 AND row_version>1)),
+CHECK((state IN('failed','cancelled'))=(error_request_id IS NOT NULL)),CHECK(state<>'completed' OR completed_targets=total_targets)
+);
+CREATE FUNCTION initialize_delete_job_progress() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ INSERT INTO akos_withdraw_v1.document_delete_job_progress(job_id) VALUES(NEW.id);
+ RETURN NEW;
+END; $$;
+CREATE TRIGGER delete_job_progress_initial AFTER INSERT ON document_delete_jobs FOR EACH ROW EXECUTE FUNCTION initialize_delete_job_progress();
+CREATE FUNCTION require_delete_job_target() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF NOT EXISTS(SELECT 1 FROM akos_withdraw_v1.document_delete_jobs j JOIN akos_withdraw_v1.command_operations o ON o.id=j.operation_id
+  JOIN akos_withdraw_v1.publication_history h ON h.id=j.history_id JOIN akos_withdraw_v1.cleanup_plans p ON p.id=NEW.plan_id
+  WHERE j.id=NEW.job_id AND o.state='pending' AND p.space_id=j.space_id AND p.kb_id=j.kb_id AND p.document_id=j.document_id AND p.publication_epoch<h.publication_epoch)
+ THEN RAISE EXCEPTION 'delete job target is foreign or sealed' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END; $$;
+CREATE TRIGGER delete_job_target_binding BEFORE INSERT ON document_delete_job_targets FOR EACH ROW EXECUTE FUNCTION require_delete_job_target();
+CREATE TRIGGER delete_job_target_immutable BEFORE UPDATE OR DELETE ON document_delete_job_targets FOR EACH ROW EXECUTE FUNCTION immutable_record();
+CREATE FUNCTION require_delete_job_coverage() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE expected bigint; actual bigint;
+BEGIN
+ SELECT count(*) INTO expected FROM akos_withdraw_v1.cleanup_plans p JOIN akos_withdraw_v1.cleanup_targets t ON t.plan_id=p.id
+ JOIN akos_withdraw_v1.publication_history h ON h.id=NEW.history_id
+ WHERE p.space_id=NEW.space_id AND p.kb_id=NEW.kb_id AND p.document_id=NEW.document_id AND p.publication_epoch<h.publication_epoch;
+ SELECT count(*) INTO actual FROM akos_withdraw_v1.document_delete_job_targets WHERE job_id=NEW.id;
+ IF actual<>expected OR NOT EXISTS(SELECT 1 FROM akos_withdraw_v1.document_delete_job_progress p WHERE p.job_id=NEW.id AND p.state='queued' AND p.row_version=1 AND p.attempt=0 AND p.completed_targets=0 AND p.total_targets=actual)
+ THEN RAISE EXCEPTION 'delete job lacks complete fixed targets/progress' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END; $$;
+CREATE CONSTRAINT TRIGGER delete_job_coverage AFTER INSERT ON document_delete_jobs DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION require_delete_job_coverage();
+CREATE FUNCTION guard_delete_job_progress() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE operation_state text; actual_total bigint; actual_done bigint;
+BEGIN
+ IF TG_OP='DELETE' THEN RAISE EXCEPTION 'delete job progress cannot be removed' USING ERRCODE='23514'; END IF;
+ SELECT o.state INTO operation_state FROM akos_withdraw_v1.document_delete_jobs j JOIN akos_withdraw_v1.command_operations o ON o.id=j.operation_id WHERE j.id=OLD.job_id;
+ IF NEW.job_id<>OLD.job_id THEN RAISE EXCEPTION 'delete job identity is immutable' USING ERRCODE='23514'; END IF;
+ IF operation_state='pending' THEN
+  IF NEW.state<>'queued' OR NEW.row_version<>1 OR NEW.attempt<>0 OR NEW.completed_targets<>0 THEN RAISE EXCEPTION 'invalid initial delete job progress' USING ERRCODE='23514'; END IF;
+  RETURN NEW;
+ END IF;
+ IF OLD.state IN('completed','cancelled') OR NEW.total_targets<>OLD.total_targets OR NEW.row_version<>OLD.row_version+1
+ OR NOT ((OLD.state='queued' AND NEW.state='running' AND NEW.attempt=OLD.attempt+1)
+   OR (OLD.state='running' AND NEW.state IN('running','completed','failed','cancelled') AND NEW.attempt=OLD.attempt)
+   OR (OLD.state='failed' AND NEW.state='running' AND NEW.attempt=OLD.attempt+1 AND EXISTS(
+      SELECT 1 FROM akos_withdraw_v1.document_delete_job_control_audit a
+      WHERE a.job_id=OLD.job_id AND a.action='document.delete.cleanup.retry_requested'
+      AND a.expected_row_version=OLD.row_version AND a.result_row_version=NEW.row_version)))
+ THEN RAISE EXCEPTION 'stale or invalid delete job transition' USING ERRCODE='23514'; END IF;
+ SELECT count(*),count(*) FILTER(WHERE x.state='succeeded') INTO actual_total,actual_done
+ FROM akos_withdraw_v1.document_delete_job_targets t JOIN akos_withdraw_v1.cleanup_progress x ON x.plan_id=t.plan_id AND x.target_id=t.target_id WHERE t.job_id=NEW.job_id;
+ IF actual_total<>NEW.total_targets OR actual_done<>NEW.completed_targets OR NEW.completed_targets<OLD.completed_targets
+ THEN RAISE EXCEPTION 'delete job progress differs from fixed task facts' USING ERRCODE='23514'; END IF;
+ IF NEW.state='completed' AND (actual_done<>actual_total OR EXISTS(
+  SELECT 1 FROM akos_withdraw_v1.document_delete_job_targets m JOIN akos_withdraw_v1.cleanup_targets t ON t.plan_id=m.plan_id AND t.id=m.target_id
+  WHERE m.job_id=NEW.job_id AND (t.kind<>'index' OR NOT EXISTS(SELECT 1 FROM akos_withdraw_v1.index_deletion_fences f WHERE f.generation_id=t.generation_id) OR EXISTS(SELECT 1 FROM akos_withdraw_v1.index_projection_rows r WHERE r.generation_id=t.generation_id))))
+ THEN RAISE EXCEPTION 'delete job completion lacks actual native effects' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END; $$;
+CREATE TRIGGER delete_job_progress_guard BEFORE UPDATE OR DELETE ON document_delete_job_progress FOR EACH ROW EXECUTE FUNCTION guard_delete_job_progress();
+-- Control decisions are durable audit facts, independent from worker progress.
+CREATE TABLE document_delete_job_control_audit(
+ id platform_id PRIMARY KEY,request_id platform_id NOT NULL UNIQUE,job_id platform_id NOT NULL,
+ space_id platform_id NOT NULL,kb_id platform_id NOT NULL,actor_id platform_id NOT NULL,
+ expected_row_version uint64_value NOT NULL CHECK(expected_row_version>0),result_row_version uint64_value NOT NULL CHECK(result_row_version=expected_row_version+1),
+ action text NOT NULL CHECK(action IN('document.delete.cleanup.cancelled','document.delete.cleanup.retry_requested')),occurred_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+ FOREIGN KEY(job_id) REFERENCES document_delete_jobs(id)
+);
+CREATE TRIGGER document_delete_job_control_audit_immutable BEFORE UPDATE OR DELETE ON document_delete_job_control_audit FOR EACH ROW EXECUTE FUNCTION immutable_record();
+CREATE TABLE document_delete_job_control_outbox(
+ event_seq bigint GENERATED ALWAYS AS IDENTITY UNIQUE NOT NULL,
+ id platform_id PRIMARY KEY,audit_id platform_id NOT NULL UNIQUE REFERENCES document_delete_job_control_audit(id),job_id platform_id NOT NULL,
+ space_id platform_id NOT NULL,kb_id platform_id NOT NULL,event_type text NOT NULL CHECK(event_type IN('document.delete.cleanup.cancelled','document.delete.cleanup.retry_requested')),
+ aggregate_version uint64_value NOT NULL,payload jsonb NOT NULL CHECK(jsonb_typeof(payload)='object'),
+ FOREIGN KEY(job_id) REFERENCES document_delete_jobs(id)
+);
+CREATE TRIGGER document_delete_job_control_outbox_immutable BEFORE UPDATE OR DELETE ON document_delete_job_control_outbox FOR EACH ROW EXECUTE FUNCTION immutable_record();
+CREATE TABLE event_consumer_cursors(
+ consumer_id platform_id PRIMARY KEY,cursor text NOT NULL CHECK(char_length(cursor)<=4096),updated_at timestamptz NOT NULL DEFAULT clock_timestamp()
+);
+CREATE TABLE document_delete_receipts(
+ operation_id platform_id PRIMARY KEY,history_id platform_id NOT NULL UNIQUE,
+ space_id platform_id NOT NULL,kb_id platform_id NOT NULL,document_id platform_id NOT NULL,
+ expected_version uint64_value NOT NULL CHECK(expected_version>0 AND expected_version<18446744073709551615),
+ result_version uint64_value NOT NULL CHECK(result_version=expected_version+1),publication_epoch uint64_value NOT NULL CHECK(publication_epoch>0),
+ plan_id platform_id REFERENCES cleanup_plans(id),event_id platform_id NOT NULL UNIQUE,audit_id platform_id NOT NULL UNIQUE,
+ result jsonb NOT NULL CHECK(jsonb_typeof(result)='object'),job_id platform_id NOT NULL UNIQUE REFERENCES document_delete_jobs(id),
+ FOREIGN KEY(space_id,kb_id,document_id,history_id,operation_id,publication_epoch)
+ REFERENCES publication_history(space_id,kb_id,document_id,id,operation_id,publication_epoch)
+);
+CREATE TABLE document_delete_outbox(
+ id platform_id PRIMARY KEY,space_id platform_id NOT NULL,kb_id platform_id NOT NULL,document_id platform_id NOT NULL,
+ history_id platform_id NOT NULL UNIQUE,operation_id platform_id NOT NULL UNIQUE,
+ event_type text NOT NULL CHECK(event_type='document.deleted'),aggregate_version uint64_value NOT NULL,
+ FOREIGN KEY(space_id,kb_id,document_id,history_id,operation_id,aggregate_version)
+ REFERENCES publication_history(space_id,kb_id,document_id,id,operation_id,publication_epoch)
+);
+CREATE TABLE document_delete_audit(
+ id platform_id PRIMARY KEY,request_id platform_id NOT NULL,
+ space_id platform_id NOT NULL,kb_id platform_id NOT NULL,document_id platform_id NOT NULL,
+ history_id platform_id NOT NULL UNIQUE,operation_id platform_id NOT NULL UNIQUE,
+ action text NOT NULL CHECK(action='document.delete'),actor_id platform_id NOT NULL,actor jsonb NOT NULL,occurred_at utc_nanos NOT NULL,
+ FOREIGN KEY(space_id,kb_id,document_id,history_id,operation_id)
+ REFERENCES publication_history(space_id,kb_id,document_id,id,operation_id)
+);
+CREATE FUNCTION require_document_delete() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF NEW.action<>'delete' THEN RETURN NEW; END IF;
+ IF NOT EXISTS(
+  SELECT 1 FROM akos_withdraw_v1.document_delete_receipts r
+  JOIN akos_withdraw_v1.documents d ON d.space_id=r.space_id AND d.kb_id=r.kb_id AND d.id=r.document_id
+  JOIN akos_withdraw_v1.document_delete_outbox e ON e.id=r.event_id
+  JOIN akos_withdraw_v1.document_delete_audit a ON a.id=r.audit_id
+  JOIN akos_withdraw_v1.document_delete_jobs j ON j.id=r.job_id AND j.operation_id=r.operation_id AND j.history_id=r.history_id AND j.space_id=r.space_id AND j.kb_id=r.kb_id AND j.document_id=r.document_id
+  WHERE r.history_id=NEW.id AND r.operation_id=NEW.operation_id AND r.space_id=NEW.space_id AND r.kb_id=NEW.kb_id AND r.document_id=NEW.document_id
+  AND r.publication_epoch=NEW.publication_epoch AND d.deleted AND d.active_revision_id IS NULL AND d.active_generation_set_id IS NULL
+  AND d.publication_epoch=NEW.publication_epoch AND d.row_version=r.result_version
+  AND e.history_id=NEW.id AND e.operation_id=NEW.operation_id AND e.aggregate_version=NEW.publication_epoch
+  AND a.history_id=NEW.id AND a.operation_id=NEW.operation_id AND a.actor_id=NEW.actor_id AND a.actor=NEW.actor AND a.occurred_at=NEW.occurred_at
+  AND r.result->>'OperationID'=NEW.operation_id AND r.result->>'HistoryID'=NEW.id AND r.result->>'DocumentID'=NEW.document_id
+  AND (r.result->>'DocumentVersion')::numeric=r.result_version AND (r.result->>'PublicationEpoch')::numeric=NEW.publication_epoch
+  AND (r.result->>'DeletedAt')::timestamptz=NEW.occurred_at::timestamptz
+  AND r.result->>'JobID'=r.job_id
+  AND r.result->>'CleanupPlanID' IS NOT DISTINCT FROM r.plan_id::text
+  AND ((NEW.previous_revision_id IS NULL AND r.plan_id IS NULL) OR
+   (NEW.previous_revision_id IS NOT NULL AND EXISTS(SELECT 1 FROM akos_withdraw_v1.cleanup_plans p WHERE p.id=r.plan_id AND p.history_id=NEW.id AND p.operation_id=NEW.operation_id AND p.history_action='delete')))
+ ) THEN RAISE EXCEPTION 'delete requires matching tombstone, receipt, cleanup, audit and event' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END; $$;
+CREATE FUNCTION validate_document_delete_record() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF NOT EXISTS(SELECT 1 FROM akos_withdraw_v1.publication_history h
+  WHERE h.id=NEW.history_id AND h.operation_id=NEW.operation_id AND h.space_id=NEW.space_id AND h.kb_id=NEW.kb_id AND h.document_id=NEW.document_id AND h.action='delete')
+ THEN RAISE EXCEPTION 'deletion record requires matching delete history' USING ERRCODE='23514'; END IF;
+ IF TG_TABLE_NAME='document_delete_audit' THEN
+  IF NOT EXISTS(SELECT 1 FROM akos_withdraw_v1.publication_history h WHERE h.id=NEW.history_id AND h.actor_id=NEW.actor_id AND h.actor=NEW.actor AND h.occurred_at=NEW.occurred_at)
+  THEN RAISE EXCEPTION 'deletion audit differs from history' USING ERRCODE='23514'; END IF;
+ END IF;
+ RETURN NEW;
+END; $$;
+CREATE TRIGGER document_delete_job_history BEFORE INSERT ON document_delete_jobs FOR EACH ROW EXECUTE FUNCTION validate_document_delete_record();
+CREATE TRIGGER document_delete_job_immutable BEFORE UPDATE OR DELETE ON document_delete_jobs FOR EACH ROW EXECUTE FUNCTION immutable_record();
+CREATE TRIGGER document_delete_receipt_history BEFORE INSERT ON document_delete_receipts FOR EACH ROW EXECUTE FUNCTION validate_document_delete_record();
+CREATE TRIGGER document_delete_audit_history BEFORE INSERT ON document_delete_audit FOR EACH ROW EXECUTE FUNCTION validate_document_delete_record();
+CREATE TRIGGER document_delete_outbox_history BEFORE INSERT ON document_delete_outbox FOR EACH ROW EXECUTE FUNCTION validate_document_delete_record();
+CREATE CONSTRAINT TRIGGER document_delete_delivery AFTER INSERT ON publication_history
+ DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION require_document_delete();
+CREATE FUNCTION protect_document_tombstone() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF (OLD.deleted AND NOT NEW.deleted) OR (NEW.deleted AND (NEW.active_revision_id IS NOT NULL OR NEW.active_generation_set_id IS NOT NULL))
+ THEN RAISE EXCEPTION 'deleted document cannot be republished or restored' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END; $$;
+CREATE TRIGGER document_tombstone_guard BEFORE UPDATE ON documents FOR EACH ROW EXECUTE FUNCTION protect_document_tombstone();
+CREATE FUNCTION require_document_tombstone_receipt() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF NEW.deleted AND NOT OLD.deleted AND NOT EXISTS(
+  SELECT 1 FROM akos_withdraw_v1.document_delete_receipts r JOIN akos_withdraw_v1.publication_history h ON h.id=r.history_id
+  WHERE r.document_id=NEW.id AND r.space_id=NEW.space_id AND r.kb_id=NEW.kb_id AND r.result_version=NEW.row_version AND r.publication_epoch=NEW.publication_epoch AND h.action='delete'
+ ) THEN RAISE EXCEPTION 'document tombstone requires deletion receipt' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END; $$;
+CREATE CONSTRAINT TRIGGER document_tombstone_receipt AFTER UPDATE ON documents
+ DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION require_document_tombstone_receipt();
+CREATE TRIGGER document_delete_receipt_immutable BEFORE UPDATE OR DELETE ON document_delete_receipts FOR EACH ROW EXECUTE FUNCTION immutable_record();
+CREATE TRIGGER document_delete_audit_immutable BEFORE UPDATE OR DELETE ON document_delete_audit FOR EACH ROW EXECUTE FUNCTION immutable_record();
+CREATE TRIGGER document_delete_outbox_immutable BEFORE UPDATE OR DELETE ON document_delete_outbox FOR EACH ROW EXECUTE FUNCTION immutable_record();
+
+-- Current deployment admission is distinct from frozen publication metadata.
+CREATE TABLE cleanup_module_snapshots(
+ space_id platform_id NOT NULL,kb_id platform_id NOT NULL,version uint64_value NOT NULL CHECK(version>0),sealed boolean NOT NULL DEFAULT false,
+ PRIMARY KEY(space_id,kb_id,version));
+CREATE TABLE cleanup_module_bindings(
+ space_id platform_id NOT NULL,kb_id platform_id NOT NULL,version uint64_value NOT NULL,
+ binding_reference platform_id NOT NULL,module_instance_id platform_id NOT NULL,profile_digest sha256_value NOT NULL,
+ runtime_config_digest sha256_value NOT NULL,provider platform_id NOT NULL,implementation_version platform_id NOT NULL,contract_version platform_id NOT NULL,
+ generation_id platform_id NOT NULL,backend_epoch_id platform_id NOT NULL,channel text NOT NULL CHECK(channel IN('keyword','vector','graph')),
+ PRIMARY KEY(space_id,kb_id,version,binding_reference),
+ FOREIGN KEY(space_id,kb_id,version) REFERENCES cleanup_module_snapshots(space_id,kb_id,version));
+CREATE TABLE cleanup_module_heads(
+ space_id platform_id NOT NULL,kb_id platform_id NOT NULL,version uint64_value NOT NULL,
+ PRIMARY KEY(space_id,kb_id),FOREIGN KEY(space_id,kb_id,version) REFERENCES cleanup_module_snapshots(space_id,kb_id,version));
+CREATE FUNCTION guard_cleanup_module_snapshot() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP='DELETE' OR OLD.sealed OR NEW.space_id<>OLD.space_id OR NEW.kb_id<>OLD.kb_id OR NEW.version<>OLD.version OR NOT NEW.sealed
+ THEN RAISE EXCEPTION 'cleanup deployment snapshot immutable except sealing' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END; $$;
+CREATE TRIGGER cleanup_module_snapshot_guard BEFORE UPDATE OR DELETE ON cleanup_module_snapshots FOR EACH ROW EXECUTE FUNCTION guard_cleanup_module_snapshot();
+CREATE FUNCTION guard_cleanup_module_binding() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE closed boolean;
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'cleanup deployment bindings append-only before sealing' USING ERRCODE='23514'; END IF;
+ SELECT sealed INTO closed FROM akos_withdraw_v1.cleanup_module_snapshots WHERE space_id=NEW.space_id AND kb_id=NEW.kb_id AND version=NEW.version FOR UPDATE;
+ IF closed IS DISTINCT FROM false THEN RAISE EXCEPTION 'sealed or missing cleanup deployment snapshot' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END; $$;
+CREATE TRIGGER cleanup_module_binding_guard BEFORE INSERT OR UPDATE OR DELETE ON cleanup_module_bindings FOR EACH ROW EXECUTE FUNCTION guard_cleanup_module_binding();
+CREATE FUNCTION guard_cleanup_module_head() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP='DELETE' THEN RAISE EXCEPTION 'cleanup deployment head cannot be removed' USING ERRCODE='23514'; END IF;
+ IF TG_OP='UPDATE' AND (NEW.space_id<>OLD.space_id OR NEW.kb_id<>OLD.kb_id OR NEW.version<=OLD.version)
+ THEN RAISE EXCEPTION 'cleanup deployment version must advance' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM akos_withdraw_v1.cleanup_module_snapshots WHERE space_id=NEW.space_id AND kb_id=NEW.kb_id AND version=NEW.version AND sealed)
+ THEN RAISE EXCEPTION 'cleanup deployment head requires sealed snapshot' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END; $$;
+CREATE TRIGGER cleanup_module_head_guard BEFORE INSERT OR UPDATE OR DELETE ON cleanup_module_heads FOR EACH ROW EXECUTE FUNCTION guard_cleanup_module_head();
 
 COMMIT;

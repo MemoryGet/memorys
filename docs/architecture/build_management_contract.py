@@ -1,4 +1,4 @@
-"""Generate management API design; does not implement handlers or database models."""
+"""Generate the management API contract; application handlers and storage remain separately wired."""
 import argparse
 import copy
 import json

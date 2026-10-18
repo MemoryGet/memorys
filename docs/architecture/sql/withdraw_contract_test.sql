@@ -89,4 +89,17 @@ SELECT expect_error('INSERT INTO cleanup_targets VALUES(''space'',''kb'',''doc''
 SELECT expect_error('INSERT INTO cleanup_targets VALUES(''space'',''kb'',''doc'',''revision'',''set'',''plan-success'',''late'',''cache'',''cache-engine'',''unused-cache'',repeat(''a'',64),NULL,NULL,NULL)','23514');
 SELECT expect_error('INSERT INTO publication_cleanup_dependencies VALUES(''space'',''kb'',''doc'',''revision'',''set'',1,''unused-cache'',''cache-engine'',repeat(''a'',64),''cache'')','23514');
 SELECT expect_error('UPDATE publication_cleanup_dependencies SET publication_epoch=2 WHERE binding_reference=''source-cache''','23514');
-SELECT 'PASS: PostgreSQL withdrawal constraint prototype' AS result;
+DO $$ BEGIN
+ IF to_regclass('akos_withdraw_v1.event_consumer_cursors') IS NULL OR to_regclass('akos_withdraw_v1.document_delete_job_control_outbox') IS NULL THEN
+  RAISE EXCEPTION 'event persistence tables missing';
+ END IF;
+ IF NOT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='akos_withdraw_v1' AND table_name='document_delete_job_control_outbox' AND column_name='event_seq') THEN
+  RAISE EXCEPTION 'event sequence missing';
+ END IF;
+END; $$;
+INSERT INTO event_consumer_cursors(consumer_id,cursor) VALUES('cursor-test','event-b');
+INSERT INTO event_consumer_cursors(consumer_id,cursor) VALUES('cursor-test','event-a') ON CONFLICT(consumer_id) DO UPDATE SET cursor=EXCLUDED.cursor WHERE event_consumer_cursors.cursor<=EXCLUDED.cursor;
+DO $$ BEGIN
+ IF (SELECT cursor FROM event_consumer_cursors WHERE consumer_id='cursor-test')<>'event-b' THEN RAISE EXCEPTION 'cursor regressed'; END IF;
+END; $$;
+DELETE FROM event_consumer_cursors WHERE consumer_id='cursor-test';SELECT 'PASS: PostgreSQL withdrawal constraint prototype' AS result;

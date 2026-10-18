@@ -132,7 +132,7 @@ SQL 探针覆盖漏写审计、主体不匹配及修改/删除拒绝。Go 实库
 
 流程为：冻结请求与预算 → 可信 Prepare → 事务 Reserve → 原结果重放，或 LoadCurrent → 比对 ExpectedEpoch → 校验并写历史/计划 → Complete → 提交后返回结果。事务失败/提交未知不返回构造中的成功结果。Prepare 接收独立拷贝，不能修改编排持有的 Scope 或委托；3项单元测试覆盖准备拒绝、当前epoch不符、提交失败及拷贝隔离。
 
-LoadCurrent 在事务内按 space/KB/Document 锁定未删除的当前发布头，读取有效 revision/set/epoch/行版本；索引定义必须对应每个实际代际，缺少或重复匹配拒绝。非索引目标只来自 publication_cleanup_dependencies 登记的同文档、版本、代际及旧epoch依赖，不扫描某个模块的全部资源。快照为窄投影，没有编造完整 Document 的标题/创建者。SQL 原型新增 deleted 标记供读取/CAS拒绝已删除文档；删除业务本身尚未实现。
+LoadCurrent 在事务内按 space/KB/Document 锁定未删除的当前发布头，读取有效 revision/set/epoch/行版本；索引定义必须对应每个实际代际，缺少或重复匹配拒绝。非索引目标只来自 publication_cleanup_dependencies 登记的同文档、版本、代际及旧epoch依赖，不扫描某个模块的全部资源。快照为窄投影，没有编造完整 Document 的标题/创建者。SQL 原型的 deleted 标记用于读取/CAS拒绝已删除文档；2026-10-18已增加独立的[软删除服务与事务](DOCUMENT_DELETION.md)及[管理DELETE入口](MANAGEMENT_DELETE_RUNTIME.md)，任务消费与物理Purge仍未完成。
 
 实库探针现在通过 Service + WithdrawalAdapter 完成正常撤回及历史重放；准备器和身份仍为 fixture。首次实库执行发现目标 UNION 查询排序列重名，已明确 binding_reference 别名并复验。
 

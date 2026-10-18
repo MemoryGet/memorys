@@ -1,0 +1,25 @@
+{
+  "scope": "Observed empty files removed without recursion; automatic policy rejected directory removal, so empty directory trees remain",
+  "passed": true,
+  "files": [
+    {
+      "path": "C:\\Users\\38970\\AppData\\Local\\Temp\\TestHTTPUploadMetadataReadDeadline1122844792\\001\\isolated-681226986",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\38970\\AppData\\Local\\Temp\\TestHTTPUploadMetadataReadDeadline2267898744\\001\\isolated-2511609036",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\38970\\AppData\\Local\\Temp\\TestHTTPUploadMetadataReadDeadline217339883\\001\\isolated-3033574231",
+      "absent": true
+    }
+  ],
+  "directory_removal_blocked_by_automatic_review": true,
+  "automatic_review_reason": "blocked by policy",
+  "retained_directory_trees": [
+    "C:\\Users\\38970\\AppData\\Local\\Temp\\TestHTTPUploadMetadataReadDeadline1122844792",
+    "C:\\Users\\38970\\AppData\\Local\\Temp\\TestHTTPUploadMetadataReadDeadline2267898744",
+    "C:\\Users\\38970\\AppData\\Local\\Temp\\TestHTTPUploadMetadataReadDeadline217339883"
+  ]
+}

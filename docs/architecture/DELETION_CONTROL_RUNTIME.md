@@ -1,0 +1,15 @@
+# 删除清理任务控制与安全取消
+
+2026-10-18：新增独立`DeletionCleanupControl`端口和PG实现，取消状态为持久终态`cancelled`，不复用`failed`的依赖故障语义。控制作用域`publication.cleanup.control`与worker执行作用域分离，控制授权由`AuthorizeControl`提供，任务资源归属仍由同一Job读取/复核门禁保护。
+
+取消流程在串行化事务中锁定Job进度和不可变任务来源，要求任务当前为queued或running，并查询所有固定目标的cleanup_progress。只要仍有running且lease_until在数据库时钟之后，就拒绝取消，避免控制面把正在执行的外部效果隐藏为已取消。已完成、failed、cancelled以及unknown目标所在的failed任务不能被重置或重新领取。
+
+成功取消会在同一事务写入不可变的`document_delete_job_control_audit`和`document_delete_job_control_outbox`，再更新持久进度行：state=cancelled、row_version递增、error_request_id记录控制请求；total/completed事实保持不变，SQL触发器验证版本和计数关系。Job状态查询返回`cancelled`及安全`conflict / Cleanup cancelled`错误，原始Job定义、删除回执、固定目标、原件和Revision不变。队列发现的可执行集合只包含queued/running，因此cancelled不会再被自动消费。
+
+取消不会中断已经离开数据库的外部模块调用，也不会删除目标租约记录；因此有活跃租约时必须拒绝，租约自然结束后才可取消。控制调用成功后不能依靠旧worker响应改回running，旧worker重放也会在终态门禁处失败。显式重试是独立控制操作，不能把cancelled隐式变成retry；它要求当前版本的failed任务没有未知、待处理或运行目标，并保留目标attempt/fencing单调性。
+
+`DeletionCleanupControl`是可替换端口，PG实现不向控制器暴露SQL类型；替换实现必须保持当前授权、固定目标、活动lease、CAS版本和终态不可回退语义。取消已接入应用层管理HTTP路由，并在PG事务内写入控制审计；生产Bootstrap、审计出站事件和UI仍待装配。
+
+原型SQL将进度状态约束扩展为queued/running/completed/failed/cancelled，failed与cancelled均要求安全请求追踪ID；只有running可进入cancelled，failed仅可在retry审计屏障存在时恢复为running，completed/cancelled不可再更新。错误状态的Job View分别投影dependency_unavailable和conflict，避免把依赖故障伪装成用户取消。
+
+当前本地Go、go vet、Python/OpenAPI回归覆盖新增控制契约和依赖边界；PG16时钟门禁未恢复前不会声称取消/重试实库流程已通过。生产控制授权、取消/重试审计事件、并发跨消费者矩阵、人工对账、其他后端、Purge及完整V1仍未验收。

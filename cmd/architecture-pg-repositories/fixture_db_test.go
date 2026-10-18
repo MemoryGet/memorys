@@ -21,3 +21,19 @@ func TestFixturePortRejectsHostAndConnectionOptionInjection(t *testing.T) {
 		db.Close()
 	}
 }
+
+func TestGovernanceDiagnosticModeIsExplicit(t *testing.T) {
+	for _, value := range []string{"review", "true", "review-renew ", "review-renew;extra"} {
+		t.Setenv("AKOS_TEST_GOVERNANCE_REPRO", value)
+		if _, e := governanceReproMode(); e == nil {
+			t.Fatal("unknown diagnostic mode accepted")
+		}
+	}
+	for _, value := range []string{"", "review-renew"} {
+		t.Setenv("AKOS_TEST_GOVERNANCE_REPRO", value)
+		mode, e := governanceReproMode()
+		if e != nil || mode != (value != "") {
+			t.Fatal("diagnostic selection differs", e)
+		}
+	}
+}

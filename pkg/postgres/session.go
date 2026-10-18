@@ -48,7 +48,7 @@ func withinSession(ctx context.Context, db *sql.DB, scope contracts.AccessScope,
 		return ErrRepository
 	}
 	switch scope.Action {
-	case "publication.withdraw", "publication.publish", "document.delete", "document.parse", "document.candidate.read", "document.submit", "revision.approve", "publication.start", "publication.prepare", "publication.history.read", "publication.cleanup.read", "publication.cleanup.execute", "index.delete", "index.write", "index.export", "index.import":
+	case "publication.withdraw", "publication.publish", "document.delete", "document.parse", "document.candidate.read", "document.submit", "revision.approve", "publication.start", "publication.prepare", "publication.history.read", "publication.cleanup.read", "publication.cleanup.execute", "publication.cleanup.control", "index.delete", "index.write", "index.export", "index.import":
 	default:
 		return ErrRepository
 	}

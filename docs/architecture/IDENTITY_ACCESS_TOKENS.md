@@ -8,6 +8,8 @@
 
 `StatusSource` 是可替换的当前状态接口；`pkg/postgres.IdentityStatus` 是默认数据库实现。每次认证重新查询主库中的发行方、签名公钥指纹、主体、客户端及令牌登记状态。任意对象停用、令牌撤销、指纹不一致或状态源失败均拒绝认证。它采用已登记令牌允许清单，需要可信发行流程登记令牌；不是对任意外部 OIDC 令牌的即插即用验证。
 
+`identitytoken.LoadRS256PublicKeys`负责读取部署提供的JWKS快照并转换为独立的RSA公钥集合：文件大小、kid唯一性、RS256、签名用途、RSA位数和公钥/私钥边界均校验；不访问`x5u`/`jku`远程地址。宿主可在`ProductionAssembler`中加载该集合并构造Authenticator，密钥轮换通过替换封存快照和重建认证器完成。
+
 查询复核控制器 `queryread.AuthenticatedControl` 在每次 Refresh 中重新执行认证、授权和当前事实读取。原生证据探针已改用真实 RS256 签名与数据库状态；发行方及初始策略数据由受控测试配置提供，证据主链路授权执行已改用数据库封存ACL，见[持久化授权](PERSISTENT_AUTHORIZATION.md)。
 
 ## 受限协议配置

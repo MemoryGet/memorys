@@ -1,4 +1,104 @@
+2026-10-18最新增量：删除控制outbox改用PostgreSQL identity-backed `event_seq`排序与固定20位游标，修复随机请求ID作为keyset游标可能跳过并发后写事件的问题；SQL/Go探针与PG16.15当前626项源码快照通过。
+
+2026-10-18最新增量：ProductionArtifactAssembler已接入生产Runtime可选路径；宿主实现该接口时，Bootstrap先加载同一代JWKS/Profile/模块目录并将不可变ProductionArtifacts传入，缺失或不合法制品fail-closed，基础assembler接口保持兼容。
+
+2026-10-18当前稳定窗口更新：加入FactoryRegistry及Profile→kernel可替换工厂解析后的625项源码快照已通过PG16.15 WSL完整探针，临时实例停止与资源清理完成；fixture身份/部署仍使`production_acceptance=false`。见[当前PG证据](architecture/evidence/current-postgres16-wsl.json)。
+
+2026-10-18实库证据：PG16 WSL探针最近稳定窗口通过326项检查且资源已清理；随后为覆盖游标单调约束的复跑捕获约4.83秒墙钟跳变并拒绝，当前完整PG验收保持未通过，production_acceptance仍为false。
+
+2026-10-18当前稳定窗口：[PG16 WSL完整探针](architecture/evidence/current-postgres16-wsl.json)再次通过，SQL/Go仓储、临时实例停止和资源清理均有记录；身份和部署仍是fixture，`production_acceptance=false`，不把该实库结果升级为生产验收。
+
+2026-10-18当前稳定窗口更新：JWKS装配组件加入后的619项源码快照仍通过PG16.15 WSL完整探针；资源清理完成，生产身份/部署边界保持未验收。
+
+2026-10-18当前稳定窗口再次更新：Profile/模块目录加载器加入后的622项源码快照通过PG16.15 WSL完整探针，资源清理完成；生产身份/部署仍未验收。
+
+2026-10-18当前稳定窗口更新：Profile/kernel factory装配路径加入后的623项源码快照通过PG16.15 WSL完整探针，资源清理完成；生产身份/部署仍未验收。
+
+2026-10-18最新增量：Bootstrap Runtime新增Ready探针，Runner未启动、已停止或最近投递失败时报告不可用；无后台Runner的HTTP组合保持可用。
+
+2026-10-18最新增量：Runner隔离告警钩子panic，告警后端故障不会终止事件消费主循环，也不会改变游标提交和重放边界。
+
+2026-10-18最新增量：Runner新增只读Snapshot，可供Bootstrap健康检查采集游标、启动/停止状态和最近错误，但不被当作业务完成或租约有效性的证明。
+
+2026-10-18最新增量：事件Runner新增可注入OnError告警钩子，投递失败会保留游标并重试，告警接入不改变事件幂等和游标提交边界。
+
+2026-10-18最新增量：outbox Runner将游标持久化失败与投递失败统一进入告警/重放边界；失败时不推进本地游标，退避等待可被停止取消。该增量仅强化进程内运行保障，真实部署告警接线、持久调度和生产身份仍未验收。
+
+2026-10-18最新增量：[清理显式重试控制](architecture/DELETION_CONTROL_RUNTIME.md)已接入当前版本CAS、未知效果拒绝、目标attempt/fencing保留和retry审计/outbox屏障；PG探针执行了unknown拒绝与已知failed恢复分支，但整体轮次被宿主墙钟健康门禁拒绝，不能升级为当前完整PG或生产验收。
+
+2026-10-18最新增量：Job显式重试已贯通认证应用、HTTP handler和Bootstrap管理路由，复用既有OpenAPI `POST /jobs/{id}/retry` 命令契约；本地验证覆盖参数门禁、失败状态绑定和缺失能力503，生产身份/授权和端到端管理重试仍待验收。
+
+2026-10-18最新增量：生产Bootstrap新增部署设置边界与assembler生命周期门面，校验TLS DB、HTTPS issuer、绝对JWKS/Profile/模块目录和显式资源关闭；当前仅建立可替换宿主接口，未把默认memorys-server标为生产装配。
+
+2026-10-18最新增量：[检索性能Harness](architecture/RETRIEVAL_PERFORMANCE_RUNTIME.md)已加入固定请求数/并发上限/deadline、失败分类、分位数和成本代理采集；它只验证执行与计量边界，不代表中文Recall@10、真实供应商费用或生产性能通过。
+
+2026-10-18最新增量：生产身份装配补充JWKS快照到RS256公钥映射，拒绝私钥、重复kid、非RS256和不安全尺寸，并可接入PostgreSQL当前身份状态；真实issuer、令牌登记、轮换和IAM Grant仍待验收。
+
+2026-10-18最新增量：ProductionAssembler新增严格Profile/模块目录文件加载端口，拒绝未知字段、尾随JSON和超限文件；实际制品签名、来源治理、factory目录和生产模块健康仍开放。
+
+2026-10-18最新增量：生产装配新增统一`LoadProductionArtifacts`快照入口，JWKS/Profile/kernel配置作为同一代输入后再交给可替换Assembler；真实DB/IAM/factory健康和制品证明仍开放。
+
+2026-10-18最新增量：Profile文件与模块目录已通过`profileassembly.BuildFromFiles`接入宿主factory resolver及kernel阶段健康检查，形成可替换模块的实际构造路径；生产factory目录、制品信任和远程模块Grant仍开放。
+
+2026-10-18最新增量：模块替换边界新增不可变FactoryRegistry，provider+implementation release唯一选择并拒绝重复/未知项；Profile装配可直接使用Registry，真实factory来源和部署制品证明仍待验收。
+
+2026-10-18最新增量：PG CursorStore改为单调游标upsert，旧实例覆盖较新游标会失败，避免同一consumer并发/重启时消费位置倒退。
+
+2026-10-18最新增量：Bootstrap新增Runtime生命周期门面，可同时启动/停止注入的事件Runner；退出时等待Runner收敛，HTTP组合与后台消费不再由调用方分别管理。
+
+2026-10-18最新增量：新增`postgres.DeletionControlEventBus`，把删除控制outbox按keyset分页映射为只读EventBus，Runner可直接消费事务事件；发布和任务状态修改仍不允许通过事件总线绕过应用层。
+
+2026-10-18最新增量：HTTP组合根已抽出为`pkg/bootstrap`，集中校验搜索/读取/删除/profile等能力绑定，部分装配失败即拒绝启动，缺失能力继续fail-closed返回503。
+
+2026-10-18最新增量：Runner现在要求注入CursorStore，并仅在游标持久化成功后推进本地位置，宿主重启可恢复消费边界；调度、告警和处理器生命周期仍由Bootstrap负责。
+
+2026-10-18最新增量：事件Runner加入可停止周期调度、每轮deadline和游标边界，正常停止不误报取消，宿主仍负责持久游标和处理器装配。
+
+2026-10-18最新增量：[Outbox事件消费运行时](architecture/EVENT_CONSUMER_RUNTIME.md)新增有界、可重放且回执去重的通用消费者，取消事件可由宿主Bootstrap异步投递；失败不推进游标，具体调度和处理器仍由宿主装配。
+
 # AI Knowledge OS 总进度图
+
+2026-10-18最新增量：[删除清理安全取消控制](architecture/DELETION_CONTROL_RUNTIME.md)新增独立control端口、持久cancelled状态及事务审计/outbox；取消要求当前控制授权、任务未终态且无活跃目标租约，unknown/failed/completed不能被重置，SQL进度门禁保持计数和版本约束。本地契约/PG编译检查通过，管理HTTP取消路径已接入应用层，审计装配和PG时钟实库验收仍开放。
+
+2026-10-18最新本地证据：当前读取装配、幂等时钟监控和健康门禁已完成；最新源码清单609项，Go全量/go vet、232项Python及三份OpenAPI通过。PG16当前实库轮次已通过，历史墙钟跳变诊断仍保留，未把历史PG通过快照升级为当前验收。
+
+2026-10-18当前本地门禁：最新源码清单617项，Go全量/go vet、232项Python和三份OpenAPI均通过，检查期间清单保持不变；生产验收仍为false。
+
+2026-10-18当前本地门禁更新：JWKS组件加入后源码清单619项，Go全量/go vet、232项Python和三份OpenAPI仍通过，检查期间清单保持不变；生产验收仍为false。
+
+2026-10-18当前本地门禁再次更新：Profile/模块目录加载器加入后源码清单622项，Go全量/go vet、232项Python和三份OpenAPI仍通过，检查期间清单保持不变；生产验收仍为false。
+
+2026-10-18当前本地门禁更新：Profile/kernel factory装配路径加入后源码清单623项，Go全量/go vet、232项Python和三份OpenAPI仍通过，检查期间清单保持不变；生产验收仍为false。
+
+2026-10-18当前本地门禁更新：FactoryRegistry加入后源码清单625项，Go全量/go vet、232项Python和三份OpenAPI仍通过，检查期间清单保持不变；生产验收仍为false。
+
+2026-10-18补充：[运行时墙钟健康门禁](architecture/CLOCK_HEALTH_RUNTIME.md)将墙钟/单调观测做成可复用组件，ConfiguredRuntime要求ClockHealth通过才构造；本地组件、运行时和依赖测试通过。它不改变租约时间或修正系统时钟，生产Bootstrap与PG时钟稳定性仍开放。
+
+2026-10-18最新增量：[当前授权驱动的可替换搜索规划](architecture/CONFIGURED_SEARCH_RUNTIME.md)已加入配置Profile、当前事实/发布清单、父摘要及命名模块解析；本地单元/依赖检查通过，尚未把启动服务标为生产装配。
+
+2026-10-18当前验证状态：[治理时钟诊断](architecture/GOVERNANCE_CLOCK_DIAGNOSTICS.md)。新增有界审批/首次续租检查点及墙钟/单调观测，实际捕获约4.18秒步变；审批提交年龄为负、续租过期的Go/PG值与当前头匹配，业务守卫保持拒绝。正常完整轮次又观测约5.22秒跳变，故当前PG完整验证未通过，不能用此前586项/326检查快照替代。当前590项输入的Go全量/go vet、232项Python及三份OpenAPI通过；诊断禁止伪装完整通过或覆盖标准报告，失败保留源码摘要，五个私有PG实例及端口清理已核对。未修改业务时间守卫、未延长租约、未调整系统时钟；生产时钟健康、审批/续租稳定性及完整V1仍未验收。
+
+2026-10-18最新增量：[上传读取deadline与取消分类修复](architecture/UPLOAD_DEADLINE_RUNTIME.md)。真实HTTP固定读超时先于context定时回调，修复前3/3复现i/o timeout被ctx.Err覆盖成Canceled；新增读取边界分类，仅在实际网络timeout且有效deadline已到时返回DeadlineExceeded。期限内主动取消仍Canceled，Abort错误仍安全ErrCleanup，失败无receipt。六场景各10次共60/60通过，586项输入下Go全量/go vet、228项Python及三份OpenAPI通过；PG16保持326项检查和八组独立实库复核，PG资源清理确认。审批/续租间歇失败及完整V1仍开放；Windows测试空文件已清理，剩余临时目录结构删除被自动审批拒绝，已记录。
+
+2026-10-18最新增量：[清理模块保留绑定与可信装配](architecture/CLEANUP_REGISTRY_RUNTIME.md)。新增标准模块来源、PG封存部署目录及按命名实例解析的注册器，核对旧Profile/目标/代际、实际Provider/实现/契约/特性及kernel配置摘要；逐次重查，撤销、错误实现/配置/Profile和已关闭引用均拒绝。真实service授权下，另一任务通过正确绑定完成实际PG索引fence/零行，负向目标unknown隔离且记录保留；SQL封存/单调head约束及独立摘要/目录/租约/效果复核通过。585项输入在PG16通过326项检查、八组独立复核、Go全量/go vet、228项Python和三份OpenAPI，资源清理已确认。目录发布/来源治理仍fixture；生产部署控制、数据集/制品证明、远程Grant/原子写屏障、对账/Purge及完整V1仍开放。重跑遇到既有续租、审批和上传超时间歇失败，已保留并补充诊断，未认定稳定性问题已修复；本轮仅PG16。
+
+2026-10-18最新增量：[清理worker真实身份与独立授权](architecture/WORKER_AUTHORITY_RUNTIME.md)。新增标准认证/授权控制器及PG当前冻结目标准入，实际RS256 service身份、token/client/key状态及封存ACL反复核查，任务执行与index.delete分别获权；旧策略、改名作用域、跨KB、完成目标、关闭及发现期间撤权均拒绝。只有清理权限的任务failed/unknown且无实际索引删除；独立索引权限齐备后，另一任务自动完成真实fence/零行，失败任务不重试。579项输入在PG16通过317项检查、七组独立复核、Go全量/go vet、228项Python与三份OpenAPI，资源清理已确认。新源/治理仍fixture，生产身份发放/worker装配、模块注册、远程Grant、对账/并发恢复、其他后端/Purge和完整V1仍未验收；本轮仅PG16。
+
+2026-10-18最新增量：[删除队列发现与有界轮询](architecture/DELETION_QUEUE_RUNTIME.md)。新增标准队列端口、PG作用域发现及可取消轮询器；每周期续权，内部keyset游标跨周期保持公平位置，策略变更重置，整页及结果配置核对，终态与有效目标租约任务排除。实库三待处理Job自动完成、实际索引fence/零行、失败unknown无重试、旧策略游标/跨KB/过期/撤权拒绝、取消及其他KB不变通过独立复核。574项输入在PG16通过309项检查，六组独立队列/清理/任务/删除/历史/当前复核、Go全量/go vet、228项Python与三份OpenAPI通过，资源清理已确认。新增任务来源及worker/index授权仍fixture；可嵌入运行循环不等于生产持久调度，生产IAM/装配、并发恢复/对账、其他后端、Purge和完整V1仍开放。初次SQL参数类型失败已保留，本轮仅PG16。
+
+2026-10-18最新增量：[删除任务实际清理与运行进度](architecture/DELETION_CLEANUP_RUNTIME.md)。删除时冻结全部历史/当前退役计划成员，新增标准协调端口及有界消费者，复用目标租约/fence和实际PG索引适配器。真实7个目标清除后GET显示completed，逐步running进度、完成重放、零目标完成及unknown故障隔离通过；伪造成功元数据和裸completed更新不能绕过实际后端事实。568项输入在PG16通过302项检查，独立摘要/回执/效果/状态及既有回归、Go全量/go vet、228项Python和三份OpenAPI通过，资源清理已核对。worker/执行授权仍fixture，持续调度、其他后端、对账/重试、Purge及完整V1仍开放；故障fixture失败记录保留。
+
+2026-10-18最新增量：[管理任务状态GET](architecture/JOB_STATUS_RUNTIME.md)。新增标准ResourceJobReader、反复认证应用、PG删除任务来源及管理Job映射，真实202任务可查询queued状态。resource.view_job独立授权，删除专用主体不能查看；实际删除资源可查，跨KB/缺失隐藏，读取期间令牌或权限撤销均阻止输出。561项输入在PG16通过291项检查，公开字段/Job/回执/ACL独立Schema复核及删除/历史/当前回归、Go全量/go vet、228项Python与三份OpenAPI通过，资源清理已核对。当前仅初始queued定义，其他任务类型、运行进度/消费、取消重试、生产装配/发送屏障及完整V1仍开放；本轮未重验PG15/18。
+
+2026-10-18最新增量：[管理DELETE及真实任务202](architecture/MANAGEMENT_DELETE_RUNTIME.md)。新增认证删除应用和资源权限适配器，从主库解析归属并以真实kb.delete授权映射内部动作，事务多次认证/核权；初始清理Job与删除回执共同提交。真实删除专用用户无read授权仍可删除，读取用户拒绝，同键重放原任务、版本/新键重复冲突、令牌与权限撤销均通过实际HTTP及独立OpenAPI/Job/授权行复核。553项输入在PG16通过283项检查，Go全量/go vet、228项Python、三份OpenAPI及历史/当前读取回归通过，资源清理已核对。默认服务依赖未装配仍503；生产Bootstrap/IAM、任务查询/消费、Purge及完整V1仍开放。本轮未重验PG15/18。
+
+2026-10-18最新增量：[实际文档软删除](architecture/DOCUMENT_DELETION.md)。新增标准删除端口和内部服务、PG Serializable事务；按文档行版本CAS，原子提交删除状态、历史、回执、审计、事件及当前源清理计划。已发布/未发布/实际已撤回三状态通过，覆盖事件失败与撤权回滚、漏审计/裸删除提交拒绝、冷连接幂等恢复；删除后当前/历史及REST/MCP拒绝，原件和Revision保留。547项输入在PG16通过275项检查，删除/历史/当前独立复核、Go全量/go vet、228项Python与三份OpenAPI通过，资源清理已核对。管理DELETE接口、生产授权、Purge和完整V1仍开放；本轮未重验PG15/18。见[本轮证据](architecture/evidence/document-deletion-runtime-review.json)。
+
+2026-10-18最新增量：[历史读取REST/MCP撤回重发生命周期](architecture/HISTORICAL_READ_RUNTIME.md)。真实localhost契约REST初页游标经MCP继续，重发前后正文/引用/双格式逐项复核；撤回与其他版本发布后两端安全拒绝，显式重发后旧游标REST 409/conflict与MCP isError，新分页仍可跨协议继续。541项输入在PG16通过261项检查，全量Go/go vet、228项Python、三份OpenAPI及历史/当前读取独立复核通过，资源清理已核对。删除、跨issuer/客户端、生产Grant/发送屏障与完整V1仍开放；本轮未重验PG15/18。见[本轮证据](architecture/evidence/history-transport-lifecycle-runtime-review.json)。
+
+2026-10-17最新增量：[历史读取应用游标的撤回/重发](architecture/HISTORICAL_READ_RUNTIME.md)。真实认证和CurrentReadService完成重发前后各两页；明确撤回及发布其他版本后均拒绝目标，显式重发后的新分页通过，旧游标仍返回ErrReadCursor且无正文/块选择/游标。540项输入在PG16通过258项检查及实际页面/冻结正文独立复核，当前读取回归、Go全量/go vet、228项Python及三份OpenAPI通过，资源清理已核对。修正跨阶段fixture沿用旧配置摘要，应用配置校验保持拒绝；凭据复制及退出清除。删除、跨issuer/客户端、该生命周期的REST/MCP传输和完整生产验收仍开放。见[本轮证据](architecture/evidence/history-app-lifecycle-runtime-review.json)。
+
+2026-10-17最新增量：[历史来源撤回/重发生命周期](architecture/HISTORICAL_READ_RUNTIME.md)。真实发布/撤回事务形成八个连续epoch：正常换版可读，明确撤回后拒绝，发布其他版本仍拒绝，显式重发目标再换版后以新发布记录恢复。独立复核实际历史、撤回回执、冻结字节/批准不变和策略3双授权。540项输入在PG16通过255项检查，全量Go/go vet、228项Python及三份OpenAPI通过，当前读取回归及资源清理已核对。本轮仅来源端口生命周期；治理权限仍fixture，删除、应用旧游标和发送屏障仍待验，既有租约间歇失败未关闭。见[本轮证据](architecture/evidence/history-lifecycle-runtime-review.json)。
 
 2026-10-17最新增量：[历史读取跨主体游标验证](architecture/HISTORICAL_READ_RUNTIME.md)。第二位阅读者使用独立登记的真实RS256令牌和封存read/history双授权，通过REST读取同一历史正文；复用第一位阅读者的游标明确返回ErrReadCursor且无正文/游标。539项输入在PG16通过252项检查及独立身份/授权/正文复核，当前读取回归、Go全量/go vet、228项Python和三份OpenAPI通过，资源清理已独立确认。原件权限仍为受控fixture；撤回后重发、删除及完整生命周期仍待补验。重复授权fixture错误已修正，另一次既有任务租约间歇失败已保留，未认定稳定性达标。见[本轮证据](architecture/evidence/history-subject-runtime-review.json)。
 
@@ -334,3 +434,4 @@ flowchart TB
 2026-10-16最新进展：新增[AuthenticatedControl](architecture/AUTHENTICATED_CURRENT_CONTROL.md)，绑定已准备操作并通过标准Authenticator、Authorizer及CurrentFactsSource逐次重新认证、授权和读取当前配置/审核规则；不复用旧Principal作为认证结果。凭据副本、认证后清除、关闭后拒绝、日志/JSON脱敏、范围/资源/请求绑定和提供者错误隔离已验证；后端期间撤销凭据会在最终重新认证时阻止继续授权。实库CheckCurrent正向链路已使用该编排，认证/授权提供者仍为fixture，规则/索引/正文/原件实际读取。
 
 同一479项输入与同一探针在三版PG各通过184项检查，独立样本确认认证和授权各两次并保留fixture身份标记；Go全量测试/vet、228项Python、三份OpenAPI及成熟组件回归均通过，PG测试资源清理已核对。下一步接入实际身份与策略/配置来源及统一应用服务；生产IAM/RLS、Grant账本、模块部署、最终模型/API/MCP输出、Recall/性能与迁移回退继续开放。
+2026-10-18当前稳定窗口更新：加入FactoryRegistry及Profile→kernel可替换工厂解析后的625项源码快照已通过PG16.15 WSL完整探针，临时实例停止与资源清理完成；fixture身份/部署仍使`production_acceptance=false`。见[当前PG证据](architecture/evidence/current-postgres16-wsl.json)。

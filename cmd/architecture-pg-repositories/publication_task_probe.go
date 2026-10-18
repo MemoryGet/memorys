@@ -152,7 +152,7 @@ func verifyPublicationTasks(ctx context.Context, db *sql.DB, scope contracts.Acc
 	renewRequest := document.PublicationRenewRequest{Request: original.Request, Scope: original.Scope, Lease: first.Lease, Duration: 3 * time.Second, CommandID: "task-renew-original"}
 	renewRequest.Request.RequestID = "task-renew-original"
 	if result, err := (lostPublicationTaskResponse{store}).Renew(ctx, renewRequest); !errors.Is(err, document.ErrPublicationTaskUnknown) || result.Lease.AttemptID != "" {
-		return errors.New("renewal response not lost")
+		return fmt.Errorf("renewal response not lost: lease_remaining=%s context=%v result_empty=%t cause=%v", time.Until(first.Lease.ExpiresAt), ctx.Err(), result.Lease.AttemptID == "", err)
 	}
 	var renewed document.PublicationLeaseResult
 	if db.QueryRowContext(ctx, `SELECT result FROM akos_withdraw_v1.publication_task_receipts WHERE worker_id='worker-a' AND kind='renew' AND command_id=$1`, string(renewRequest.CommandID)).Scan(&originalReceipt) != nil || json.Unmarshal(originalReceipt, &renewed) != nil || renewed.JobVersion != 3 || renewed.Lease.FencingToken != first.Lease.FencingToken || renewed.Lease.AttemptID != first.Lease.AttemptID {
@@ -173,7 +173,11 @@ func verifyPublicationTasks(ctx context.Context, db *sql.DB, scope contracts.Acc
 	}
 	work, err = store.ReadOwned(ctx, read(f, renewed.Lease))
 	if err != nil {
-		return errors.New("renewed owner cannot load work")
+		var databaseNow time.Time
+		clockErr := cold.QueryRowContext(ctx, `SELECT clock_timestamp()`).Scan(&databaseNow)
+		current, headErr := loadJob(f.Start.Job.ID)
+		untilMatches := headErr == nil && current.LeaseUntil != nil && current.LeaseUntil.Equal(renewed.Lease.ExpiresAt)
+		return fmt.Errorf("renewed owner cannot load work: lease_remaining_go=%s lease_remaining_db=%s clock_ok=%t head_ok=%t state=%s row_version=%d until_matches=%t context=%v cause=%v", time.Until(renewed.Lease.ExpiresAt), renewed.Lease.ExpiresAt.Sub(databaseNow), clockErr == nil, headErr == nil, current.State, current.RowVersion, untilMatches, ctx.Err(), err)
 	}
 	publicationTaskSamples = append(publicationTaskSamples, publicationTaskJobSample(work.Job))
 	for _, table := range []string{"publication_task_receipts", "publication_task_audit", "publication_task_outbox"} {
@@ -181,6 +185,9 @@ func verifyPublicationTasks(ctx context.Context, db *sql.DB, scope contracts.Acc
 		if cold.QueryRowContext(ctx, `SELECT count(*) FROM akos_withdraw_v1.`+table+` WHERE job_id=$1`, string(f.Start.Job.ID)).Scan(&count) != nil || count != 2 {
 			return errors.New("task replay duplicated audit or event")
 		}
+	}
+	if diagnostic, _ := governanceReproMode(); diagnostic {
+		return errGovernanceReproComplete
 	}
 	f, err = create("task-takeover")
 	if err != nil {

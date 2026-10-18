@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"os"
 	"regexp"
 
 	"github.com/MemoryGet/memorys/pkg/canonical"
@@ -24,6 +25,19 @@ type Snapshot struct {
 	Pipeline contracts.PipelineProfile
 	Index    contracts.IndexProfile
 	Query    contracts.QueryProfile
+}
+
+// LoadFile reads one deployment-owned, sealed profile snapshot. It does not
+// watch or reload the path; replacement requires a new assembler generation.
+func LoadFile(path string) (Snapshot, error) {
+	if path == "" {
+		return Snapshot{}, ErrSnapshot
+	}
+	raw, err := os.ReadFile(path)
+	if err != nil || len(raw) == 0 || len(raw) > 1<<20 {
+		return Snapshot{}, ErrSnapshot
+	}
+	return Decode(raw)
 }
 
 func commit(format string, value any) (contracts.Digest, error) {

@@ -19,12 +19,25 @@ var queryReadSamples []map[string]any
 // separate bounded fixture phase, not a continuation of a production request.
 // Recreate its fixture request/scope; never extend an existing business grant.
 func verifyQueryReadPhase(db *sql.DB, command contracts.CommandContext, originals contracts.BlobStore) error {
+	defer func() {
+		if releaseHistoricalApp != nil {
+			releaseHistoricalApp()
+			releaseHistoricalApp = nil
+			readLifecyclePage = nil
+			startHistoricalTransport = nil
+			historicalSearchService = nil
+			runManagementDeletionProbe = nil
+		}
+	}()
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 	deadline, _ := ctx.Deadline()
 	command.Request.Deadline = deadline
 	command.Scope.ExpiresAt = deadline
-	return verifyQueryReads(ctx, db, command, originals)
+	if err := verifyQueryReads(ctx, db, command, originals); err != nil {
+		return err
+	}
+	return verifyHistoricalLifecycle(db, command)
 }
 
 func verifyQueryReads(ctx context.Context, db *sql.DB, command contracts.CommandContext, originals contracts.BlobStore) error {

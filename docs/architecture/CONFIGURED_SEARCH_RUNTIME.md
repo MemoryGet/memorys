@@ -1,0 +1,33 @@
+# 当前授权驱动的可替换搜索规划
+
+2026-10-18：新增`knowledge.ConfiguredPlans`，把查询Profile、当前授权、当前Profile事实、发布清单、后端代际及命名Retriever装配连接起来。它替代了应用层必须由调用方提前塞入发布事实的测试式规划器；仍由`knowledge.SearchService`负责认证、最终证据复核、重排和输出边界。
+
+## 规划输入与替换边界
+
+宿主提供已封存的`configprofile.Snapshot`、一组共享的Authorizer/CurrentFactsSource/QueryReadUnit及一个按已验证ModuleBinding解析Retriever的函数。构造时编码并冻结Profile；运行中的配置Map、连接、凭据不从请求读取。Profile启用重排时必须提供Reranker。PageSize/MaxPages/MaxFacts/MaxGenerations有界，零值或typed-nil提供方拒绝。`ConfiguredRuntime`把规划器和`SearchService`组成一个可关闭应用单元，并要求宿主提供`ClockHealth`检查；时钟健康检查失败时运行时不构造。宿主仍负责其外部认证、数据库和模块运行时生命周期。
+
+每个请求必须正好选择一个KB和已配置route，作用域动作为`knowledge.search`，ProfileDigest等于封存Pipeline摘要，调用者不能预置BackendEpoch、Generation或Publication过滤器。规划器先用当前Principal重新申请知识库搜索权限，再读取当前查询Profile事实；授权结果必须保持主体、空间、动作、策略版本和KB范围。事实来源必须返回同一ProfileDigest和非零当前审核策略。
+
+## 当前发布事实与父快照
+
+规划器在受保护的QueryReadUnit内读取当前活动BackendEpoch，按有界分页收集已发布事实，并逐项读取当前文档状态。它核对文档、批准、审核策略、Revision、GenerationSet和实际代际都处于`ready`且属于同一KB/代际。任何缺失、删除、撤销批准、代际变化、跨KB关系或当前审核版本不匹配都会拒绝整次规划；不把空或缺失清单解释成“无限范围”。
+
+父摘要采用`akos.search-parent/1`域，绑定原始作用域、QueryReadIdentity、活动后端epoch和收集到的PublishedFact。摘要先把JSON数字读回`json.Number`再转为十进制字符串后规范化，因此uint64型epoch/版本不会依赖浮点精度。策略、存储epoch、发布事实或代际变化都会改变摘要。摘要是当前规划的完整性承诺，不是权限凭证、MAC或远程调用Grant。
+
+规划器随后构造内部publicationprojection记录，绑定请求/调用/父摘要、Query/Pipeline摘要、当前策略、路由、BackendEpoch和每个文档的Revision/Generation/Channel/Profile。记录经严格Schema与摘要校验后才写入RetrieveRequest；空结果不伪造projection，只保留父摘要并在后续执行中重新确认当前清单仍为空。排序按文档、Revision、Channel、Generation固定，避免map遍历改变摘要。
+
+## 运行时重查和可替换模块
+
+规划阶段在生成任务前再次刷新当前授权和审核策略，防止初次读取后权限变化。按route.Binding调用宿主Resolver，Resolver必须从已装配模块目录返回Retriever；模块实例、契约版本和所需特性由Profile/宿主装配共同决定。请求不得选择Provider、连接串、模块实例或配置摘要。
+
+返回的内部PreparedPlan只接受完全相同的请求副本。执行前、Retriever返回后均重新认证并重查当前授权、Profile事实和审核策略；服务关闭或任何重查不一致都拒绝。若使用本地PostgreSQL关键词Retriever，Resolver应把其Authorize回调绑定到`ConfiguredPlans.AuthorizeProjection`：回调只接受同一活跃PreparedPlan、同一ModuleInstanceID和同一请求，重新验证当前事实后返回私有projection字节及CallIdentity。它不接受客户端传入的Digest作为权限。
+
+Retriever自身仍必须执行独立作用域、projection、当前发布和后端事实检查；ConfiguredPlans不替代`queryread.CheckCurrent`或`EvidenceBackend`。SearchService在Retriever输出后继续运行当前证据控制、最终权限复核和可选Reranker。多路由、Fusion、回答生成和Reflection仍由更高层组合，ConfiguredPlans当前是一条单route/单KB基础规划边界。
+
+关闭规划器会使已返回的PreparedPlan和后续授权回调失效；它不会强制中断不合作的外部Retriever。宿主应先排空请求再Close。模块替换必须由宿主重新装配和健康检查，不能在已有请求中切换Resolver结果。
+
+## 测试与证据边界
+
+新增单元测试覆盖Profile依赖缺失、typed nil、关闭后拒绝、父摘要对大整数epoch/策略版本敏感及架构依赖边界。当前源码仍需通过全量Go/go vet、Python/OpenAPI和PG实库阶段才能形成运行证据；本模块没有把旧fixture升级为真实生产装配证明。
+
+现有PG检索、当前读取和历史读取适配器可作为Resolver/事实源实现，但启动服务尚未默认装配数据库、Authenticator、Authorizer、Profile目录或真实Retriever。`cmd/memorys-server`继续在依赖未配置时返回503，避免伪造生产能力。`ConfiguredReadRuntime`以同样方式封装当前/历史读取服务，要求完整读取依赖和ClockHealth通过，并在Close后拒绝输出；其单元测试覆盖依赖缺失、时钟失败和关闭后的读取拒绝。Production Bootstrap、真实配置目录/制品锁、远程模块Grant、服务健康/时钟门禁、迁移回退、Recall/性能及完整V1仍开放。

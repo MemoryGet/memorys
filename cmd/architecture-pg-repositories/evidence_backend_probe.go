@@ -197,6 +197,26 @@ func verifyEvidenceBackend(ctx context.Context, db *sql.DB, scope contracts.Acce
 	if readErr != nil {
 		return nil, readErr
 	}
+	ownedLifecycleCredential := credential
+	ownedLifecycleCredential.Secret = append([]byte(nil), credential.Secret...)
+	ownedDeleteCredential := historicalSecondCredential
+	ownedDeleteCredential.Secret = append([]byte(nil), historicalSecondCredential.Secret...)
+	releaseHistoricalApp = func() { clear(ownedLifecycleCredential.Secret); clear(ownedDeleteCredential.Secret) }
+	runManagementDeletionProbe = func(c context.Context) error {
+		return verifyManagementDeletion(c, db, nativeAuth, ownedLifecycleCredential, ownedDeleteCredential)
+	}
+	startHistoricalTransport = func(c context.Context) (*historicalTransport, error) {
+		return newHistoricalTransport(c, db, nativeAuth, readService, ownedLifecycleCredential)
+	}
+	readLifecyclePage = func(c context.Context, revision contracts.ID, cursor string) (knowledge.ReadPageResult, error) {
+		deadline, _ := c.Deadline()
+		var profile contracts.Digest
+		if e := db.QueryRowContext(c, `SELECT b.profile_digest FROM akos_withdraw_v1.query_profile_heads h JOIN akos_withdraw_v1.query_profile_bindings b USING(space_id,kb_id,version) WHERE h.space_id='space' AND h.kb_id='kb'`).Scan(&profile); e != nil {
+			return knowledge.ReadPageResult{}, e
+		}
+		historicalAppProfile = profile
+		return readService.ReadPage(c, knowledge.CurrentReadInput{Credential: ownedLifecycleCredential, DocumentID: historicalTarget.Document, RevisionID: revision, Request: contracts.RequestContext{RequestID: "historical-lifecycle-application", Deadline: deadline, ProfileDigest: profile}}, knowledge.ReadPageOptions{Cursor: cursor})
+	}
 	readGrantStart, readProjectionStart := originalGrantCalls, projectionCalls
 	readResult, readErr := readService.ReadCurrent(ctx, knowledge.CurrentReadInput{Credential: credential, Request: q.Request, DocumentID: positive.DocumentID})
 	if readErr != nil || readResult.RevisionID != byID[positive.DocumentID].RevisionID || len(readResult.Payload) == 0 {
@@ -257,6 +277,26 @@ func verifyEvidenceBackend(ctx context.Context, db *sql.DB, scope contracts.Acce
 	closeErr := stream.Close()
 	if err != nil || closeErr != nil {
 		return nil, errors.New("actual original sample unavailable")
+	}
+	retainedBlob := approvedBlob
+	deletedOriginalProbe = func(c context.Context) (map[string]any, error) {
+		deadline, _ := c.Deadline()
+		grantScope := scope
+		grantScope.ScopeID = "original-evidence-scope"
+		grantScope.Action = "original.verify"
+		grantScope.ExpiresAt = deadline
+		r := q.Request
+		r.Deadline = deadline
+		stream, e := originals.Open(c, contracts.BlobReadRequest{Request: r, Scope: grantScope, Blob: retainedBlob})
+		if e != nil {
+			return nil, e
+		}
+		data, e := io.ReadAll(io.LimitReader(stream, retainedBlob.Size+1))
+		closed := stream.Close()
+		if e != nil || closed != nil || int64(len(data)) != retainedBlob.Size {
+			return nil, errors.New("retained deletion original unavailable")
+		}
+		return map[string]any{"blob": retainedBlob, "bytes": data, "authority": "independent-original-fixture"}, nil
 	}
 	evidenceBackendSamples = append(evidenceBackendSamples, map[string]any{"operation": op, "observed": observations[positive.DocumentID], "frozen": frozen, "original_blob": approvedBlob, "original_bytes": raw, "actual_index_record": positive, "control_refreshes": control.calls, "authenticator_calls": authCalls, "authorizer_calls": authorizeCalls, "identity_provider": "rs256_sdk_postgres_status_test_issuer", "authorization_provider": "postgres-sealed-acl", "facts_provider": "postgres-current-references", "original_grant_budget_clips": originalBudgetClips, "original_grant_budget_samples": originalBudgetSamples, "explicit_short_stage_budget_probe": true})
 	if err := changeProfile(); err != nil {

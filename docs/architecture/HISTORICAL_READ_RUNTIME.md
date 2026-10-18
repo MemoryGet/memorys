@@ -26,6 +26,26 @@ TextHistoricalReadVerifier沿用当前文本来源验证能力：非空粗定位
 
 ## 当前验证与证据边界
 
+2026-10-18删除生命周期增量：已接入[实际软删除服务及事务](DOCUMENT_DELETION.md)。八个epoch的重发试验之后，通过真实删除命令提交epoch 9的tombstone、历史、回执、审计、事件及当前源清理计划；随后REST/MCP旧游标和新请求、当前正文及再次发布均拒绝。实际原件字节和三个Revision保留，删除不等于Purge。547项输入在PG16通过275项检查，删除/历史/当前独立复核及全量本地检查通过。最新证据见[删除复核](evidence/document-deletion-runtime-review.json)、[历史回归](evidence/document-deletion-history-read-review.json)。下面各轮计数只证明对应历史快照。
+
+2026-10-18协议生命周期增量：在相同八个epoch试验中启动真实localhost REST及官方SDK MCP入口。重发前后各由契约路径/api/v1/knowledge-os/read返回首块及游标，再经MCP knowledge_read继续第二块。文档撤回、其他版本发布后，两个入口均返回安全错误；显式重发目标再换版后，旧REST游标在REST返回409/conflict，在MCP返回isError及同类安全错误。新的REST游标仍可继续MCP次页。独立复核五阶段实际HTTP/RPC样本：请求Schema、两页完整正文/引用/配置摘要、MCP结构化与文本一致、续页无额外游标，以及错误仅含code/safe_message/request_id/retryable，不携带正文、引用或游标。
+
+入口采用从主库当前配置目录解码并校验的可信配置快照；测试Search服务仅为MCP目录装配提供既有端口，本轮不调用或验收搜索。服务在fixture阶段结束时关闭，凭据副本按已有退出路径清除。未增加业务预算、任务租约或原件权限。
+
+当前541项输入在PG16通过261项原生检查，全量Go测试/go vet、228项Python及三份OpenAPI通过；历史/当前读取独立复核及源码快照一致性通过，临时目录与端口已独立确认清理。见[协议生命周期实库证据](evidence/history-transport-lifecycle-postgres16-review.json)、[独立复核](evidence/history-transport-lifecycle-runtime-review.json)、[当前读取回归](evidence/history-transport-lifecycle-current-read-review.json)、[本地检查](evidence/history-transport-lifecycle-local-checks.json)及[资源清理](evidence/history-transport-lifecycle-cleanup-review.json)。以下各轮记录仅证明其自身历史快照。
+
+2026-10-17应用生命周期增量：同一真实RS256/主库状态认证及CurrentReadService贯穿八个epoch的试验。目标正文包含两块，正常换版时可完成初页及续页；文档明确撤回时，带旧游标或不带游标均拒绝；发布另一版本后，已明确撤回的目标仍拒绝。显式重新发布目标再换版后，新请求可完成两页，旧游标明确返回ErrReadCursor，正文、块选择和续页游标均为空。独立校验四份实际应用页面与冻结正文、块ID顺序一致，新旧游标不同，并保留底层实际历史/批准/ACL复核。
+
+回调从主库当前配置头解析可信请求摘要，不能沿用此前配置切换试验留下的旧摘要；首次旧fixture摘要被应用拒绝的记录保留为history-app-postgres16-stale-fixture-profile-failed.json。跨阶段凭据单独复制并在整个查询/生命周期阶段退出时清除，包含失败退出路径，不输出访问令牌。原件/治理授权仍为fixture；本轮目标为revision来源文本，未扩大原件授权或业务预算。
+
+当前540项输入在PG16通过258项原生检查，全量Go测试/go vet、228项Python及三份OpenAPI通过；历史/当前读取独立复核通过，所有报告与同一源码快照匹配，临时目录和端口已独立核对清理。见[应用生命周期实库证据](evidence/history-app-lifecycle-postgres16-review.json)、[独立复核](evidence/history-app-lifecycle-runtime-review.json)、[当前读取回归](evidence/history-app-lifecycle-current-read-review.json)、[本地检查](evidence/history-app-lifecycle-local-checks.json)及[清理核对](evidence/history-app-lifecycle-cleanup-review.json)。以下255/252/250项记录为各自历史快照。
+
+2026-10-17后续增量：在既有查询/输出阶段结束后，新增独立20秒的历史生命周期fixture阶段。通过真实提交后的既有批准、Start/Claim/Prepare/Complete/Finalize和Withdraw服务，记录同文档epoch 1至8：正常换版时读取epoch 2历史正文；epoch 4再次发布该目标，epoch 5明确撤回后整份文档的历史读取拒绝；epoch 6发布另一版本后，目标仍拒绝；epoch 7显式重新发布目标、epoch 8正常换版后，历史读取恢复并绑定epoch 7的新发布记录。恢复前后的冻结字节与批准保持一致，不能将epoch 2的旧发布记录当作重新生效依据。
+
+此增量直接验证HistoricalFrozenReader端口，读取权限使用新封存的策略3，保持策略头单调递增，不回滚此前已撤销的策略1。治理写入授权仍为fixture；没有扩展任务4秒租约、业务请求预算，也没有证明旧应用游标恢复、发送撤权屏障或删除生命周期。独立校验实际八条历史的文档/版本/previous关系、撤回回执、发布ID/epoch、冻结正文双摘要、批准关系及两条实际读取授权。
+
+本轮540项输入在PG16通过255项原生检查，全量Go测试/go vet、228项Python与三份OpenAPI通过；历史生命周期与当前读取独立复核通过，临时目录和端口已另行核对清理。见[生命周期实库证据](evidence/history-lifecycle-postgres16-review.json)、[独立复核](evidence/history-lifecycle-runtime-review.json)、[当前读取回归](evidence/history-lifecycle-current-read-review.json)、[本地检查](evidence/history-lifecycle-local-checks.json)及[资源清理](evidence/history-lifecycle-cleanup-review.json)。下面539/252与539/250记录保留为历史快照，不代替当前源码证据。
+
 2026-10-17增量：新增第二位真实RS256阅读者及主库令牌登记，在同一封存策略中分别授予read/history。第二主体先通过REST成功读取相同历史版本的首块和引用，再尝试复用第一主体游标；应用必须返回ErrReadCursor，且正文和续页游标均为空。独立复核逐项核对第二主体、原生来源请求、两条实际授权、未撤销令牌登记、正文一致及不同的独立游标。原件控制和本地对象存储的fixture仅扩展到这两位指定阅读者，仍核对原对象及原有范围；不代表生产原件Grant。
 
 当前539项源码输入在PG16通过252项原生检查，全量Go测试/go vet、228项Python及三份OpenAPI通过；历史与当前读取独立复核通过，所有报告匹配相同源码哈希，临时目录和端口已独立确认清理。见[本轮实库证据](evidence/history-subject-postgres16-review.json)、[跨主体独立复核](evidence/history-subject-runtime-review.json)、[当前读取回归](evidence/history-subject-current-read-review.json)、[本地检查](evidence/history-subject-local-checks.json)及[清理核对](evidence/history-subject-cleanup-review.json)。以下250项记录保留为上一快照。
@@ -42,6 +62,6 @@ TextHistoricalReadVerifier沿用当前文本来源验证能力：非空粗定位
 
 ## 仍未验收
 
-生产密钥/issuer、授权与审核管理、生产原件Grant及发送撤权屏障、完整默认服务装配、结构媒体/精确来源、真实大库并发与延迟/成本、封存中文Recall、完整替换/迁移/回退均保持开放。明确撤回后重新发布、删除、跨issuer/客户端及完整历史生命周期实库矩阵仍需补验；本轮两个指定主体的游标隔离不能宣称覆盖全部场景。业务拒绝目前沿用安全通用错误，细化错误分类仍待完成。
+生产密钥/issuer、授权与审核管理、生产原件Grant及发送撤权屏障、完整默认服务装配、结构媒体/精确来源、真实大库并发与延迟/成本、封存中文Recall、完整替换/迁移/回退均保持开放。[删除管理入口](MANAGEMENT_DELETE_RUNTIME.md)已接入，删除任务查询/消费、物理Purge、跨issuer/客户端及完整生命周期实库矩阵仍需补验；两个指定主体的游标隔离和顺序REST/MCP/软删除生命周期不能宣称覆盖全部并发/故障场景。读取业务拒绝目前沿用安全通用错误，细化错误分类仍待完成。
 
 原件读取授权、治理写入授权和旧索引清理授权在探针中仍是受控fixture，不等同生产Grant/IAM。历史阅读者的令牌认证与read/history授权由真实签名及主库封存ACL执行；必须分别陈述这些证据。

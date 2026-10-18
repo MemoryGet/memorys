@@ -1,5 +1,7 @@
 # 发布准备任务的租约与已授权内容读取
 
+后续诊断：[治理时钟前置条件](GOVERNANCE_CLOCK_DIAGNOSTICS.md)已实际捕获4至5秒墙钟步变；当前590项本地检查通过，但本轮完整PG因环境时钟异常失败，不代表此页业务守卫应放宽，也不以旧通过快照代替当前验收。审批/续租稳定性与完整V1保持开放。
+
 2026-10-15：在发布准备登记之后，已实现 `document.PublicationTaskStore` 的 PostgreSQL 默认适配器 `postgres.PublicationTasks`：Claim、Renew 和 ReadOwned。它提供持久租约、同命令回执、到期接管及受控内容读取；尚无持续运行队列、实际索引写入、ReadinessProof、任务完成或最终发布。
 
 ## 标准接口与可替换边界

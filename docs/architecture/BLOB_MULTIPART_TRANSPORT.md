@@ -1,5 +1,7 @@
 # 有界multipart上传与隔离暂存 V1
 
+后续增量：[上传读超时与取消分类](UPLOAD_DEADLINE_RUNTIME.md)已有修复前3次确定性复现及修复后60次真实HTTP回归；当前586项输入/PG16 326检查和本页既有回归通过。它只关闭已复现的读错误分类原因，审批/续租和其他稳定性与完整V1保持开放；临时目录清理限制见该文档。
+
 本规范补充[文件远程映射](BLOB_WIRE_MAPPING.md)。`pkg/moduletransport/blob_multipart.go`提供公共接收辅助器，返回已验证的上传receipt；不生成BlobRef，也不提交元数据或发布知识版本。
 
 ## 1. 接收与暂存契约

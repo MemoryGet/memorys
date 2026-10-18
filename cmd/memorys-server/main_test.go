@@ -11,7 +11,7 @@ func TestBootstrapDoesNotExposeUnconfiguredBusinessCapabilities(t *testing.T) {
 	for _, c := range []struct {
 		method, path string
 		code         int
-	}{{"GET", "/health", 200}, {"POST", "/api/documents/upload", 503}, {"GET", "/api/knowledge/search", 503}, {"POST", "/api/v1/knowledge-os/read", 503}, {"POST", "/mcp", 503}} {
+	}{{"GET", "/health", 200}, {"POST", "/api/documents/upload", 503}, {"GET", "/api/knowledge/search", 503}, {"POST", "/api/v1/knowledge-os/read", 503}, {"DELETE", "/api/v1/knowledge-os/documents/doc?expected_document_version=1", 503}, {"GET", "/api/v1/knowledge-os/jobs/job", 503}, {"POST", "/api/v1/knowledge-os/jobs/job/retry", 503}, {"POST", "/mcp", 503}} {
 		w := httptest.NewRecorder()
 		newMux().ServeHTTP(w, httptest.NewRequest(c.method, c.path, nil))
 		if w.Code != c.code {

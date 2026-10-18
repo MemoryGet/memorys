@@ -9,6 +9,7 @@ import (
 	"math"
 	"mime"
 	"mime/multipart"
+	"net"
 	"net/http"
 	"strings"
 	"sync"
@@ -79,11 +80,11 @@ func ReceiveBlobMultipart(ctx context.Context, request *http.Request, limits Blo
 	parts := multipart.NewReader(raw, params["boundary"])
 	metadata, err := parts.NextRawPart()
 	if err != nil || !uploadPart(metadata, "metadata", "application/json") {
-		return receipt, uploadFailure(ctx, ErrProtocol)
+		return receipt, uploadReadFailure(ctx, err, ErrProtocol)
 	}
 	bytes, err := io.ReadAll(io.LimitReader(metadata, limits.MaxMetadataBytes+1))
 	if err != nil || int64(len(bytes)) > limits.MaxMetadataBytes {
-		return receipt, uploadFailure(ctx, ErrProtocol)
+		return receipt, uploadReadFailure(ctx, err, ErrProtocol)
 	}
 	call, value, err := modulewire.DecodeBlobPutMetadata(bytes)
 	if err != nil || value.Size > limits.MaxFileBytes {
@@ -107,7 +108,7 @@ func ReceiveBlobMultipart(ctx context.Context, request *http.Request, limits Blo
 	}
 	file, err := parts.NextRawPart()
 	if err != nil || !uploadPart(file, "file", "application/octet-stream") {
-		return receipt, uploadFailure(work, ErrProtocol)
+		return receipt, uploadReadFailure(work, err, ErrProtocol)
 	}
 	if err := work.Err(); err != nil {
 		return receipt, err
@@ -140,12 +141,15 @@ func ReceiveBlobMultipart(ctx context.Context, request *http.Request, limits Blo
 		return receipt, err
 	}
 	if extra, err := parts.NextRawPart(); err != io.EOF || extra != nil {
-		return receipt, uploadFailure(work, ErrProtocol)
+		return receipt, uploadReadFailure(work, err, ErrProtocol)
 	}
 	// multipart EOF denotes the final boundary, not necessarily HTTP-body EOF.
 	// Drain bounded epilogue and inspect any earlier read error hidden by buffering.
 	if _, err := io.Copy(io.Discard, raw); err != nil || raw.terminalError != nil {
-		return receipt, uploadFailure(work, ErrProtocol)
+		if err == nil {
+			err = raw.terminalError
+		}
+		return receipt, uploadReadFailure(work, err, ErrProtocol)
 	}
 	if err := work.Err(); err != nil {
 		return receipt, err
@@ -239,6 +243,20 @@ func uploadFailure(ctx context.Context, fallback error) error {
 	}
 	return fallback
 }
+
+// net/http cancels the request parent when Body.Read reports a socket timeout.
+// That cancellation can reach ctx before its own deadline timer callback. Keep
+// the actual read cause when the effective upload deadline has already passed;
+// cancellation observed while that deadline is live remains context.Canceled.
+func uploadReadFailure(ctx context.Context, cause, fallback error) error {
+	var timeout net.Error
+	if errors.As(cause, &timeout) && timeout.Timeout() {
+		if deadline, ok := ctx.Deadline(); ok && !time.Now().Before(deadline) {
+			return context.DeadlineExceeded
+		}
+	}
+	return uploadFailure(ctx, fallback)
+}
 func copyUpload(ctx context.Context, destination io.Writer, source io.Reader, size int64, expected contracts.Digest) (int64, error) {
 	buffer := make([]byte, 64<<10)
 	digest := sha256.New()
@@ -257,7 +275,7 @@ func copyUpload(ctx context.Context, destination io.Writer, source io.Reader, si
 			return count, ErrProtocol
 		}
 		if cancel := ctx.Err(); cancel != nil {
-			return count, cancel
+			return count, uploadReadFailure(ctx, err, cancel)
 		}
 		if n > 0 {
 			written, writeErr := destination.Write(buffer[:n])
@@ -280,7 +298,7 @@ func copyUpload(ctx context.Context, destination io.Writer, source io.Reader, si
 			return count, nil
 		}
 		if err != nil {
-			return count, uploadFailure(ctx, ErrProtocol)
+			return count, uploadReadFailure(ctx, err, ErrProtocol)
 		}
 	}
 }

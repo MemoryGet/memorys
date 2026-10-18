@@ -90,7 +90,7 @@ func (r planRepo) Append(ctx context.Context, scope contracts.AccessScope, p con
 		return ErrRepository
 	}
 	defer r.s.mu.Unlock()
-	if scope.Action != "publication.withdraw" && scope.Action != "publication.publish" || scope.Action == "publication.withdraw" && h.Action != "withdraw" || scope.Action == "publication.publish" && h.Action != "publish" {
+	if scope.Action != "publication.withdraw" && scope.Action != "publication.publish" && scope.Action != "document.delete" || scope.Action == "publication.withdraw" && h.Action != "withdraw" || scope.Action == "publication.publish" && h.Action != "publish" || scope.Action == "document.delete" && h.Action != "delete" {
 		return ErrRepository
 	}
 	_, err = r.s.tx.ExecContext(ctx, `INSERT INTO akos_withdraw_v1.cleanup_plans(id,history_id,operation_id,space_id,kb_id,document_id,revision_id,generation_set_id,publication_epoch,profile_digest,created_at,history_action) VALUES($1::text,$2::text,$3::text,$4::text,$5::text,$6::text,$7::text,$8::text,$9::text::numeric,$10::text,$11::text,$12::text)`, string(p.ID), string(p.HistoryID), string(p.OperationID), string(p.SpaceID), string(p.KnowledgeBaseID), string(p.DocumentID), string(p.RevisionID), string(p.GenerationSetID), strconv.FormatUint(p.PublicationEpoch, 10), string(p.ProfileDigest), p.CreatedAt.UTC().Format(timeFormat), h.Action)

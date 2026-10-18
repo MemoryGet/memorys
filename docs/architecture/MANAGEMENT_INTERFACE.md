@@ -40,7 +40,7 @@
 | 任务取消/重试 | POST /jobs/{id}/cancel、POST /jobs/{id}/retry | expected_job_version、幂等键 | 明确 accepted/already_terminal/not_cancellable；重复不新增副作用 |
 | 反馈列表/处理 | GET /knowledge-bases/{kb_id}/feedback、POST /feedback/{id}/proposals | 游标或意见和幂等键 | 合法反馈/建议 Draft；不提供自动发布路径 |
 
-上表是管理接口设计清单，不表示路由已实现。正式 OpenAPI 必须为请求、响应、分页、错误和示例生成完整 schema。伙伴四工具仍使用统一应用服务，不能通过同一服务 Key 自动获得全部管理权限。
+上表是管理接口设计清单。任务重试路由已接入组合根并在缺少应用能力时 fail-closed；其它管理页面和多数命令仍属于契约/局部实现。正式 OpenAPI 必须为请求、响应、分页、错误和示例生成完整 schema。伙伴四工具仍使用统一应用服务，不能通过同一服务 Key 自动获得全部管理权限。
 
 对应的 [管理OpenAPI草案](openapi/management.v1.json) 已覆盖26项操作。机器定义从 `build_management_contract.py` 生成，公共Block/Blob/来源/错误类型从伙伴OpenAPI复用；执行时加 `--check` 可检查生成文件是否过期。管理写命令统一使用必需的Idempotency-Key请求头；反馈伙伴工具继续使用body.idempotency_key。删除的expected_document_version放在query参数中，不要求DELETE请求体。
 

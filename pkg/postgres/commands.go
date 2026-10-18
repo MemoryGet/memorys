@@ -34,7 +34,11 @@ func commandDigest(v contracts.Digest) bool {
 
 // New reservation and all withdrawal writes share the callback transaction.
 // Existing pending commands cannot be taken over by a retry.
-func (s *session) reserveWithdrawal(ctx context.Context, scope contracts.AccessScope, command WithdrawalCommand) (reservation CommandReservation, err error) {
+func (s *session) reserveWithdrawal(ctx context.Context, scope contracts.AccessScope, command WithdrawalCommand) (CommandReservation, error) {
+	return s.reserveCommand(ctx, scope, command, "publication.withdraw", "withdraw")
+}
+
+func (s *session) reserveCommand(ctx context.Context, scope contracts.AccessScope, command WithdrawalCommand, required contracts.Action, action string) (reservation CommandReservation, err error) {
 	defer func() {
 		if err != nil {
 			s.mu.Lock()
@@ -42,7 +46,7 @@ func (s *session) reserveWithdrawal(ctx context.Context, scope contracts.AccessS
 			s.mu.Unlock()
 		}
 	}()
-	if scope.Action != "publication.withdraw" || !commandID(string(command.OperationID)) || !commandID(string(command.DocumentID)) || !commandID(command.Key) || !commandDigest(command.ActorSemanticDigest) || !commandDigest(command.CommandDigest) {
+	if scope.Action != required || (required != "publication.withdraw" && required != "document.delete") || required == "publication.withdraw" && action != "withdraw" || required == "document.delete" && action != "delete" || !commandID(string(command.OperationID)) || !commandID(string(command.DocumentID)) || !commandID(command.Key) || !commandDigest(command.ActorSemanticDigest) || !commandDigest(command.CommandDigest) {
 		return reservation, ErrRepository
 	}
 	if err = s.enter(ctx, scope); err != nil {
@@ -54,7 +58,7 @@ func (s *session) reserveWithdrawal(ctx context.Context, scope contracts.AccessS
 	var history sql.NullString
 	func() {
 		defer s.mu.Unlock()
-		result, e := s.tx.ExecContext(ctx, `INSERT INTO akos_withdraw_v1.command_operations(id,space_id,kb_id,document_id,actor_semantic_digest,actor_id,action,idempotency_key,command_digest,state,history_id) VALUES($1::text,$2::text,$3::text,$4::text,$5::text,$6::text,'withdraw',$7::text,$8::text,'pending',NULL) ON CONFLICT(space_id,actor_semantic_digest,action,idempotency_key) DO NOTHING`, string(command.OperationID), string(scope.SpaceID), string(scope.KnowledgeBaseIDs[0]), string(command.DocumentID), string(command.ActorSemanticDigest), string(scope.SubjectID), command.Key, string(command.CommandDigest))
+		result, e := s.tx.ExecContext(ctx, `INSERT INTO akos_withdraw_v1.command_operations(id,space_id,kb_id,document_id,actor_semantic_digest,actor_id,action,idempotency_key,command_digest,state,history_id) VALUES($1::text,$2::text,$3::text,$4::text,$5::text,$6::text,$9::text,$7::text,$8::text,'pending',NULL) ON CONFLICT(space_id,actor_semantic_digest,action,idempotency_key) DO NOTHING`, string(command.OperationID), string(scope.SpaceID), string(scope.KnowledgeBaseIDs[0]), string(command.DocumentID), string(command.ActorSemanticDigest), string(scope.SubjectID), command.Key, string(command.CommandDigest), action)
 		if e != nil {
 			err = ErrRepository
 			return
@@ -65,7 +69,7 @@ func (s *session) reserveWithdrawal(ctx context.Context, scope contracts.AccessS
 			return
 		}
 		created = n == 1
-		e = s.tx.QueryRowContext(ctx, `SELECT id,document_id,kb_id,actor_id,command_digest,state,history_id FROM akos_withdraw_v1.command_operations WHERE space_id=$1::text AND actor_semantic_digest=$2::text AND action='withdraw' AND idempotency_key=$3::text FOR UPDATE`, string(scope.SpaceID), string(command.ActorSemanticDigest), command.Key).Scan(&operation, &doc, &kb, &actor, &digest, &state, &history)
+		e = s.tx.QueryRowContext(ctx, `SELECT id,document_id,kb_id,actor_id,command_digest,state,history_id FROM akos_withdraw_v1.command_operations WHERE space_id=$1::text AND actor_semantic_digest=$2::text AND action=$4::text AND idempotency_key=$3::text FOR UPDATE`, string(scope.SpaceID), string(command.ActorSemanticDigest), command.Key, action).Scan(&operation, &doc, &kb, &actor, &digest, &state, &history)
 		if e != nil {
 			err = ErrRepository
 		}
@@ -98,7 +102,7 @@ func (s *session) reserveWithdrawal(ctx context.Context, scope contracts.AccessS
 	if e != nil {
 		return CommandReservation{}, e
 	}
-	if h.OperationID != reservation.OperationID || h.DocumentID != command.DocumentID || h.Action != "withdraw" || h.ActorID != scope.SubjectID || h.CommandDigest != command.CommandDigest {
+	if h.OperationID != reservation.OperationID || h.DocumentID != command.DocumentID || h.Action != action || h.ActorID != scope.SubjectID || h.CommandDigest != command.CommandDigest {
 		return CommandReservation{}, ErrRepository
 	}
 	reservation.HistoryID, reservation.PublicationEpoch = h.ID, h.PublicationEpoch

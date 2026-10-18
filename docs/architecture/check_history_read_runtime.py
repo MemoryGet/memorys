@@ -118,9 +118,92 @@ def validate():
             raise ValueError('actual historical approval revocation missing')
         if not all(sample.get(k) is True for k in ('unpublished_target_rejected', 'revoked_target_rejected', 'changed_target_cursor_rejected', 'missing_target_rejected')) or sample['authority'] != 'actual-rs256-postgres-read-and-history' or sample['original_grant'] != 'fixture-independent-read':
             raise ValueError('historical denial/authority boundary differs')
+    lifecycle = proof.get('historical_lifecycle_samples', [])
+    if len(lifecycle) != 1:
+        raise ValueError('missing actual historical lifecycle sample')
+    item = lifecycle[0]
+    before, after, query = item['before'], item['after'], item['request']
+    history = item['history']
+    if len(history) != 8 or [int(h['publication_epoch']) for h in history] != list(range(1, 9)) or [h['action'] for h in history] != ['publish'] * 4 + ['withdraw'] + ['publish'] * 3:
+        raise ValueError('actual lifecycle sequence differs')
+    doc, target = query['Base']['DocumentID'], query['Base']['RevisionID']
+    other = history[2]['revision_id']
+    if target == other or any(h['document_id'] != doc or int(h['previous_epoch']) != i for i, h in enumerate(history)):
+        raise ValueError('lifecycle document/epoch continuity differs')
+    expected_revisions = [history[0]['revision_id'], target, other, target, None, other, target, other]
+    if [h['revision_id'] for h in history] != expected_revisions or any(history[i]['previous_revision_id'] != expected_revisions[i-1] for i in range(1, 8)):
+        raise ValueError('withdraw/republish target relationship differs')
+    withdrawn = item['withdrawal']
+    if withdrawn['HistoryID'] != history[4]['id'] or withdrawn['DocumentID'] != doc or withdrawn['PublicationEpoch'] != 5:
+        raise ValueError('withdrawal receipt differs from actual history')
+    for record, target_index, current_index in ((before, 1, 2), (after, 6, 7)):
+        content = record['Content']
+        raw = base64.b64decode(content['Payload'], validate=True)
+        validate_payload(json.loads(raw))
+        hashes = frozen(raw)
+        review = record['Review']
+        if raw != canonical(raw) or content['DocumentID'] != doc or content['RevisionID'] != target or record['PublicationID'] != history[target_index]['id'] or record['PublicationEpoch'] != target_index + 1 or record['Current']['RevisionID'] != other or record['Current']['PublicationEpoch'] != current_index + 1 or review['Revision']['ContentHash'] != hashes['content_hash'] or review['Revision']['BlocksHash'] != hashes['blocks_hash'] or review['Approval']['RevisionID'] != target or review['Approval']['Decision'] != 'approve' or review['Validity']['State'] != 'effective':
+            raise ValueError('lifecycle frozen publication/approval differs')
+    if before['Content'] != after['Content'] or before['Review'] != after['Review'] or query['Base']['Scope']['PolicyVersion'] != 3 or query['HistoryScope']['PolicyVersion'] != 3:
+        raise ValueError('republication changed content/approval or fresh reader policy missing')
+    grants = item['stored_grants']
+    if len(grants) != 2 or {g['action'] for g in grants} != {'knowledge.read', 'knowledge.history.read'} or any(int(g['version']) != 3 or g['subject_id'] != query['Principal']['SubjectID'] or g['issuer'] != query['Principal']['Issuer'] or g['client_id'] != query['Principal']['ClientID'] or g['space_id'] != query['Base']['Scope']['SpaceID'] or g['kb_id'] != query['Base']['Scope']['KnowledgeBaseIDs'][0] for g in grants):
+        raise ValueError('lifecycle native reader grants differ')
+    if not item['withdrawn_document_rejected'] or not item['withdrawn_target_after_other_publish_rejected'] or item['governance_authority'] != 'fixture' or item['reader_authority'] != 'postgres-sealed-acl':
+        raise ValueError('lifecycle denial/authority evidence missing')
+    target_blocks = [b['id'] for b in json.loads(base64.b64decode(before['Content']['Payload']))['blocks']]
+    if len(target_blocks) != 2:
+        raise ValueError('application lifecycle fixture lacks real two-page content')
+    for phase, record in (('before', before), ('after', after)):
+        first = item['application_' + phase + '_first']
+        last = item['application_' + phase + '_last']
+        if first['Record'] != record['Content'] or last['Record'] != record['Content'] or first['BlockIDs'] != target_blocks[:1] or last['BlockIDs'] != target_blocks[1:] or not first['NextCursor'] or last['NextCursor']:
+            raise ValueError('actual application lifecycle pages differ from frozen content')
+    if item['application_before_first']['NextCursor'] == item['application_after_first']['NextCursor'] or item.get('application_identity') != 'rs256-postgres-status' or not all(item.get(k) is True for k in ('application_withdrawn_rejected', 'application_withdrawn_after_other_publish_rejected', 'application_old_cursor_rejected_after_republish')):
+        raise ValueError('application lifecycle old-cursor/withdrawal evidence missing')
+    transports = item.get('transport_samples', [])
+    if [t['phase'] for t in transports] != ['before', 'withdrawn', 'other-version', 'republished-old-cursor', 'after']:
+        raise ValueError('missing actual REST/MCP lifecycle stages')
+    frozen_blocks = json.loads(base64.b64decode(before['Content']['Payload']))['blocks']
+    old_cursor = transports[0]['rest_result']['next_cursor']
+    for transport in transports:
+        validators['ReadRequest'].validate(transport['request'])
+        if transport['request']['document_id'] != doc or transport['request']['revision_id'] != target or transport['mcp_status'] != 200:
+            raise ValueError('transport lifecycle target/status differs')
+        result = transport['mcp_result']['result']
+        structured = result['structuredContent']
+        if len(result['content']) != 1 or json.loads(result['content'][0]['text']) != structured:
+            raise ValueError('transport lifecycle MCP representations differ')
+        if transport['phase'] in ('before', 'after'):
+            if transport['rest_status'] != 200 or result.get('isError', False):
+                raise ValueError('transport lifecycle positive read failed')
+            rest = transport['rest_result']
+            validators['ReadResult'].validate(rest)
+            validators['ReadResult'].validate(structured)
+            validators['ReadRequest'].validate(transport['continuation'])
+            if transport['continuation'] != {**transport['request'], 'cursor': rest['next_cursor']} or 'next_cursor' in structured:
+                raise ValueError('transport lifecycle continuation changed')
+            for index, page in enumerate((rest, structured)):
+                block = frozen_blocks[index]
+                expected_block = {**{k: v for k, v in block.items() if k != 'order'}, 'revision_id': target}
+                expected_citation = {'document_id': doc, 'revision_id': target, 'block_id': block['id'], 'source_anchor': block['source_anchor']}
+                if page['document_id'] != doc or page['revision_id'] != target or page['blocks'] != [expected_block] or page['citations'] != [expected_citation] or page['profile_digest'] != item['application_profile_digest']:
+                    raise ValueError('transport lifecycle page changed frozen content/profile')
+        else:
+            if transport['rest_status'] < 400 or not result.get('isError') or transport['request'].get('cursor') != old_cursor:
+                raise ValueError('transport lifecycle old cursor accepted')
+            for error in (transport['rest_result'], structured):
+                if set(error) != {'code', 'safe_message', 'request_id', 'retryable'} or not error['request_id'] or not error['safe_message'] or not isinstance(error['retryable'], bool):
+                    raise ValueError('transport lifecycle denial leaked content or malformed error')
+                if transport['phase'] == 'republished-old-cursor' and error['code'] != 'conflict':
+                    raise ValueError('republished transport did not reject stale cursor explicitly')
+            if transport['phase'] == 'republished-old-cursor' and transport['rest_status'] != 409:
+                raise ValueError('republished REST cursor status differs')
+    if transports[-1]['rest_result']['next_cursor'] == old_cursor:
+        raise ValueError('transport lifecycle revived old cursor')
     if sources != source_inventory():
         raise ValueError('sources changed during historical review')
-    return {'passed': True, 'production_acceptance': False, 'sources': sources, 'sources_unchanged_during_checks': True, 'scope': 'PG16 actual signed-token independently authorized historical REST/MCP continuation, frozen commitments and entire original blocks after old-index deletion; second independently authenticated/authorized reader and cross-subject cursor denial; approved-unpublished/missing/changed cursor/revoked approval denial; governance and original grants remain fixtures; not full history lifecycle/production/performance acceptance', 'actual_samples': len(samples)}
+    return {'passed': True, 'production_acceptance': False, 'sources': sources, 'sources_unchanged_during_checks': True, 'scope': 'PG16 actual signed-token independently authorized historical REST/MCP continuation, frozen commitments and entire original blocks after old-index deletion; second independently authenticated/authorized reader and cross-subject cursor denial; approved-unpublished/missing/changed cursor/revoked approval denial; governance and original grants remain fixtures; withdraw/other-version publication rejection and explicit target republication recovery through native source port; authenticated application two-page continuation before/after and permanent old-cursor denial; actual REST-to-MCP lifecycle pagination and safe withdrawn/old-cursor transport denials; no delete/complete lifecycle/production/performance acceptance', 'actual_samples': len(samples)}
 
 
 if __name__ == '__main__':

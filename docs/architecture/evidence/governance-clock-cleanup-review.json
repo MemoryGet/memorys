@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "recorded_at": "2026-10-18T05:19:03.259636+00:00",
+  "directories": [
+    {
+      "directory": "/tmp/akos-pg-U6I9cBrh44",
+      "absent": true
+    },
+    {
+      "directory": "/tmp/akos-pg-g9dyVv0buq",
+      "absent": true
+    },
+    {
+      "directory": "/tmp/akos-pg-0EIs2zNGtn",
+      "absent": true
+    },
+    {
+      "directory": "/tmp/akos-pg-2JU0hPvQkB",
+      "absent": true
+    },
+    {
+      "directory": "/tmp/akos-pg-ET1TZSjPrj",
+      "absent": true
+    }
+  ],
+  "port": 55432,
+  "port_listening": false,
+  "scope": "Independent cleanup checks for five failed owned diagnostic/full PG runs; no acceptance claim"
+}

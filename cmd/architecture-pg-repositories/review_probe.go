@@ -65,8 +65,11 @@ func verifyReviewTransactions(ctx context.Context, db *sql.DB, scope contracts.A
 	reviewContractSamples = append(reviewContractSamples, reviewRequestSample(initial))
 	command := makeCommand(revision, "approve-original", "approve", 0)
 	if result, err := (lostReviewResponse{repository}).DecideReview(ctx, command); !errors.Is(err, document.ErrReviewUnknown) || result.ID != "" {
-		_, preparationErr := document.PrepareReview(initial, contracts.FrozenRevisionFact{ID: revision.ID, DocumentID: revision.DocumentID, HashFormat: revision.HashFormat, ContentHash: revision.ContentHash, BlocksHash: revision.BlocksHash}, 0, "diagnostic-decision", "reviewer", "approve", command.Request.Reason, 7, time.Now().UTC())
-		return fmt.Errorf("real review lost response: preparation_valid=%t request_remaining=%s scope_remaining=%s context=%v: %w", preparationErr == nil, time.Until(request.Deadline), time.Until(scope.ExpiresAt), ctx.Err(), err)
+		observed := time.Now().UTC()
+		var databaseNow time.Time
+		clockErr := db.QueryRowContext(ctx, `SELECT clock_timestamp()`).Scan(&databaseNow)
+		_, preparationErr := document.PrepareReview(initial, contracts.FrozenRevisionFact{ID: revision.ID, DocumentID: revision.DocumentID, HashFormat: revision.HashFormat, ContentHash: revision.ContentHash, BlocksHash: revision.BlocksHash}, 0, "diagnostic-decision", "reviewer", "approve", command.Request.Reason, 7, observed)
+		return fmt.Errorf("real review lost response: preparation_valid=%t submission_age=%s submission_age_db=%s clock_ok=%t clock_difference=%s state=%s row_version=%d content_match=%t revision_match=%t document_match=%t format=%q request_remaining=%s scope_remaining=%s context=%v: %w", preparationErr == nil, observed.Sub(initial.SubmittedAt), databaseNow.Sub(initial.SubmittedAt), clockErr == nil, databaseNow.Sub(observed), initial.State, initial.RowVersion, initial.ContentHash == revision.ContentHash, initial.RevisionID == revision.ID, initial.DocumentID == revision.DocumentID, revision.HashFormat, time.Until(request.Deadline), time.Until(scope.ExpiresAt), ctx.Err(), err)
 	}
 	cold, err := openFixtureDB()
 	if err != nil {

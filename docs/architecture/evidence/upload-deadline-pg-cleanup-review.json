@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "recorded_at": "2026-10-18T04:53:31.871109+00:00",
+  "temporary_directory": "/tmp/akos-pg-B19JJm9uIt",
+  "directory_absent": true,
+  "port": 55432,
+  "port_listening": false,
+  "scope": "Independent post-run WSL PostgreSQL directory and TCP listener checks; Windows test directory limitations recorded separately"
+}

@@ -204,6 +204,7 @@ func verifyKnowledgeApplication(ctx context.Context, db *sql.DB, auth contracts.
 	if err := verifyHistoricalReadGateway(ctx, db, auth, service, read, credential); err != nil {
 		return err
 	}
+	historicalSearchService = service
 	emptyBody := map[string]any{"query": text, "space_id": published.SpaceID, "top_k": 1, "kb_ids": []string{}}
 	before := preparedSearches.Load()
 	status, emptyRaw, err := callPartner(emptyBody)

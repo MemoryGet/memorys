@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "recorded_at": "2026-10-18T00:32:07.863011+00:00",
+  "temporary_directory": "/tmp/akos-pg-QUu9RSHy27",
+  "directory_absent": true,
+  "port": 55432,
+  "port_listening": false,
+  "scope": "Independent post-run WSL directory and TCP listener checks"
+}
