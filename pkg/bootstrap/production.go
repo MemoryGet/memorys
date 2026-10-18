@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/MemoryGet/memorys/pkg/configprofile"
 	"github.com/MemoryGet/memorys/pkg/events"
@@ -164,6 +165,27 @@ func readArtifactSnapshot(path string) ([]byte, string, error) {
 	}
 	sum := sha256.Sum256(raw)
 	return raw, hex.EncodeToString(sum[:]), nil
+}
+
+// NewProductionAuthenticator binds a verified artifact key set to the
+// deployment issuer/audience while leaving current token status in the host's
+// trusted database-backed StatusSource. It deliberately requires the host to
+// state subject type and lifetime instead of inventing permissive defaults.
+func NewProductionAuthenticator(settings ProductionSettings, artifacts ProductionArtifacts, subjectType string, maxLifetime time.Duration, status identitytoken.StatusSource) (*identitytoken.Authenticator, error) {
+	if validateProductionSettings(settings) != nil || len(artifacts.PublicKeys) == 0 || status == nil {
+		return nil, ErrProductionConfig
+	}
+	authenticator, err := identitytoken.New(identitytoken.Config{
+		Issuer:      settings.Issuer,
+		Audience:    settings.Audience,
+		SubjectType: subjectType,
+		Keys:        artifacts.PublicKeys,
+		MaxLifetime: maxLifetime,
+	}, status)
+	if err != nil {
+		return nil, ErrProductionConfig
+	}
+	return authenticator, nil
 }
 
 // ProductionAssembler is the host boundary for real DB pools, identity

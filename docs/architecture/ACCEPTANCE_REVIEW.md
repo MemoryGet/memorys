@@ -1,3 +1,5 @@
+2026-10-18最新增量：Bootstrap新增`NewProductionAuthenticator`，收敛JWKS与issuer/audience/subject type/lifetime绑定并强制注入真实StatusSource；当前生产IAM撤销数据仍需宿主提供。
+
 2026-10-18最新增量：生产制品装配改为单次字节快照解码并记录三份SHA-256，避免重开可变路径造成JWKS/Profile/模块配置代际混用；当前626项本地与PG16证据通过。
 
 2026-10-18最新增量：删除控制outbox使用identity-backed `event_seq`和固定20位游标，避免随机请求ID keyset在并发写入时跳过事件；当前626项源码快照的本地/PG16证据均通过。

@@ -9,10 +9,12 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/MemoryGet/memorys/pkg/configprofile"
 	"github.com/MemoryGet/memorys/pkg/contracts"
 	"github.com/MemoryGet/memorys/pkg/events"
+	"github.com/MemoryGet/memorys/pkg/identitytoken"
 	"github.com/MemoryGet/memorys/pkg/kernel"
 	jose "github.com/go-jose/go-jose/v4"
 )
@@ -107,6 +109,12 @@ type artifactAssembler struct {
 	digests map[string]string
 }
 
+type productionTokenStatus struct{}
+
+func (productionTokenStatus) Active(context.Context, identitytoken.StatusQuery) (bool, error) {
+	return true, nil
+}
+
 func (a *artifactAssembler) Assemble(_ context.Context, _ ProductionSettings) (Config, *events.Runner, func() error, error) {
 	return Config{}, nil, func() error { return nil }, nil
 }
@@ -163,6 +171,13 @@ func TestNewProductionRuntimePassesVerifiedArtifactsToAwareAssembler(t *testing.
 	runtime, err := NewProductionRuntime(context.Background(), settings, a)
 	if err != nil || runtime == nil || !a.called || a.keys != 1 || len(a.digests) != 3 || a.digests["jwks"] == "" || a.digests["profile"] == "" || a.digests["modules"] == "" {
 		t.Fatal("verified artifacts were not passed to aware assembler", err, a.called, a.keys, a.digests)
+	}
+	artifacts, err := LoadProductionArtifacts(settings)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = NewProductionAuthenticator(settings, artifacts, "service", time.Minute, productionTokenStatus{}); err != nil {
+		t.Fatal("verified production authenticator rejected", err)
 	}
 	if err := runtime.Stop(); err != nil {
 		t.Fatal(err)
