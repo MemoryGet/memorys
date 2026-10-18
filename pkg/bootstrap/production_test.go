@@ -183,6 +183,9 @@ func TestNewProductionRuntimePassesVerifiedArtifactsToAwareAssembler(t *testing.
 	if err != nil {
 		t.Fatal(err)
 	}
+	if len(artifacts.GenerationDigest) != 64 {
+		t.Fatal("production generation digest missing")
+	}
 	if _, err = NewProductionAuthenticator(settings, artifacts, "service", time.Minute, productionTokenStatus{}); err != nil {
 		t.Fatal("verified production authenticator rejected", err)
 	}

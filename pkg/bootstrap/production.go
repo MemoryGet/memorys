@@ -40,7 +40,8 @@ type ProductionArtifacts struct {
 	Modules    kernel.Config
 	// Digests are SHA-256 values of the exact bytes decoded above. The map is
 	// intentionally descriptive; the assembler must treat it as immutable.
-	Digests map[string]string
+	Digests          map[string]string
+	GenerationDigest string
 }
 
 // ProductionLockInput contains only operator-supplied paths. No path is
@@ -164,12 +165,20 @@ func LoadProductionArtifacts(settings ProductionSettings) (ProductionArtifacts, 
 	if err != nil {
 		return out, ErrProductionConfig
 	}
+	digests := map[string]string{"jwks": jwksDigest, "profile": profileDigest, "modules": modulesDigest}
 	return ProductionArtifacts{
-		PublicKeys: keys,
-		Profile:    profile,
-		Modules:    modules,
-		Digests:    map[string]string{"jwks": jwksDigest, "profile": profileDigest, "modules": modulesDigest},
+		PublicKeys:       keys,
+		Profile:          profile,
+		Modules:          modules,
+		Digests:          digests,
+		GenerationDigest: productionGenerationDigest(digests),
 	}, nil
+}
+
+func productionGenerationDigest(digests map[string]string) string {
+	material := "akos.production-artifacts/1\x00jwks\x00" + digests["jwks"] + "\x00modules\x00" + digests["modules"] + "\x00profile\x00" + digests["profile"]
+	sum := sha256.Sum256([]byte(material))
+	return hex.EncodeToString(sum[:])
 }
 
 // LoadProductionLockedArtifacts verifies the operator-supplied BuildLock
