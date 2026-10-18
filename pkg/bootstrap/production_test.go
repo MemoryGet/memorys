@@ -122,6 +122,22 @@ func (productionTokenStatus) Active(context.Context, identitytoken.StatusQuery) 
 	return true, nil
 }
 
+type productionHealthCheck struct{ err error }
+
+func (h productionHealthCheck) CheckProductionHealth(context.Context, Config) error { return h.err }
+
+func TestRequireProductionHealthFailsClosed(t *testing.T) {
+	if err := requireProductionHealth(context.Background(), struct{}{}, Config{}); !errors.Is(err, ErrProductionConfig) {
+		t.Fatal("healthless assembler accepted", err)
+	}
+	if err := requireProductionHealth(context.Background(), productionHealthCheck{err: errors.New("database unavailable")}, Config{}); !errors.Is(err, ErrProductionConfig) {
+		t.Fatal("failed health check accepted", err)
+	}
+	if err := requireProductionHealth(context.Background(), productionHealthCheck{}, Config{}); err != nil {
+		t.Fatal("healthy assembler rejected", err)
+	}
+}
+
 func (a *artifactAssembler) Assemble(_ context.Context, _ ProductionSettings) (Config, *events.Runner, func() error, error) {
 	return Config{}, nil, func() error { return nil }, nil
 }

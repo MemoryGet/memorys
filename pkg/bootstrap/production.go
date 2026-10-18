@@ -274,6 +274,14 @@ type ProductionHealthAssembler interface {
 	CheckProductionHealth(context.Context, Config) error
 }
 
+func requireProductionHealth(ctx context.Context, assembler any, config Config) error {
+	checker, ok := assembler.(ProductionHealthAssembler)
+	if !ok || checker.CheckProductionHealth(ctx, config) != nil {
+		return ErrProductionConfig
+	}
+	return nil
+}
+
 type ProductionRuntime struct {
 	Runtime  *Runtime
 	close    func() error
@@ -354,8 +362,7 @@ func NewProductionRuntimeWithBuildLock(ctx context.Context, settings ProductionS
 	if err != nil || closeFn == nil {
 		return nil, ErrProductionConfig
 	}
-	health, ok := assembler.(ProductionHealthAssembler)
-	if !ok || health.CheckProductionHealth(ctx, config) != nil {
+	if err := requireProductionHealth(ctx, assembler, config); err != nil {
 		_ = closeFn()
 		return nil, ErrProductionConfig
 	}
