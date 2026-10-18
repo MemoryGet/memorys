@@ -1,3 +1,5 @@
+2026-10-18最新增量：新增多消费者RunnerGroup及生产构造器，支持确定性启动/失败回滚/逆序停止/全组Ready；本地628项门禁通过，PG新轮次因宿主墙钟跳变未取得匹配证据。
+
 2026-10-18最新增量：Bootstrap新增`NewProductionAuthenticator`，收敛JWKS与issuer/audience/subject type/lifetime绑定并强制注入真实StatusSource；当前生产IAM撤销数据仍需宿主提供。
 
 2026-10-18最新增量：生产制品装配改为单次字节快照解码并记录三份SHA-256，避免重开可变路径造成JWKS/Profile/模块配置代际混用；当前626项本地与PG16证据通过。

@@ -13,3 +13,5 @@ PG适配器`postgres.EventCursorStore`将游标存入独立的`event_consumer_cu
 `postgres.DeletionControlEventBus`把删除控制outbox按PostgreSQL identity-backed `event_seq` keyset分页映射为`EventEnvelope`，不再按随机请求ID排序；游标编码为固定20位十进制序列，只在Runner保存成功后推进。这样并发提交的后写事件不会因为ID字典序变化而被跳过；升级时发现旧的非序列游标应清空并从最小序列重放。它只实现消费，禁止通过EventBus伪造发布或修改任务状态。
 
 Runner的只读`Snapshot`提供当前游标、启动/停止状态和最近投递错误，供Bootstrap健康检查或告警采集；快照不会成为业务完成或租约有效性的依据。
+
+`events.RunnerGroup`按稳定consumer名称管理多个Runner：确定性启动、启动失败回滚、逆序停止、全组Ready和只读快照。它允许删除、发布等outbox消费者共享进程生命周期，但每个Runner仍保留自己的游标、回执和幂等边界。

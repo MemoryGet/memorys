@@ -203,6 +203,13 @@ type ProductionArtifactAssembler interface {
 	AssembleWithArtifacts(context.Context, ProductionSettings, ProductionArtifacts) (Config, *events.Runner, func() error, error)
 }
 
+// ProductionRunnerGroupAssembler is the multi-consumer production boundary.
+// It always receives the verified artifact snapshot so each named outbox
+// consumer is assembled from the same deployment generation.
+type ProductionRunnerGroupAssembler interface {
+	AssembleWithRunnerGroup(context.Context, ProductionSettings, ProductionArtifacts) (Config, *events.RunnerGroup, func() error, error)
+}
+
 type ProductionRuntime struct {
 	Runtime  *Runtime
 	close    func() error
@@ -231,6 +238,32 @@ func NewProductionRuntime(ctx context.Context, settings ProductionSettings, asse
 		return nil, ErrProductionConfig
 	}
 	runtime, err := NewRuntime(config, runner)
+	if err != nil {
+		_ = closeFn()
+		return nil, err
+	}
+	if err = runtime.Start(ctx); err != nil {
+		_ = closeFn()
+		return nil, err
+	}
+	return &ProductionRuntime{Runtime: runtime, close: closeFn}, nil
+}
+
+// NewProductionRuntimeWithRunnerGroup is the production constructor for
+// deployments with more than one durable event consumer.
+func NewProductionRuntimeWithRunnerGroup(ctx context.Context, settings ProductionSettings, assembler ProductionRunnerGroupAssembler) (*ProductionRuntime, error) {
+	if ctx == nil || assembler == nil || validateProductionSettings(settings) != nil {
+		return nil, ErrProductionConfig
+	}
+	artifacts, err := LoadProductionArtifacts(settings)
+	if err != nil {
+		return nil, err
+	}
+	config, group, closeFn, err := assembler.AssembleWithRunnerGroup(ctx, settings, artifacts)
+	if err != nil || group == nil || closeFn == nil {
+		return nil, ErrProductionConfig
+	}
+	runtime, err := NewRuntimeWithRunnerGroup(config, group)
 	if err != nil {
 		_ = closeFn()
 		return nil, err

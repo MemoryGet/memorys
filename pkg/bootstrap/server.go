@@ -29,6 +29,7 @@ type Config struct {
 type Runtime struct {
 	Handler http.Handler
 	Runner  *events.Runner
+	Runners *events.RunnerGroup
 }
 
 func (r *Runtime) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -98,29 +99,52 @@ func NewRuntime(c Config, runner *events.Runner) (*Runtime, error) {
 	return &Runtime{Handler: h, Runner: runner}, nil
 }
 
+// NewRuntimeWithRunnerGroup binds several independently durable event
+// consumers to the same HTTP lifecycle. A group is optional; NewRuntime
+// remains the compatibility path for a single consumer.
+func NewRuntimeWithRunnerGroup(c Config, runners *events.RunnerGroup) (*Runtime, error) {
+	if runners == nil {
+		return nil, ErrBootstrap
+	}
+	h, err := New(c)
+	if err != nil {
+		return nil, err
+	}
+	return &Runtime{Handler: h, Runners: runners}, nil
+}
+
 func (r *Runtime) Start(ctx context.Context) error {
 	if r == nil || r.Handler == nil {
 		return ErrBootstrap
 	}
-	if r.Runner == nil {
-		return nil
+	if r.Runners != nil {
+		return r.Runners.Start(ctx)
 	}
-	return r.Runner.Start(ctx)
+	if r.Runner != nil {
+		return r.Runner.Start(ctx)
+	}
+	return nil
 }
 
 func (r *Runtime) Stop() error {
 	if r == nil || r.Handler == nil {
 		return ErrBootstrap
 	}
-	if r.Runner == nil {
-		return nil
+	if r.Runners != nil {
+		return r.Runners.Stop()
 	}
-	return r.Runner.Stop()
+	if r.Runner != nil {
+		return r.Runner.Stop()
+	}
+	return nil
 }
 
 func (r *Runtime) Ready() error {
 	if r == nil || r.Handler == nil {
 		return ErrBootstrap
+	}
+	if r.Runners != nil {
+		return r.Runners.Ready()
 	}
 	if r.Runner == nil {
 		return nil
