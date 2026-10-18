@@ -189,6 +189,13 @@ func LoadProductionLockedArtifacts(settings ProductionSettings, input Production
 	if err != nil {
 		return out, err
 	}
+	moduleKeys := make([]buildlock.Key, 0, len(artifacts.Modules.Modules))
+	for _, module := range artifacts.Modules.Modules {
+		moduleKeys = append(moduleKeys, buildlock.Key{Provider: module.Provider, Version: module.ImplementationVersion})
+	}
+	if !lockReport.CoversRuntimeModules(moduleKeys) {
+		return out, ErrProductionConfig
+	}
 	return ProductionLockedArtifacts{Artifacts: artifacts, Lock: lockReport}, nil
 }
 

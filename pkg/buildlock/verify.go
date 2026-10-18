@@ -11,6 +11,7 @@ import (
 	"io"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 
 	"github.com/MemoryGet/memorys/pkg/canonical"
@@ -48,6 +49,7 @@ type Report struct {
 	RetentionSHA256  string
 	ManifestSHA256   map[Key]string
 	ArtifactSHA256   map[Key]string
+	ReleaseKeys      []Key
 	ReadyForService  bool
 	Unverified       []string
 }
@@ -152,6 +154,16 @@ func Verify(input Input) (Report, error) {
 		return report, ErrVerification
 	}
 	report.ManifestSHA256 = make(map[Key]string, len(input.Manifests))
+	report.ReleaseKeys = make([]Key, 0, len(releases))
+	for key := range releases {
+		report.ReleaseKeys = append(report.ReleaseKeys, key)
+	}
+	sort.Slice(report.ReleaseKeys, func(i, j int) bool {
+		if report.ReleaseKeys[i].Provider == report.ReleaseKeys[j].Provider {
+			return report.ReleaseKeys[i].Version < report.ReleaseKeys[j].Version
+		}
+		return report.ReleaseKeys[i].Provider < report.ReleaseKeys[j].Provider
+	})
 	for key, raw := range input.Manifests {
 		manifest, err := parseObject(raw, manifestFields)
 		if err != nil {
@@ -194,6 +206,28 @@ func Verify(input Input) (Report, error) {
 	report.RetentionSHA256 = retentionDigest
 	report.Unverified = []string{"trusted_lock_provenance", "source_build_attestation", "executed_artifact_identity", "backend_dependency_versions", "retention_holds"}
 	return report, nil
+}
+
+// CoversRuntimeModules checks that a decoded runtime module catalog selects
+// exactly the provider/release pairs covered by the verified lock. It does not
+// validate factory health or settings; kernel.Build remains responsible for
+// those checks.
+func (r Report) CoversRuntimeModules(keys []Key) bool {
+	if len(keys) != len(r.ReleaseKeys) {
+		return false
+	}
+	expected := make(map[Key]bool, len(r.ReleaseKeys))
+	for _, key := range r.ReleaseKeys {
+		expected[key] = true
+	}
+	seen := make(map[Key]bool, len(keys))
+	for _, key := range keys {
+		if !expected[key] || seen[key] {
+			return false
+		}
+		seen[key] = true
+	}
+	return len(seen) == len(expected)
 }
 
 // VerifyFiles reads only caller-supplied paths and closes opened artifacts.

@@ -45,8 +45,11 @@ func TestVerifyLockedInputsBindsRawDigestsAndCoverage(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if report.ReadyForService || report.ManifestSHA256[key] == "" || report.ArtifactSHA256[key] == "" || len(report.Unverified) == 0 {
+	if report.ReadyForService || report.ManifestSHA256[key] == "" || report.ArtifactSHA256[key] == "" || len(report.Unverified) == 0 || !report.CoversRuntimeModules([]Key{key}) {
 		t.Fatal("unexpected build lock report", report)
+	}
+	if report.CoversRuntimeModules([]Key{key, key}) || report.CoversRuntimeModules(nil) {
+		t.Fatal("runtime module coverage accepted duplicate or missing pair")
 	}
 }
 
