@@ -33,6 +33,8 @@ python docs/architecture/check_build_lock.py --config <部署JSON> --manifest <�
 
 `test_build_lock.py`使用临时合成制品验证字节篡改、条目覆盖、生命周期/策略版本、锁ID、浮动源码和安全错误拒绝路径。该制品没有实现模块能力；测试不证明启动、持久状态或真实组件替换成功。D-04的[导出清单](EXPORT_CONTRACT.md)、[日志链](JOURNAL_PROTOCOL.md)、[KB状态机](MIGRATION_STATE.md)及[文件字节清单](BLOB_COPY.md)已另提供局部机器契约；完整typed载荷、数据库/文件状态与正式运行核对仍待完成。
 
+Go宿主可调用`pkg/buildlock.Verify`或`VerifyFiles`完成同一锁输入的离线摘要门：部署文件、BuildLock、保留策略、模块清单和显式制品路径必须精确覆盖；原始字节SHA-256、provider/release、生命周期契约、源码revision和制品摘要逐项绑定。返回报告固定`ReadyForService=false`并保留来源信任、构建证明、实际运行身份、后端依赖和保留锁等未验证项；验证器不执行制品、不按JSON中的路径读文件、不替代完整Schema或受信控制面。
+
 ## 信任配置与构建锁的扩展边界（2026-10-13）
 
 详见[信任激活协议](KEY_TRUST_ACTIVATION.md)。记录TrustDomain/Head、不可变快照、KeyRetirement与激活操作的归属，禁止低版本回退及受损公钥换kid复活；历史恢复必须核对备份之外的受信控制面锚点。现有仓储/BuildLock尚未包含完整机器绑定，也无持久激活/分发证据，后续须补齐。

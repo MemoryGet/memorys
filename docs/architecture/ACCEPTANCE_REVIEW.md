@@ -1,3 +1,5 @@
+2026-10-18最新增量：新增Go BuildLock离线验证器，绑定部署/锁/保留策略/清单/制品原始摘要并保持ReadyForService=false；本地当前630项门禁通过，PG新轮次仍未取得稳定匹配证据。
+
 2026-10-18最新增量：新增多消费者RunnerGroup及生产构造器，支持确定性启动/失败回滚/逆序停止/全组Ready；本地628项门禁通过，PG新轮次因宿主墙钟跳变未取得匹配证据。
 
 2026-10-18最新增量：Bootstrap新增`NewProductionAuthenticator`，收敛JWKS与issuer/audience/subject type/lifetime绑定并强制注入真实StatusSource；当前生产IAM撤销数据仍需宿主提供。
