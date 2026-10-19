@@ -1,0 +1,42 @@
+{
+  "schema_version": "ai-acceptance.v1",
+  "name": "AI Knowledge OS local functional acceptance",
+  "policy": {
+    "production_acceptance": false,
+    "fail_closed": true,
+    "allow_inconclusive": true,
+    "rule": "A local pass is evidence for the named scope only; it never proves production readiness."
+  },
+  "suites": [
+    {
+      "id": "local-regression",
+      "title": "Local code and contract regression",
+      "tier": "static",
+      "required": true,
+      "cases": [
+        {"id": "go-test", "command": ["go", "test", "-count=1", "./..."]},
+        {"id": "go-vet", "command": ["go", "vet", "./..."]},
+        {"id": "python-contracts", "command": ["python", "-m", "unittest", "discover", "-s", "docs/architecture", "-p", "test_*.py"]},
+        {"id": "openapi-structure", "command": ["spec_python", "docs/architecture/check_openapi_conformance.py"]}
+      ]
+    },
+    {
+      "id": "runtime-scenarios",
+      "title": "Runtime business scenarios",
+      "tier": "runtime",
+      "required": false,
+      "cases": [
+        {"id": "preparation", "command": ["spec_python", "docs/architecture/check_preparation_runtime.py"]},
+        {"id": "review", "command": ["spec_python", "docs/architecture/check_review_runtime.py"]},
+        {"id": "publication-tasks", "command": ["spec_python", "docs/architecture/check_publication_tasks_runtime.py"]},
+        {"id": "finalization", "command": ["spec_python", "docs/architecture/check_finalization_runtime.py"]},
+        {"id": "current-read", "command": ["spec_python", "docs/architecture/check_current_read_runtime.py"]},
+        {"id": "history-read", "command": ["spec_python", "docs/architecture/check_history_read_runtime.py"]},
+        {"id": "document-deletion", "command": ["spec_python", "docs/architecture/check_document_deletion_runtime.py"]},
+        {"id": "job-status", "command": ["spec_python", "docs/architecture/check_job_status_runtime.py"]},
+        {"id": "deletion-queue", "command": ["spec_python", "docs/architecture/check_deletion_queue_runtime.py"]},
+        {"id": "keyword-retrieval", "command": ["spec_python", "docs/architecture/check_keyword_retrieval_runtime.py"]}
+      ]
+    }
+  ]
+}

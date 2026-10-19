@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-18T14:29:01.569368+00:00",
+  "recorded_at": "2026-10-19T00:05:31.527127+00:00",
   "scope": "Windows local architecture regression: Go, direct imports, Python contracts, all three OpenAPI specifications",
   "local_checks_passed": true,
   "production_acceptance": false,
@@ -648,9 +648,9 @@
       ],
       "exit_code": 0,
       "status": "passed",
-      "stdout": "?   \tgithub.com/MemoryGet/memorys/cmd/architecture-freeze-draft\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-graph-cleanup-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-memory-record\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-office-parser\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.773s\nok  \tgithub.com/MemoryGet/memorys/cmd/architecture-pg-repositories\t1.128s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-binding\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-probe\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/cmd/memorys-server\t0.696s\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t1.082s\nok  \tgithub.com/MemoryGet/memorys/pkg/adapters\t1.226s\nok  \tgithub.com/MemoryGet/memorys/pkg/api\t1.467s\nok  \tgithub.com/MemoryGet/memorys/pkg/bootstrap\t1.640s\nok  \tgithub.com/MemoryGet/memorys/pkg/buildlock\t1.629s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t1.768s\n?   \tgithub.com/MemoryGet/memorys/pkg/chunk\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/cleanup\t1.928s\nok  \tgithub.com/MemoryGet/memorys/pkg/clockhealth\t1.834s\nok  \tgithub.com/MemoryGet/memorys/pkg/configprofile\t2.105s\nok  \tgithub.com/MemoryGet/memorys/pkg/contentverify\t2.509s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t2.108s\nok  \tgithub.com/MemoryGet/memorys/pkg/document\t2.237s\nok  \tgithub.com/MemoryGet/memorys/pkg/events\t2.181s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t2.211s\nok  \tgithub.com/MemoryGet/memorys/pkg/identitytoken\t2.474s\nok  \tgithub.com/MemoryGet/memorys/pkg/index\t1.939s\n?   \tgithub.com/MemoryGet/memorys/pkg/indexsnapshot\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/ingestion\t2.114s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t2.056s\nok  \tgithub.com/MemoryGet/memorys/pkg/knowledge\t2.053s\nok  \tgithub.com/MemoryGet/memorys/pkg/mcpgateway\t2.241s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t7.094s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t2.157s\nok  \tgithub.com/MemoryGet/memorys/pkg/parser\t2.133s\nok  \tgithub.com/MemoryGet/memorys/pkg/parserprocess\t3.366s\nok  \tgithub.com/MemoryGet/memorys/pkg/postgres\t2.521s\nok  \tgithub.com/MemoryGet/memorys/pkg/preparation\t2.548s\nok  \tgithub.com/MemoryGet/memorys/pkg/profileassembly\t2.508s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t2.471s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t2.474s\nok  \tgithub.com/MemoryGet/memorys/pkg/reflection\t2.330s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrieval\t2.381s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t2.284s\nok  \tgithub.com/MemoryGet/memorys/pkg/storage\t2.203s\nok  \tgithub.com/MemoryGet/memorys/pkg/withdrawal\t2.457s\nok  \tgithub.com/MemoryGet/memorys/tests/architecture\t2.788s\n",
+      "stdout": "?   \tgithub.com/MemoryGet/memorys/cmd/architecture-freeze-draft\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-graph-cleanup-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-memory-record\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-office-parser\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.783s\nok  \tgithub.com/MemoryGet/memorys/cmd/architecture-pg-repositories\t1.130s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-binding\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-probe\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/cmd/memorys-server\t0.807s\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t1.630s\nok  \tgithub.com/MemoryGet/memorys/pkg/adapters\t1.656s\nok  \tgithub.com/MemoryGet/memorys/pkg/api\t1.996s\nok  \tgithub.com/MemoryGet/memorys/pkg/bootstrap\t2.121s\nok  \tgithub.com/MemoryGet/memorys/pkg/buildlock\t2.017s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t1.967s\n?   \tgithub.com/MemoryGet/memorys/pkg/chunk\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/cleanup\t2.425s\nok  \tgithub.com/MemoryGet/memorys/pkg/clockhealth\t2.406s\nok  \tgithub.com/MemoryGet/memorys/pkg/configprofile\t2.404s\nok  \tgithub.com/MemoryGet/memorys/pkg/contentverify\t2.755s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t2.360s\nok  \tgithub.com/MemoryGet/memorys/pkg/document\t2.381s\nok  \tgithub.com/MemoryGet/memorys/pkg/events\t2.387s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t2.282s\nok  \tgithub.com/MemoryGet/memorys/pkg/identitytoken\t2.578s\nok  \tgithub.com/MemoryGet/memorys/pkg/index\t2.072s\n?   \tgithub.com/MemoryGet/memorys/pkg/indexsnapshot\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/ingestion\t1.847s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t1.721s\nok  \tgithub.com/MemoryGet/memorys/pkg/knowledge\t2.032s\nok  \tgithub.com/MemoryGet/memorys/pkg/mcpgateway\t2.005s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t7.317s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t2.375s\nok  \tgithub.com/MemoryGet/memorys/pkg/parser\t2.421s\nok  \tgithub.com/MemoryGet/memorys/pkg/parserprocess\t4.143s\nok  \tgithub.com/MemoryGet/memorys/pkg/postgres\t2.443s\nok  \tgithub.com/MemoryGet/memorys/pkg/preparation\t2.426s\nok  \tgithub.com/MemoryGet/memorys/pkg/profileassembly\t2.439s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t2.438s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t2.449s\nok  \tgithub.com/MemoryGet/memorys/pkg/reflection\t2.626s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrieval\t2.338s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t2.286s\nok  \tgithub.com/MemoryGet/memorys/pkg/storage\t2.156s\nok  \tgithub.com/MemoryGet/memorys/pkg/withdrawal\t2.775s\nok  \tgithub.com/MemoryGet/memorys/tests/architecture\t1.489s\n",
       "stderr": "",
-      "elapsed_seconds": 32.173,
+      "elapsed_seconds": 32.559,
       "id": "go_tests_including_import_boundaries"
     },
     {
@@ -663,7 +663,7 @@
       "status": "passed",
       "stdout": "",
       "stderr": "",
-      "elapsed_seconds": 22.404,
+      "elapsed_seconds": 21.772,
       "id": "go_vet"
     },
     {
@@ -680,8 +680,8 @@
       "exit_code": 0,
       "status": "passed",
       "stdout": "",
-      "stderr": "........................................................................................................................................................................................................................................\n----------------------------------------------------------------------\nRan 232 tests in 23.431s\n\nOK\n",
-      "elapsed_seconds": 23.652,
+      "stderr": "........................................................................................................................................................................................................................................\n----------------------------------------------------------------------\nRan 232 tests in 20.583s\n\nOK\n",
+      "elapsed_seconds": 20.889,
       "id": "python_architecture_contract_tests"
     },
     {
@@ -693,7 +693,7 @@
       "status": "passed",
       "stdout": "PASS: partner.v1.json, OpenAPI 3.1.1, 4 operations\nPASS: management.v1.json, OpenAPI 3.1.1, 26 operations\nPASS: modules.v1.json, OpenAPI 3.1.1, 17 operations\n",
       "stderr": "",
-      "elapsed_seconds": 1.623,
+      "elapsed_seconds": 2.098,
       "id": "all_openapi_structure"
     }
   ],

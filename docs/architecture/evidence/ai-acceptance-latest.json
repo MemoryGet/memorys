@@ -1,0 +1,83 @@
+{
+  "schema_version": "ai-acceptance-result.v1",
+  "recorded_at": "2026-10-19T00:14:10.027980+00:00",
+  "root": "E:\\ai\\memorys",
+  "tier": "static",
+  "local_functional_acceptance": true,
+  "production_acceptance": false,
+  "fail_closed": true,
+  "results": [
+    {
+      "suite": "local-regression",
+      "tier": "static",
+      "id": "go-test",
+      "status": "passed",
+      "exit_code": 0,
+      "command": [
+        "E:\\ai\\memorys\\.tools\\go\\bin\\go.exe",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      "stdout": "?   \tgithub.com/MemoryGet/memorys/cmd/architecture-freeze-draft\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-graph-cleanup-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-memory-record\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-office-parser\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/cmd/architecture-parser-wire\t0.939s\nok  \tgithub.com/MemoryGet/memorys/cmd/architecture-pg-repositories\t1.400s\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-projection-digest\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-binding\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-store-probe\t[no test files]\n?   \tgithub.com/MemoryGet/memorys/cmd/architecture-trust-record\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/cmd/memorys-server\t0.797s\nok  \tgithub.com/MemoryGet/memorys/pkg/accessgrant\t1.080s\nok  \tgithub.com/MemoryGet/memorys/pkg/adapters\t1.616s\nok  \tgithub.com/MemoryGet/memorys/pkg/api\t1.833s\nok  \tgithub.com/MemoryGet/memorys/pkg/bootstrap\t2.247s\nok  \tgithub.com/MemoryGet/memorys/pkg/buildlock\t2.323s\nok  \tgithub.com/MemoryGet/memorys/pkg/canonical\t1.644s\n?   \tgithub.com/MemoryGet/memorys/pkg/chunk\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/cleanup\t2.020s\nok  \tgithub.com/MemoryGet/memorys/pkg/clockhealth\t2.201s\nok  \tgithub.com/MemoryGet/memorys/pkg/configprofile\t2.173s\nok  \tgithub.com/MemoryGet/memorys/pkg/contentverify\t1.627s\nok  \tgithub.com/MemoryGet/memorys/pkg/contracts\t1.778s\nok  \tgithub.com/MemoryGet/memorys/pkg/document\t2.169s\nok  \tgithub.com/MemoryGet/memorys/pkg/events\t2.252s\nok  \tgithub.com/MemoryGet/memorys/pkg/fusion\t2.158s\nok  \tgithub.com/MemoryGet/memorys/pkg/identitytoken\t2.309s\nok  \tgithub.com/MemoryGet/memorys/pkg/index\t2.010s\n?   \tgithub.com/MemoryGet/memorys/pkg/indexsnapshot\t[no test files]\nok  \tgithub.com/MemoryGet/memorys/pkg/ingestion\t2.174s\nok  \tgithub.com/MemoryGet/memorys/pkg/kernel\t2.144s\nok  \tgithub.com/MemoryGet/memorys/pkg/knowledge\t2.149s\nok  \tgithub.com/MemoryGet/memorys/pkg/mcpgateway\t2.241s\nok  \tgithub.com/MemoryGet/memorys/pkg/moduletransport\t7.046s\nok  \tgithub.com/MemoryGet/memorys/pkg/modulewire\t2.172s\nok  \tgithub.com/MemoryGet/memorys/pkg/parser\t2.131s\nok  \tgithub.com/MemoryGet/memorys/pkg/parserprocess\t1.859s\nok  \tgithub.com/MemoryGet/memorys/pkg/postgres\t1.166s\nok  \tgithub.com/MemoryGet/memorys/pkg/preparation\t2.141s\nok  \tgithub.com/MemoryGet/memorys/pkg/profileassembly\t2.146s\nok  \tgithub.com/MemoryGet/memorys/pkg/publicationprojection\t2.192s\nok  \tgithub.com/MemoryGet/memorys/pkg/queryread\t2.191s\nok  \tgithub.com/MemoryGet/memorys/pkg/reflection\t2.312s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrieval\t2.160s\nok  \tgithub.com/MemoryGet/memorys/pkg/retrievalplan\t2.302s\nok  \tgithub.com/MemoryGet/memorys/pkg/storage\t2.166s\nok  \tgithub.com/MemoryGet/memorys/pkg/withdrawal\t1.982s\nok  \tgithub.com/MemoryGet/memorys/tests/architecture\t2.315s\n",
+      "stderr": "",
+      "elapsed_seconds": 31.6
+    },
+    {
+      "suite": "local-regression",
+      "tier": "static",
+      "id": "go-vet",
+      "status": "passed",
+      "exit_code": 0,
+      "command": [
+        "E:\\ai\\memorys\\.tools\\go\\bin\\go.exe",
+        "vet",
+        "./..."
+      ],
+      "stdout": "",
+      "stderr": "",
+      "elapsed_seconds": 21.664
+    },
+    {
+      "suite": "local-regression",
+      "tier": "static",
+      "id": "python-contracts",
+      "status": "passed",
+      "exit_code": 0,
+      "command": [
+        "C:\\Python\\Python313\\python.exe",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "docs/architecture",
+        "-p",
+        "test_*.py"
+      ],
+      "stdout": "",
+      "stderr": "........................................................................................................................................................................................................................................\n----------------------------------------------------------------------\nRan 232 tests in 18.908s\n\nOK\n",
+      "elapsed_seconds": 19.131
+    },
+    {
+      "suite": "local-regression",
+      "tier": "static",
+      "id": "openapi-structure",
+      "status": "passed",
+      "exit_code": 0,
+      "command": [
+        "E:\\ai\\memorys\\.local\\openapi-review-env\\Scripts\\python.exe",
+        "docs/architecture/check_openapi_conformance.py"
+      ],
+      "stdout": "PASS: partner.v1.json, OpenAPI 3.1.1, 4 operations\nPASS: management.v1.json, OpenAPI 3.1.1, 26 operations\nPASS: modules.v1.json, OpenAPI 3.1.1, 17 operations\n",
+      "stderr": "",
+      "elapsed_seconds": 1.689
+    }
+  ],
+  "ai_decision": "pass",
+  "unverified": [
+    "real production dependencies",
+    "production IAM and deployment provenance",
+    "Recall@10 and production performance",
+    "backup/restore and long-duration soak"
+  ]
+}
