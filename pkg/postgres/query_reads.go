@@ -7,7 +7,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"sort"
-	"strconv"
 	"time"
 
 	"github.com/MemoryGet/memorys/pkg/contracts"
@@ -126,6 +125,14 @@ type queryRepository struct {
 	facts      []contracts.PublishedFact
 	loaded     bool
 	stateBytes int
+	prepared   map[contracts.ID]preparedQueryArtifact
+	snapshots  map[contracts.ID]contracts.IndexSnapshot
+}
+
+// Verified immutable preparation metadata belongs to one SQL read view only.
+type preparedQueryArtifact struct {
+	plan     document.PublicationStartPlan
+	artifact preparation.Artifact
 }
 
 func copyQuery[T any](v T) (T, error) {
@@ -146,21 +153,20 @@ func queryKBs(ids []contracts.ID) []string {
 	}
 	return out
 }
-func (r *queryRepository) save(id contracts.ID, state contracts.CurrentDocumentState) (contracts.CurrentDocumentState, error) {
+
+// takeState owns a fresh adapter-decoded value. Only load/batch return copies;
+// private preparation metadata may share it inside this immutable SQL view.
+func (r *queryRepository) takeState(id contracts.ID, state contracts.CurrentDocumentState) error {
 	raw, err := json.Marshal(state)
 	if err != nil {
-		return contracts.CurrentDocumentState{}, queryread.ErrRead
+		return queryread.ErrRead
 	}
 	if len(raw) > 4<<20-r.stateBytes {
-		return contracts.CurrentDocumentState{}, queryread.ErrLimit
+		return queryread.ErrLimit
 	}
-	owned, err := copyQuery(state)
-	if err != nil {
-		return contracts.CurrentDocumentState{}, err
-	}
-	r.states[id] = owned
+	r.states[id] = state
 	r.stateBytes += len(raw)
-	return copyQuery(owned)
+	return nil
 }
 func (r *queryRepository) allowed(kb contracts.ID) bool {
 	for _, v := range r.scope.KnowledgeBaseIDs {
@@ -183,54 +189,12 @@ func (r *queryRepository) backend(ctx context.Context, kb contracts.ID) (documen
 
 func (r *queryRepository) load(ctx context.Context, id contracts.ID) (contracts.CurrentDocumentState, error) {
 	if state, present := r.states[id]; present {
-		return copyQuery(state)
+		return copyAdmittedState(state), nil
 	}
-	var state contracts.CurrentDocumentState
-	var epoch, version string
-	var revision, set sql.NullString
-	var deleted bool
-	if !commandID(string(id)) || r.tx.QueryRowContext(ctx, `SELECT id,space_id,kb_id,publication_epoch::text,row_version::text,active_revision_id,active_generation_set_id,deleted FROM akos_withdraw_v1.documents WHERE space_id=$1::text AND kb_id=ANY($2::text[]) AND id=$3::text`, string(r.scope.SpaceID), queryKBs(r.scope.KnowledgeBaseIDs), string(id)).Scan(&state.Document.ID, &state.Document.SpaceID, &state.Document.KnowledgeBaseID, &epoch, &version, &revision, &set, &deleted) != nil || deleted {
-		return state, queryread.ErrRead
+	if err := r.prefetch(ctx, []contracts.ID{id}); err != nil {
+		return contracts.CurrentDocumentState{}, err
 	}
-	var err error
-	state.Document.PublicationEpoch, err = strconv.ParseUint(epoch, 10, 64)
-	if err != nil {
-		return state, queryread.ErrRead
-	}
-	state.Document.RowVersion, err = strconv.ParseUint(version, 10, 64)
-	if err != nil || state.Document.RowVersion == 0 {
-		return state, queryread.ErrRead
-	}
-	state.Document.ActiveRevisionID = idPointer(revision)
-	state.Document.ActiveGenerationSetID = idPointer(set)
-	backend, err := r.backend(ctx, state.Document.KnowledgeBaseID)
-	if err != nil {
-		return state, err
-	}
-	state.ActiveBackendEpochID = backend.EpochID
-	if !revision.Valid || !set.Valid {
-		return r.save(id, state)
-	}
-	var planBytes, artifactBytes []byte
-	err = r.tx.QueryRowContext(ctx, `SELECT i.payload,a.payload FROM akos_withdraw_v1.publication_finalizations f JOIN akos_withdraw_v1.publication_history h ON h.id=f.history_id JOIN akos_withdraw_v1.publication_intents i ON i.id=f.operation_id JOIN akos_withdraw_v1.publication_prepared_artifacts a ON a.operation_id=i.id AND a.artifact_digest=f.artifact_digest WHERE f.space_id=$1::text AND f.kb_id=$2::text AND f.document_id=$3::text AND h.publication_epoch=$4::numeric AND h.revision_id=$5::text AND h.generation_set_id=$6::text`, string(state.Document.SpaceID), string(state.Document.KnowledgeBaseID), string(id), epoch, revision.String, set.String).Scan(&planBytes, &artifactBytes)
-	if err == sql.ErrNoRows {
-		return r.save(id, state)
-	} // unverifiable legacy source fails closed
-	var plan document.PublicationStartPlan
-	var artifact preparation.Artifact
-	if err != nil || len(planBytes) > 262144 || len(artifactBytes) > 1<<20 || json.Unmarshal(planBytes, &plan) != nil || json.Unmarshal(artifactBytes, &artifact) != nil || plan.SpaceID != state.Document.SpaceID || plan.KnowledgeBaseID != state.Document.KnowledgeBaseID || plan.Result.Operation.DocumentID != id || plan.Result.Operation.RevisionID != contracts.ID(revision.String) || artifact.GenerationSet.ID != contracts.ID(set.String) || artifact.GenerationSet.RevisionID != contracts.ID(revision.String) || artifact.OperationID != plan.Result.Operation.ID {
-		return state, queryread.ErrRead
-	}
-	if digest, err := preparation.ArtifactDigest(artifact); err != nil || digest != artifact.Digest {
-		return state, queryread.ErrRead
-	}
-	state.GenerationSet = &artifact.GenerationSet
-	review, err := r.loadReview(ctx, state.Document.SpaceID, state.Document.KnowledgeBaseID, id, contracts.ID(revision.String), plan.Result.Operation.ApprovalID, plan.Review)
-	if err != nil {
-		return state, err
-	}
-	state.PublicationReview = &review
-	return r.save(id, state)
+	return copyAdmittedState(r.states[id]), nil
 }
 
 func (r *queryRepository) inventory(ctx context.Context) error {
@@ -259,6 +223,11 @@ func (r *queryRepository) inventory(ctx context.Context) error {
 		return queryread.ErrLimit
 	}
 	var facts []contracts.PublishedFact
+	if len(ids) > 0 {
+		if err := r.prefetch(ctx, ids); err != nil {
+			return err
+		}
+	}
 	for _, id := range ids {
 		if err := ctx.Err(); err != nil {
 			return err

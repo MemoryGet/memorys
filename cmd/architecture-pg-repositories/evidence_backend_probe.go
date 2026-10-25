@@ -241,6 +241,9 @@ func verifyEvidenceBackend(ctx context.Context, db *sql.DB, scope contracts.Acce
 		return nil, errors.New("explicit short-stage original budget was not clipped")
 	}
 	currentReadSamples = append(currentReadSamples, map[string]any{"request": q.Request, "record": readResult, "published": byID[positive.DocumentID], "projection": projection, "authentication": "actual-rs256-current-status", "authorization": "postgres-explicit-read", "original_grant_calls": readVerifiedGrantCalls, "original_projection_calls": readVerifiedProjectionCalls, "original_authorization": "fixture-independent-read"})
+	if err := verifyLocalRuntimeSearch(ctx, db, nativeAuth, credential); err != nil {
+		return nil, err
+	}
 	if err := verifyKnowledgeApplication(ctx, db, nativeAuth, nativeAuthorize, credential, nativeFacts, unit, backend, byID[positive.DocumentID], observations[positive.DocumentID].Identity.StoreEpochID, strings.TrimSpace(quote.SourceExcerpt), readService); err != nil {
 		return nil, err
 	}

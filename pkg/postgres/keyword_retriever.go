@@ -85,6 +85,11 @@ func (p KeywordRetriever) Search(ctx context.Context, input contracts.RetrieveRe
 		expected = queryread.CurrentExpectation{StoreEpochID: identity.StoreEpochID, ScopeVersion: q.Scope.PolicyVersion}
 		rowsByID := map[[2]contracts.ID]contracts.IndexProjection{}
 		remaining := 16 << 20
+		if len(repo.facts) > 0 {
+			if err := repo.prefetchSnapshots(c, repo.facts); err != nil {
+				return err
+			}
+		}
 		for _, entry := range projection.Entries {
 			fact, present := facts[entry.DocumentID]
 			g := fact.GenerationSet.Channels[contracts.KeywordChannel]

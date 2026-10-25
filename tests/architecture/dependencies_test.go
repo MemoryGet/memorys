@@ -22,7 +22,7 @@ var localDependencies = map[string][]string{
 	"pkg/clockhealth":                  {},
 	"pkg/events":                       {"pkg/contracts"},
 	"pkg/bootstrap":                    {"pkg/api", "pkg/events", "pkg/identitytoken", "pkg/configprofile", "pkg/kernel", "pkg/buildlock"},
-	"pkg/buildlock":                     {"pkg/canonical"},
+	"pkg/buildlock":                    {"pkg/canonical"},
 	"pkg/profileassembly":              {"pkg/contracts", "pkg/configprofile", "pkg/kernel"},
 	"pkg/configprofile":                {"pkg/contracts", "pkg/canonical", "pkg/preparation"},
 	"pkg/identitytoken":                {"pkg/contracts", "pkg/canonical"},
@@ -30,14 +30,20 @@ var localDependencies = map[string][]string{
 	"cmd/architecture-freeze-draft":    {"pkg/canonical", "pkg/contracts", "pkg/document", "pkg/modulewire"},
 	"cmd/architecture-office-parser":   {"pkg/contracts", "pkg/adapters", "pkg/kernel", "pkg/parserprocess", "pkg/storage", "pkg/document", "pkg/contentverify"},
 	"pkg/parserprocess":                {"pkg/parser"},
-	"cmd/architecture-pg-repositories": {"pkg/contracts", "pkg/postgres", "pkg/withdrawal", "pkg/cleanup", "pkg/adapters", "pkg/index", "pkg/kernel", "pkg/document", "pkg/ingestion", "pkg/parser", "pkg/storage", "pkg/preparation", "pkg/chunk", "pkg/modulewire", "pkg/queryread", "pkg/publicationprojection", "pkg/contentverify", "pkg/identitytoken", "pkg/configprofile", "pkg/profileassembly", "pkg/api", "pkg/knowledge", "pkg/fusion", "pkg/mcpgateway"},
+	"cmd/architecture-pg-repositories": {"pkg/contracts", "pkg/postgres", "pkg/withdrawal", "pkg/cleanup", "pkg/adapters", "pkg/index", "pkg/kernel", "pkg/document", "pkg/ingestion", "pkg/parser", "pkg/storage", "pkg/preparation", "pkg/chunk", "pkg/modulewire", "pkg/queryread", "pkg/publicationprojection", "pkg/contentverify", "pkg/identitytoken", "pkg/configprofile", "pkg/profileassembly", "pkg/api", "pkg/knowledge", "pkg/fusion", "pkg/mcpgateway", "pkg/localruntime"},
 	"pkg/cleanup":                      {"pkg/contracts", "pkg/canonical"},
 	"pkg/withdrawal":                   {"pkg/contracts", "pkg/canonical"},
 	"pkg/postgres":                     {"pkg/cleanup", "pkg/contracts", "pkg/indexsnapshot", "pkg/document", "pkg/preparation", "pkg/queryread", "pkg/publicationprojection", "pkg/contentverify", "pkg/identitytoken", "pkg/configprofile"},
 	"pkg/indexsnapshot":                {"pkg/contracts", "pkg/canonical"},
 	"pkg/adapters":                     {"pkg/canonical", "pkg/chunk", "pkg/contracts", "pkg/kernel", "pkg/parser", "pkg/cleanup", "pkg/index", "pkg/contentverify"},
-	"cmd/memorys-server":               {"pkg/api", "pkg/bootstrap"},
-	"pkg/api":                          {"pkg/document", "pkg/contracts", "pkg/ingestion", "pkg/knowledge", "pkg/canonical"},
+	"cmd/memorys-server":               {"pkg/api", "pkg/bootstrap", "pkg/configprofile", "pkg/identitytoken", "pkg/localruntime", "pkg/postgres"},
+	"pkg/localruntime":                 {"pkg/clockhealth", "pkg/configprofile", "pkg/contracts", "pkg/knowledge", "pkg/postgres", "pkg/publicationprojection", "pkg/queryread", "pkg/identitytoken", "pkg/contentverify"},
+	"pkg/localcli":                     {"pkg/bootstrap", "pkg/localruntime", "pkg/contracts", "pkg/document", "pkg/configprofile", "pkg/identitytoken", "pkg/postgres", "pkg/preparation", "pkg/chunk", "pkg/adapters", "pkg/contentverify", "pkg/parser", "pkg/parserprocess", "pkg/storage", "pkg/knowledge", "pkg/modelclient", "pkg/semantic", "pkg/modulewire"},
+	"pkg/modelclient":                  {"pkg/contracts", "pkg/canonical"},
+	"pkg/semantic":                     {"pkg/contracts"},
+	"cmd/memorys-local":                {"pkg/localcli"},
+	"cmd/memorys-migrate":              {"pkg/migration"},
+	"pkg/api":                          {"pkg/document", "pkg/contracts", "pkg/ingestion", "pkg/knowledge", "pkg/canonical", "pkg/websearch"},
 	"pkg/chunk":                        {"pkg/contracts"},
 	"pkg/document":                     {"pkg/contracts", "pkg/canonical"},
 	"pkg/index":                        {"pkg/contracts", "pkg/indexsnapshot"},
@@ -45,6 +51,8 @@ var localDependencies = map[string][]string{
 	"pkg/parser":                       {"pkg/contracts"},
 	"pkg/retrieval":                    {"pkg/contracts", "pkg/index"},
 	"pkg/storage":                      {"pkg/contracts"},
+	"pkg/websearch":                    {"pkg/contracts"},
+	"pkg/migration":                    {},
 
 	"cmd/architecture-graph-cleanup-digest": {"pkg/modulewire"},
 	"cmd/architecture-memory-record":        {"pkg/modulewire"},
@@ -97,12 +105,15 @@ func allowedImport(owner, dependency string) bool {
 		}
 		return false
 	}
-	if owner == "cmd/architecture-pg-repositories" && dependency == "github.com/jackc/pgx/v5/stdlib" {
+	if (owner == "cmd/architecture-pg-repositories" || owner == "cmd/memorys-migrate" || owner == "cmd/memorys-server" || owner == "pkg/localcli") && dependency == "github.com/jackc/pgx/v5/stdlib" {
 		return true
 	}
-	if (owner == "pkg/accessgrant" || owner == "pkg/identitytoken" || owner == "cmd/architecture-pg-repositories") && dependency == "github.com/go-jose/go-jose/v4" {
+	if (owner == "pkg/accessgrant" || owner == "pkg/identitytoken" || owner == "cmd/architecture-pg-repositories" || owner == "pkg/localcli") && dependency == "github.com/go-jose/go-jose/v4" {
 		return true // Isolated cryptographic implementation; never exposed in contracts.
 	}
+	if owner == "pkg/localcli" && dependency == "golang.org/x/sys/windows" {
+		return true
+	} // Owner-only Windows filesystem DACL.
 	if owner == "pkg/mcpgateway" && (dependency == "github.com/modelcontextprotocol/go-sdk/mcp" || dependency == "github.com/google/jsonschema-go/jsonschema") {
 		return true
 	}

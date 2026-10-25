@@ -63,11 +63,15 @@ func (p PublishedFrozenReader) ReadFrozenContent(ctx context.Context, input cont
 // Both owned preparation and published reads compare the stored canonical
 // payload with a fresh reconstruction from the persisted typed Revision.
 func readFrozenRevision(ctx context.Context, tx *sql.Tx, space, kb contracts.ID, expected contracts.FrozenRevisionFact) (contracts.Revision, []byte, error) {
-	var revision contracts.Revision
 	var revisionBytes, payload []byte
 	if tx.QueryRowContext(ctx, `SELECT payload,frozen_payload FROM akos_withdraw_v1.revision_contents WHERE space_id=$1::text AND kb_id=$2::text AND document_id=$3::text AND revision_id=$4::text`, string(space), string(kb), string(expected.DocumentID), string(expected.ID)).Scan(&revisionBytes, &payload) != nil {
-		return revision, nil, ErrRepository
+		return contracts.Revision{}, nil, ErrRepository
 	}
+	return frozenRevisionBytes(revisionBytes, payload, expected)
+}
+
+func frozenRevisionBytes(revisionBytes, payload []byte, expected contracts.FrozenRevisionFact) (contracts.Revision, []byte, error) {
+	var revision contracts.Revision
 	if len(revisionBytes) > 8<<20 || len(payload) > 4<<20 || json.Unmarshal(revisionBytes, &revision) != nil || revision.ID != expected.ID || revision.DocumentID != expected.DocumentID || revision.HashFormat != expected.HashFormat || revision.ContentHash != expected.ContentHash || revision.BlocksHash != expected.BlocksHash {
 		return contracts.Revision{}, nil, ErrRepository
 	}

@@ -13,6 +13,8 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def source_inventory(root=ROOT):
     paths = [root / "go.mod", root / "go.sum",
+             root / "tools/start-local-web.ps1",
+             root / "tools/local_backup.py",
              root / "docs/architecture/evidence/openapi-validation-requirements.txt"]
     for tree in ("pkg", "cmd", "tests", "docs/architecture", "tools/parsers"):
         for p in (root / tree).rglob("*"):
@@ -21,8 +23,13 @@ def source_inventory(root=ROOT):
                 continue
             # Future binary/parser samples and Go testdata are inputs too;
             # do not limit fixture hashes to JSON or text extensions.
-            if p.suffix in {".go", ".py", ".json", ".txt", ".yaml", ".yml", ".sql"} or "testdata" in parts or "examples" in parts:
+            if p.suffix in {".go", ".py", ".cjs", ".json", ".txt", ".yaml", ".yml", ".sql"} or "testdata" in parts or "examples" in parts:
                 paths.append(p)
+    # Frontend sources and lockfile are acceptance inputs; dependency trees and
+    # generated build output are deliberately excluded from traversal.
+    for name in ("package.json", "package-lock.json", "vite.config.js", "index.html"):
+        paths.append(root / "dashboard" / name)
+    paths.extend(p for p in (root / "dashboard/src").rglob("*") if p.is_file())
     return {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
             for p in sorted(set(paths)) if p.is_file()}
 

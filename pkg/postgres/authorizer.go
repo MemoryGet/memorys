@@ -67,9 +67,9 @@ func (p Authorizer) Authorize(ctx context.Context, q contracts.AuthorizeRequest)
 			return empty, ErrAuthorization
 		}
 	}
-	for _, id := range q.ResourceIDs {
-		var kb contracts.ID
-		if tx.QueryRowContext(ctx, `SELECT kb_id FROM akos_withdraw_v1.documents WHERE space_id=$1 AND id=$2`, q.SpaceID, id).Scan(&kb) != nil || !kbs[kb] {
+	if len(q.ResourceIDs) > 0 {
+		var found int
+		if tx.QueryRowContext(ctx, `SELECT count(*) FROM akos_withdraw_v1.documents WHERE space_id=$1 AND id=ANY($2::text[]) AND kb_id=ANY($3::text[])`, q.SpaceID, queryKBs(q.ResourceIDs), queryKBs(q.KnowledgeBaseIDs)).Scan(&found) != nil || found != len(q.ResourceIDs) {
 			return empty, ErrAuthorization
 		}
 	}

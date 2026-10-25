@@ -131,6 +131,14 @@ type QueryReadRepository interface {
 	LoadCurrentDocument(context.Context, ID) (CurrentDocumentState, error)
 }
 
+// QueryReadBatchRepository is an optional bounded read capability within the
+// same callback/snapshot. Results must cover exactly the requested IDs in order.
+// Adapters recheck current authority at the batch boundary and before output;
+// callers without this capability retain single-document reads.
+type QueryReadBatchRepository interface {
+	LoadCurrentDocuments(context.Context, []ID) ([]CurrentDocumentState, error)
+}
+
 type QueryReadUnit interface {
 	WithinRead(context.Context, AccessScope, func(context.Context, QueryReadIdentity, QueryReadRepository) error) error
 }

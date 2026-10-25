@@ -89,6 +89,13 @@ func (p EvidenceBackend) Verify(ctx context.Context, request contracts.RequestCo
 		return p.Reads.withinQuery(ctx, scope, func(c context.Context, id contracts.QueryReadIdentity, repo *queryRepository) error {
 			current := queryread.CurrentObservation{Identity: id}
 			remaining, count := 16<<20, 0
+			ids := make([]contracts.ID, 0, len(expected.Published))
+			for _, fact := range expected.Published {
+				ids = append(ids, fact.DocumentID)
+			}
+			if err := repo.prefetch(c, ids); err != nil {
+				return err
+			}
 			for _, fact := range expected.Published {
 				state, err := repo.load(c, fact.DocumentID)
 				if err != nil {
@@ -98,6 +105,9 @@ func (p EvidenceBackend) Verify(ctx context.Context, request contracts.RequestCo
 			}
 			if queryread.MatchCurrentReview(scope, expected, current, policies) != nil {
 				return queryread.ErrCheck
+			}
+			if err := repo.prefetchSnapshots(c, expected.Published); err != nil {
+				return err
 			}
 			for _, fact := range expected.Published {
 				if len(fact.GenerationSet.Channels) != 1 || fact.GenerationSet.Channels[contracts.KeywordChannel].ID == "" {
@@ -128,7 +138,29 @@ func (p EvidenceBackend) Verify(ctx context.Context, request contracts.RequestCo
 					}
 				}
 			}
-			return nil
+			// Both inspections freshly read all frozen bodies in their own view.
+			// Quote verification also checks both hashes; it need not rehash the
+			// same body a second time within that view. Original projection calls
+			// below continue to use independent PublishedFrozenReader passes.
+			return repo.frozenRevisions(c, expected.Published, func(fact contracts.PublishedFact, payload []byte) error {
+				revision := byID[fact.DocumentID].PublicationReview.Revision
+				q := contracts.FrozenContentReadRequest{Request: request, Scope: scope, DocumentID: fact.DocumentID, RevisionID: fact.RevisionID}
+				reader := frozenReadView{ctx: c, request: q, record: contracts.FrozenContentRecord{DocumentID: fact.DocumentID, RevisionID: fact.RevisionID, Payload: payload}}
+				var quotes []contracts.Evidence
+				for _, e := range groups[fact.DocumentID] {
+					switch e.Citation.Source.Kind {
+					case "revision":
+						quotes = append(quotes, e)
+					case "original":
+					default:
+						return queryread.ErrCheck
+					}
+				}
+				if len(quotes) > 0 {
+					return contentverify.VerifyTextEvidence(c, reader, q, revision, quotes)
+				}
+				return contentverify.VerifyFrozen(c, reader, q, revision)
+			})
 		})
 	}
 	if inspect() != nil {
@@ -139,23 +171,16 @@ func (p EvidenceBackend) Verify(ctx context.Context, request contracts.RequestCo
 	for _, fact := range expected.Published {
 		r := byID[fact.DocumentID].PublicationReview.Revision
 		q := contracts.FrozenContentReadRequest{Request: request, Scope: scope, DocumentID: fact.DocumentID, RevisionID: fact.RevisionID}
-		if contentverify.VerifyFrozen(ctx, reader, q, r) != nil {
-			return queryread.ErrCheck
-		}
 		originals := map[contracts.ID][]contracts.Evidence{}
-		var revisionQuotes []contracts.Evidence
 		for _, e := range groups[fact.DocumentID] {
 			switch e.Citation.Source.Kind {
 			case "revision":
-				revisionQuotes = append(revisionQuotes, e)
+				// Already checked against actual bytes in inspect's current view.
 			case "original":
 				originals[e.Citation.Source.BlobID] = append(originals[e.Citation.Source.BlobID], e)
 			default:
 				return queryread.ErrCheck
 			}
-		}
-		if len(revisionQuotes) > 0 && contentverify.VerifyTextEvidence(ctx, reader, q, r, revisionQuotes) != nil {
-			return queryread.ErrCheck
 		}
 		// Sixteen MiB of original reads across the entire batch, including
 		// the second post-projection pass. Each file remains capped at 8MiB.
@@ -187,6 +212,13 @@ func (b *evidenceBlobBudget) Open(c context.Context, q contracts.BlobReadRequest
 func readPublishedSnapshot(ctx context.Context, repo *queryRepository, fact contracts.PublishedFact) (contracts.IndexSnapshot, error) {
 	var empty contracts.IndexSnapshot
 	g := fact.GenerationSet.Channels[contracts.KeywordChannel]
+	if snapshot, ok := repo.snapshots[g.ID]; ok {
+		prepared, ok := repo.prepared[fact.DocumentID]
+		if !ok || !reflect.DeepEqual(prepared.artifact.GenerationSet, fact.GenerationSet) {
+			return empty, ErrRepository
+		}
+		return copyQuery(snapshot)
+	}
 	var planRaw, artifactRaw []byte
 	if repo.tx.QueryRowContext(ctx, `SELECT i.payload,a.payload FROM akos_withdraw_v1.publication_prepared_artifacts a JOIN akos_withdraw_v1.publication_intents i ON i.id=a.operation_id WHERE a.space_id=$1::text AND a.kb_id=$2::text AND a.generation_set_id=$3::text AND a.generation_id=$4::text`, string(repo.scope.SpaceID), string(fact.KnowledgeBaseID), string(fact.GenerationSet.ID), string(g.ID)).Scan(&planRaw, &artifactRaw) != nil || len(planRaw) > 262144 || len(artifactRaw) > 1<<20 {
 		return empty, ErrRepository

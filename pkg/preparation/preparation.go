@@ -236,16 +236,15 @@ func ArtifactDigest(artifact Artifact) (contracts.Digest, error) {
 	if !validStrings(reflect.ValueOf(artifact)) {
 		return "", ErrPreparation
 	}
-	raw, err := json.Marshal(artifact)
-	if err != nil {
-		return "", ErrPreparation
-	}
-	var body map[string]json.RawMessage
-	if json.Unmarshal(raw, &body) != nil {
-		return "", ErrPreparation
-	}
-	delete(body, "Digest")
-	raw, err = json.Marshal(map[string]any{"format": "akos.prepared-artifact/1", "artifact": body})
+	// Encode the same fields once instead of encoding, decoding into RawMessage
+	// entries, deleting Digest and encoding again for every published document.
+	// Canonicalization still defines the exact existing digest byte format.
+	body := artifactDigestBody{artifact.OperationID, artifact.JobID, artifact.AttemptID,
+		artifact.FencingToken, artifact.Profile, artifact.GenerationSet, artifact.SnapshotDigest}
+	raw, err := json.Marshal(struct {
+		Format   string             `json:"format"`
+		Artifact artifactDigestBody `json:"artifact"`
+	}{"akos.prepared-artifact/1", body})
 	if err != nil {
 		return "", ErrPreparation
 	}
@@ -254,6 +253,14 @@ func ArtifactDigest(artifact Artifact) (contracts.Digest, error) {
 		return "", ErrPreparation
 	}
 	return hash(append([]byte("akos.prepared-artifact/1\x00"), encoded...)), nil
+}
+
+type artifactDigestBody struct {
+	OperationID, JobID, AttemptID contracts.ID
+	FencingToken                  uint64
+	Profile                       contracts.IndexProfile
+	GenerationSet                 contracts.GenerationSet
+	SnapshotDigest                contracts.Digest
 }
 
 // Adapter-private backend handles may differ. All platform facts and the

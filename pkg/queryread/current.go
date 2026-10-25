@@ -49,11 +49,11 @@ func ObserveCurrent(ctx context.Context, unit contracts.QueryReadUnit, scope con
 			return ErrLimit
 		}
 		remaining := limits.MaxBytes - len(encodedIdentity)
-		for _, id := range ids {
-			state, err := repo.LoadCurrentDocument(c, id)
-			if err != nil {
-				return err
-			}
+		states, err := LoadCurrentDocuments(c, repo, ids)
+		if err != nil {
+			return err
+		}
+		for _, state := range states {
 			raw, err := json.Marshal(state)
 			if err != nil {
 				return ErrInvalid

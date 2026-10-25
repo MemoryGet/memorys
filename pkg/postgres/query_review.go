@@ -20,6 +20,10 @@ func (r *queryRepository) loadReview(ctx context.Context, space, kb, documentID,
 	if r.tx.QueryRowContext(ctx, `SELECT p.payload,p.digest FROM akos_withdraw_v1.review_policy_heads h JOIN akos_withdraw_v1.review_policy_snapshots p ON p.space_id=h.space_id AND p.kb_id=h.kb_id AND p.version=h.policy_version WHERE h.space_id=$1::text AND h.kb_id=$2::text`, string(space), string(kb)).Scan(&policyBytes, &policyDigest) != nil {
 		return contracts.CurrentPublicationReview{}, queryread.ErrRead
 	}
+	return currentReviewBytes(requestBytes, policyBytes, current, policyDigest, approvalID, prepared)
+}
+
+func currentReviewBytes(requestBytes, policyBytes []byte, current sql.NullString, policyDigest string, approvalID contracts.ID, prepared contracts.CurrentPublicationReview) (contracts.CurrentPublicationReview, error) {
 	var q contracts.ApprovalRequest
 	var policy document.ReviewPolicySnapshot
 	if len(requestBytes) > 65536 || len(policyBytes) > 65536 || json.Unmarshal(requestBytes, &q) != nil || json.Unmarshal(policyBytes, &policy) != nil || policy.Digest != contracts.Digest(policyDigest) {

@@ -50,7 +50,20 @@ func processFixture(t *testing.T, mode, output string) MarkItDown {
 	if err != nil {
 		t.Fatal(err)
 	}
-	return MarkItDown{Python: executable, Script: filepath.Join(t.TempDir(), "worker.py")}
+	return MarkItDown{Python: executable, Script: filepath.Join(t.TempDir(), "worker.py"), environment: func() []string {
+		return append(converterEnvironment(), "AKOS_PROCESS_TEST_CHILD="+os.Getenv("AKOS_PROCESS_TEST_CHILD"), "AKOS_PROCESS_TEST_OUTPUT="+os.Getenv("AKOS_PROCESS_TEST_OUTPUT"))
+	}}
+}
+
+func TestConverterEnvironmentDoesNotInheritCredentials(t *testing.T) {
+	for _, key := range []string{"DEEPSEEK_API_KEY", "PGPASSWORD", "MEMORYS_DATABASE_URL", "OPENAI_API_KEY", "PYTHONPATH"} {
+		t.Setenv(key, "private-parent-value")
+	}
+	for _, value := range converterEnvironment() {
+		if strings.Contains(value, "private-parent-value") {
+			t.Fatal("converter inherited a parent secret")
+		}
+	}
 }
 
 func TestConvertProcessBoundary(t *testing.T) {
@@ -123,7 +136,7 @@ func TestHealthResponseBoundary(t *testing.T) {
 
 func TestPyPDFPinnedProtocolAndFormat(t *testing.T) {
 	p := processFixture(t, "output", `{"version":"pypdf/6.19.0","markdown":"PDF knowledge"}`)
-	pdf := PyPDF{Python: p.Python, Script: p.Script}
+	pdf := PyPDF{Python: p.Python, Script: p.Script, environment: p.environment}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	result, err := pdf.Convert(ctx, "pdf", []byte("x"))

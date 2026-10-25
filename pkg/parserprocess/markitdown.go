@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"time"
@@ -19,7 +20,10 @@ import (
 
 var ErrConversion = errors.New("document conversion unavailable or rejected")
 
-type MarkItDown struct{ Python, Script string }
+type MarkItDown struct {
+	Python, Script string
+	environment    func() []string
+}
 
 func (p MarkItDown) Health(ctx context.Context) error {
 	return p.process().Health(ctx)
@@ -28,13 +32,21 @@ func (p MarkItDown) Convert(ctx context.Context, format string, raw []byte) (par
 	return p.process().Convert(ctx, format, raw)
 }
 func (p MarkItDown) process() workerProcess {
-	return workerProcess{p.Python, p.Script, "markitdown/0.1.3", []string{"docx", "xlsx", "pptx", "pdf"}}
+	return workerProcess{Python: p.Python, Script: p.Script, version: "markitdown/0.1.3", formats: []string{"docx", "xlsx", "pptx", "pdf"}, environment: p.environment}
 }
 
 // Provider identity and supported formats come from trusted host wiring only.
 type workerProcess struct {
 	Python, Script, version string
 	formats                 []string
+	environment             func() []string
+}
+
+func (p workerProcess) env() []string {
+	if p.environment != nil {
+		return p.environment()
+	}
+	return converterEnvironment()
 }
 
 func (p workerProcess) Health(ctx context.Context) error {
@@ -45,6 +57,7 @@ func (p workerProcess) Health(ctx context.Context) error {
 		return ErrConversion
 	}
 	command := exec.CommandContext(ctx, p.Python, "-I", p.Script, "--health")
+	command.Env = p.env()
 	command.WaitDelay = time.Second
 	out, diagnostic := &boundedOutput{limit: 1024}, &boundedOutput{limit: 4096}
 	command.Stdout = out
@@ -93,6 +106,7 @@ func (p workerProcess) Convert(ctx context.Context, format string, raw []byte) (
 		return parser.MarkdownConversion{}, ErrConversion
 	}
 	command := exec.CommandContext(ctx, p.Python, "-I", p.Script)
+	command.Env = p.env()
 	command.WaitDelay = time.Second
 	command.Stdin = bytes.NewReader(input)
 	out, diagnostic := &boundedOutput{limit: 5 << 20}, &boundedOutput{limit: 4096}
@@ -109,6 +123,18 @@ func (p workerProcess) Convert(ctx context.Context, format string, raw []byte) (
 		return parser.MarkdownConversion{}, ErrConversion
 	}
 	return parser.MarkdownConversion{Text: result.Markdown, Version: result.Version}, nil
+}
+
+// Untrusted document decoders do not need database credentials, model API
+// keys, tokens or user-supplied Python import paths from the parent process.
+func converterEnvironment() []string {
+	var out []string
+	for _, key := range []string{"SystemRoot", "WINDIR", "PATH", "TEMP", "TMP", "USERPROFILE", "APPDATA", "LOCALAPPDATA", "HOME", "LANG", "LC_ALL"} {
+		if value, ok := os.LookupEnv(key); ok {
+			out = append(out, key+"="+value)
+		}
+	}
+	return out
 }
 
 // Worker responses are flat objects. Reject ambiguous keys before struct decoding,

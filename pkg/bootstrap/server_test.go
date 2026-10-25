@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -49,6 +50,16 @@ func TestNewKeepsMissingCapabilitiesFailClosed(t *testing.T) {
 	if w.Code != http.StatusServiceUnavailable {
 		t.Fatal("retry route did not fail closed", w.Code)
 	}
+	w = httptest.NewRecorder()
+	h.ServeHTTP(w, httptest.NewRequest(http.MethodPost, "/api/v1/web-search", strings.NewReader(`{"query":"x","space_id":"space"}`)))
+	if w.Code != http.StatusServiceUnavailable {
+		t.Fatal("web search route did not fail closed", w.Code)
+	}
+	w = httptest.NewRecorder()
+	h.ServeHTTP(w, httptest.NewRequest(http.MethodPost, "/api/v1/web-fetch", strings.NewReader(`{"url":"https://example.com","space_id":"space"}`)))
+	if w.Code != http.StatusServiceUnavailable {
+		t.Fatal("web fetch route did not fail closed", w.Code)
+	}
 }
 
 func TestRuntimeOwnsOptionalRunnerLifecycle(t *testing.T) {
@@ -72,5 +83,27 @@ func TestRuntimeOwnsOptionalRunnerLifecycle(t *testing.T) {
 	}
 	if err = r.Ready(); err != nil {
 		t.Fatal("runtime without runner should remain ready after stop")
+	}
+}
+
+func TestReadyCheckFailsClosed(t *testing.T) {
+	checkErr := errors.New("database unavailable")
+	h, err := New(Config{ReadyCheck: func(context.Context) error { return checkErr }})
+	if err != nil {
+		t.Fatal(err)
+	}
+	w := httptest.NewRecorder()
+	h.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/ready", nil))
+	if w.Code != http.StatusServiceUnavailable {
+		t.Fatalf("ready status=%d body=%s", w.Code, w.Body.String())
+	}
+	h, err = New(Config{ReadyCheck: func(context.Context) error { return nil }})
+	if err != nil {
+		t.Fatal(err)
+	}
+	w = httptest.NewRecorder()
+	h.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/ready", nil))
+	if w.Code != http.StatusOK || w.Body.String() != `{"status":"ready"}` {
+		t.Fatalf("ready status=%d body=%s", w.Code, w.Body.String())
 	}
 }

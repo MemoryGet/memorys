@@ -18,6 +18,12 @@ type officeOriginalText struct {
 	maxBytes  int64
 }
 
+// NewOfficeOriginalTextProjector exposes the same byte-derived strategy to a
+// trusted local host without constructing a synthetic module registry.
+func NewOfficeOriginalTextProjector(converter parser.OfficeConverter) (contentverify.OriginalTextProjector, error) {
+	return newOfficeOriginalText(converter, []string{"docx", "xlsx", "pptx", "pdf"}, 8<<20)
+}
+
 func newOfficeOriginalText(converter parser.OfficeConverter, formats []string, maxBytes int64) (*officeOriginalText, error) {
 	if missingPort(converter) || len(formats) == 0 || len(formats) > 4 || maxBytes < 1 || maxBytes > 8<<20 {
 		return nil, ErrModule

@@ -113,14 +113,22 @@ func (s *ConfiguredPlans) inventory(ctx context.Context, q contracts.RetrieveReq
 		}
 		observation := queryread.CurrentObservation{Identity: identity}
 		remaining := 4 << 20
+		ids := make([]contracts.ID, 0, len(out.facts))
 		for _, fact := range out.facts {
-			if fact.GenerationSet.BackendEpochID != out.epoch.ID {
-				return ErrSearch
-			}
-			state, e := repo.LoadCurrentDocument(c, fact.DocumentID)
+			ids = append(ids, fact.DocumentID)
+		}
+		var states []contracts.CurrentDocumentState
+		if len(ids) > 0 {
+			states, e = queryread.LoadCurrentDocuments(c, repo, ids)
 			if e != nil {
 				return e
 			}
+		}
+		for n, fact := range out.facts {
+			if fact.GenerationSet.BackendEpochID != out.epoch.ID {
+				return ErrSearch
+			}
+			state := states[n]
 			raw, e := json.Marshal(state)
 			if e != nil || len(raw) > remaining {
 				return ErrSearch

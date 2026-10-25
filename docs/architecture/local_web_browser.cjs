@@ -1,0 +1,80 @@
+/* Real browser acceptance against an owned synthetic PostgreSQL fixture. */
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const { chromium } = require(process.env.MEMORYS_PLAYWRIGHT_MODULE || 'playwright');
+
+async function main() {
+  const [origin, fixtures, artifacts] = process.argv.slice(2);
+  const browser = await chromium.launch({ channel: process.env.MEMORYS_BROWSER_CHANNEL || 'msedge', headless: true });
+  const checks = [], errors = [];
+  try {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+    const page = await context.newPage();
+    page.setDefaultTimeout(20000);
+    page.on('pageerror', e => errors.push(e.message));
+    await page.goto(origin + '/local/');
+    await page.getByRole('heading', { name: '我的知识库', exact: false }).waitFor();
+    await page.getByRole('button', { name: '查看正文', exact: true }).first().waitFor();
+    const anonymous = await browser.newContext();
+    assert.equal((await anonymous.request.get(origin + '/local/api/documents')).status(), 403);
+    assert.equal((await context.request.post(origin + '/local/api/publish', { headers: { Origin: 'https://attacker.invalid', 'X-Memorys-Local': '1' }, data: {} })).status(), 403);
+    await anonymous.close(); checks.push('browser_session_and_cross_origin_rejection');
+    const content = 'localbrowserprobe\n远舟计划的紧急联络暗号是琥珀灯塔。\n<script>window.memorysInjected=true</script>';
+    const imported = page.waitForResponse(r => r.url().endsWith('/local/api/import') && r.request().method() === 'POST');
+    await page.getByLabel('选择文档').setInputFiles({ name: 'browser.txt', mimeType: 'text/plain', buffer: Buffer.from(content) });
+    const draft = await (await imported).json(); assert.ok(draft.draft_id && draft.content_hash);
+    const dialog = page.getByRole('dialog'); await dialog.waitFor();
+    assert.equal(await dialog.getByRole('button', { name: '批准并发布', exact: true }).isDisabled(), true);
+    assert.equal(await dialog.locator('pre').textContent(), content);
+    const badHash = await context.request.post(origin + '/local/api/publish', { headers: { Origin: origin, 'X-Memorys-Local': '1' }, data: { draft_id: draft.draft_id, expect_hash: '0'.repeat(64), approved: true } });
+    assert.equal(badHash.status(), 400); checks.push('full_preview_explicit_approval_and_hash_binding');
+    await dialog.getByRole('button', { name: '关闭', exact: true }).click();
+    await page.getByRole('button', { name: '检索与问答', exact: true }).click();
+    await page.getByRole('button', { name: '关键词检索', exact: true }).click();
+    await page.getByLabel('检索问题').fill('localbrowserprobe');
+    await page.getByRole('button', { name: '开始检索', exact: true }).click();
+    await page.getByRole('heading', { name: '没有找到可用的已发布内容' }).waitFor(); checks.push('unpublished_draft_hidden_in_real_browser_search');
+    await page.getByRole('button', { name: '我的知识库', exact: true }).click();
+    await page.locator('.document-item').filter({ hasText: 'localbrowserprobe' }).getByRole('button', { name: '预览并发布' }).click();
+    await dialog.getByRole('checkbox').check();
+    await dialog.getByRole('button', { name: '批准并发布', exact: true }).click();
+    await dialog.waitFor({ state: 'hidden', timeout: 120000 });
+    await page.locator('.document-item').filter({ hasText: 'localbrowserprobe' }).getByRole('button', { name: '查看正文' }).waitFor(); checks.push('owner_publication_through_browser');
+    // Office upload goes through the same multipart HTTP path and real parser.
+    await page.getByLabel('选择文档').setInputFiles(path.join(fixtures, 'sample.docx'));
+    await dialog.waitFor(); await dialog.getByRole('checkbox').check();
+    await dialog.getByRole('button', { name: '批准并发布', exact: true }).click();
+    await dialog.waitFor({ state: 'hidden', timeout: 120000 });
+    await page.getByRole('button', { name: '检索与问答', exact: true }).click();
+    await page.getByRole('button', { name: '关键词检索', exact: true }).click();
+    await page.getByLabel('检索问题').fill('localdocxprobe');
+    await page.getByRole('button', { name: '开始检索', exact: true }).click();
+    await page.locator('.evidence-card').filter({ hasText: 'localdocxprobe' }).waitFor();
+    assert.ok((await page.locator('.evidence-card').first().textContent()).includes('原件文本')); checks.push('docx_upload_publish_and_actual_original_citation');
+    await page.getByRole('button', { name: '语义检索', exact: true }).click();
+    const question = '远舟计划出现紧急状况时，应该使用什么联络暗号？';
+    await page.getByLabel('检索问题').fill(question);
+    await page.getByRole('button', { name: '开始检索', exact: true }).click();
+    await page.locator('.evidence-card').first().waitFor({ timeout: 120000 });
+    assert.ok((await page.locator('.evidence-card').first().textContent()).includes('琥珀灯塔')); checks.push('real_local_semantic_browser_search');
+    await page.getByRole('button', { name: '知识问答', exact: true }).click();
+    await page.getByRole('button', { name: '生成答案', exact: true }).click();
+    await page.locator('.answer-text').waitFor({ timeout: 120000 });
+    assert.ok((await page.locator('.answer-text').textContent()).includes('琥珀灯塔'));
+    await page.locator('.answer-citations a').first().click();
+    assert.ok(page.url().includes('#evidence-')); assert.equal(await page.evaluate(() => window.memorysInjected), undefined);
+    checks.push('real_deepseek_answer_clickable_verified_source_and_literal_document_html');
+    fs.mkdirSync(artifacts, { recursive: true });
+    await page.screenshot({ path: path.join(artifacts, 'answer-desktop.png'), fullPage: true });
+    await page.setViewportSize({ width: 390, height: 844 });
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1));
+    await page.screenshot({ path: path.join(artifacts, 'answer-mobile.png'), fullPage: true });
+    checks.push('mobile_layout_without_horizontal_overflow');
+    await page.getByRole('button', { name: '运行状态', exact: true }).click();
+    await page.getByText('数据库连接', { exact: true }).waitFor(); checks.push('read_only_real_diagnostics');
+    assert.deepEqual(errors, []); checks.push('no_browser_javascript_errors');
+    console.log(JSON.stringify({ passed: true, checks }));
+  } finally { await browser.close(); }
+}
+main().catch(e => { console.error(e.message); process.exitCode = 1; });
