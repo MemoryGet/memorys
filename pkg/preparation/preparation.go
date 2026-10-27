@@ -233,8 +233,19 @@ func Build(work document.PublicationWork, profile contracts.IndexProfile, chunks
 }
 
 func ArtifactDigest(artifact Artifact) (contracts.Digest, error) {
+	raw, err := artifactDigestInput(artifact)
+	if err != nil {
+		return "", err
+	}
+	return artifactDigestBytes(raw)
+}
+
+// artifactDigestInput keeps validation and encoding identical for ordinary
+// digesting and the invocation-local memo. Digest remains excluded from the
+// committed body, but validStrings still checks it as before.
+func artifactDigestInput(artifact Artifact) ([]byte, error) {
 	if !validStrings(reflect.ValueOf(artifact)) {
-		return "", ErrPreparation
+		return nil, ErrPreparation
 	}
 	// Encode the same fields once instead of encoding, decoding into RawMessage
 	// entries, deleting Digest and encoding again for every published document.
@@ -246,8 +257,12 @@ func ArtifactDigest(artifact Artifact) (contracts.Digest, error) {
 		Artifact artifactDigestBody `json:"artifact"`
 	}{"akos.prepared-artifact/1", body})
 	if err != nil {
-		return "", ErrPreparation
+		return nil, ErrPreparation
 	}
+	return raw, nil
+}
+
+func artifactDigestBytes(raw []byte) (contracts.Digest, error) {
 	encoded, err := canonical.JSON(raw)
 	if err != nil {
 		return "", ErrPreparation

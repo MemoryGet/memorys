@@ -95,7 +95,7 @@ func (r *queryRepository) prefetch(ctx context.Context, ids []contracts.ID) erro
 				artifact.OperationID != plan.Result.Operation.ID {
 				return queryread.ErrRead
 			}
-			if digest, err := preparation.ArtifactDigest(artifact); err != nil || digest != artifact.Digest {
+			if digest, err := r.artifactDigest(artifact); err != nil || digest != artifact.Digest {
 				return queryread.ErrRead
 			}
 			if !policyDigest.Valid {
@@ -120,6 +120,13 @@ func (r *queryRepository) prefetch(ctx context.Context, ids []contracts.ID) erro
 		return queryread.ErrRead
 	}
 	return nil
+}
+
+func (r *queryRepository) artifactDigest(artifact preparation.Artifact) (contracts.Digest, error) {
+	if r.artifactDigests == nil {
+		return preparation.ArtifactDigest(artifact)
+	}
+	return r.artifactDigests.Digest(artifact)
 }
 
 func (r *queryRepository) LoadCurrentDocuments(ctx context.Context, ids []contracts.ID) ([]contracts.CurrentDocumentState, error) {

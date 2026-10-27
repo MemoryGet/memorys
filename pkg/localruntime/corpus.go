@@ -48,6 +48,8 @@ func (s *Search) OpenCorpus(ctx context.Context, in knowledge.SearchInput) (*Cor
 		return nil, knowledge.ErrSearch
 	}
 	ctx, cancel := context.WithDeadline(ctx, in.Deadline)
+	memo := &postgres.ArtifactDigestMemoScope{}
+	ctx = memo.Context(ctx)
 	select {
 	case s.slots <- struct{}{}:
 	case <-ctx.Done():
@@ -114,6 +116,7 @@ func (s *Search) OpenCorpus(ctx context.Context, in knowledge.SearchInput) (*Cor
 	exposedScope.KnowledgeBaseIDs = append([]contracts.ID(nil), scope.KnowledgeBaseIDs...)
 	result := &Corpus{Candidates: exposed, Request: request, Scope: exposedScope, close: cleanup}
 	result.validate = func(c context.Context, selected []contracts.Candidate) error {
+		c = memo.Context(c)
 		if ctx.Err() != nil || c.Err() != nil || verify(c, scope) != nil || s.checkClock(c) != nil {
 			return knowledge.ErrSearch
 		}

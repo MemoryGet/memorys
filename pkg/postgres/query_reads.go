@@ -26,6 +26,21 @@ type QueryReads struct {
 
 var _ contracts.QueryReadUnit = QueryReads{}
 
+type artifactDigestMemoKey struct{}
+
+// ArtifactDigestMemoScope shares only a bounded pure digest memo within one
+// invocation. Each view still reads and validates its own data and authority;
+// the memo contains no authorization or frozen content.
+type ArtifactDigestMemoScope struct {
+	memo preparation.ArtifactDigestMemo
+}
+
+// Context attaches the invocation's memo without changing cancellation or
+// deadline behavior. A new scope must be created for each invocation.
+func (s *ArtifactDigestMemoScope) Context(ctx context.Context) context.Context {
+	return context.WithValue(ctx, artifactDigestMemoKey{}, &s.memo)
+}
+
 func validQueryScope(s contracts.AccessScope) bool {
 	if !contracts.IsCurrentContentReadAction(s.Action) || s.PolicyVersion == 0 || !s.ExpiresAt.After(time.Now()) || !commandID(string(s.ScopeID)) || !commandID(string(s.SubjectID)) || !commandID(string(s.SpaceID)) || len(s.KnowledgeBaseIDs) < 1 || len(s.KnowledgeBaseIDs) > 256 {
 		return false
@@ -90,7 +105,8 @@ func (p QueryReads) withinQuery(ctx context.Context, scope contracts.AccessScope
 	}
 	sum := sha256.Sum256([]byte(string(epoch) + "\x00" + storeVersion + "\x00" + snapshot))
 	identity := contracts.QueryReadIdentity{StoreEpochID: epoch, ReadVersion: string(readID), Watermark: hex.EncodeToString(sum[:])}
-	repo := &queryRepository{tx: tx, scope: scope, identity: identity, verify: verify, cursors: map[string]queryCursor{}, states: map[contracts.ID]contracts.CurrentDocumentState{}}
+	memo, _ := ctx.Value(artifactDigestMemoKey{}).(*preparation.ArtifactDigestMemo)
+	repo := &queryRepository{tx: tx, scope: scope, identity: identity, verify: verify, cursors: map[string]queryCursor{}, states: map[contracts.ID]contracts.CurrentDocumentState{}, artifactDigests: memo}
 	err = fn(ctx, identity, repo)
 	if err != nil {
 		return err
@@ -116,17 +132,18 @@ type queryCursor struct {
 	kbs   string
 }
 type queryRepository struct {
-	tx         *sql.Tx
-	scope      contracts.AccessScope
-	identity   contracts.QueryReadIdentity
-	verify     func(context.Context) error
-	cursors    map[string]queryCursor
-	states     map[contracts.ID]contracts.CurrentDocumentState
-	facts      []contracts.PublishedFact
-	loaded     bool
-	stateBytes int
-	prepared   map[contracts.ID]preparedQueryArtifact
-	snapshots  map[contracts.ID]contracts.IndexSnapshot
+	artifactDigests *preparation.ArtifactDigestMemo
+	tx              *sql.Tx
+	scope           contracts.AccessScope
+	identity        contracts.QueryReadIdentity
+	verify          func(context.Context) error
+	cursors         map[string]queryCursor
+	states          map[contracts.ID]contracts.CurrentDocumentState
+	facts           []contracts.PublishedFact
+	loaded          bool
+	stateBytes      int
+	prepared        map[contracts.ID]preparedQueryArtifact
+	snapshots       map[contracts.ID]contracts.IndexSnapshot
 }
 
 // Verified immutable preparation metadata belongs to one SQL read view only.
