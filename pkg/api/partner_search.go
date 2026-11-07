@@ -24,6 +24,10 @@ type PartnerSearchApplication interface {
 	ProfileIdentity() (uint64, contracts.Digest, error)
 }
 
+type SearchSourceMetadataApplication interface {
+	SearchSourceMetadata(context.Context, []contracts.Candidate) (map[contracts.ID]contracts.SearchSourceMetadata, error)
+}
+
 // PartnerSearchHandler implements the partner POST /search wire mapping. The
 // production bootstrap must supply the shared application service.
 type PartnerSearchHandler struct{ Service PartnerSearchApplication }
@@ -84,7 +88,7 @@ func (h PartnerSearchHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	for key := range fields {
-		if key != "query" && key != "space_id" && key != "kb_ids" && key != "top_k" {
+		if key != "query" && key != "space_id" && key != "kb_ids" && key != "top_k" && key != "source_kind" && key != "updated_after" && key != "updated_before" && key != "tags" {
 			fail(400, "invalid_argument", "Invalid search request")
 			return
 		}
@@ -119,6 +123,51 @@ func (h PartnerSearchHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		}
 		count = int(n.Num().Int64())
 	}
+	sourceKind := ""
+	if value, present := fields["source_kind"]; present {
+		if json.Unmarshal(value, &sourceKind) != nil || sourceKind != "original" && sourceKind != "revision" {
+			fail(400, "invalid_argument", "Invalid source kind")
+			return
+		}
+	}
+	var updatedAfter, updatedBefore time.Time
+	for key, target := range map[string]*time.Time{"updated_after": &updatedAfter, "updated_before": &updatedBefore} {
+		if value, present := fields[key]; present {
+			var rawTime string
+			if json.Unmarshal(value, &rawTime) != nil || rawTime == "" {
+				fail(400, "invalid_argument", "Invalid update time")
+				return
+			}
+			parsed, parseErr := time.Parse(time.RFC3339, rawTime)
+			if parseErr != nil {
+				fail(400, "invalid_argument", "Invalid update time")
+				return
+			}
+			*target = parsed
+		}
+	}
+	if !updatedAfter.IsZero() && !updatedBefore.IsZero() && !updatedAfter.Before(updatedBefore) {
+		fail(400, "invalid_argument", "Invalid update time range")
+		return
+	}
+	var tags []string
+	if value, present := fields["tags"]; present {
+		if json.Unmarshal(value, &tags) != nil || tags == nil || len(tags) > 20 {
+			fail(400, "invalid_argument", "Invalid tags")
+			return
+		}
+		seen := map[string]bool{}
+		totalTagBytes := 0
+		for index := range tags {
+			tags[index] = strings.ToLower(strings.TrimSpace(tags[index]))
+			totalTagBytes += len(tags[index])
+			if tags[index] == "" || utf8.RuneCountInString(tags[index]) > 40 || strings.ContainsAny(tags[index], "\r\n\x00") || seen[tags[index]] || totalTagBytes > 512 {
+				fail(400, "invalid_argument", "Invalid tags")
+				return
+			}
+			seen[tags[index]] = true
+		}
+	}
 	ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
 	defer cancel()
 	deadline, _ := ctx.Deadline()
@@ -148,12 +197,58 @@ func (h PartnerSearchHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	evidence := make([]map[string]any, 0, len(results))
+	metadata := map[contracts.ID]contracts.SearchSourceMetadata{}
+	if sourceService, ok := h.Service.(SearchSourceMetadataApplication); ok {
+		metadata, err = sourceService.SearchSourceMetadata(ctx, results)
+		if err != nil {
+			fail(503, "dependency_unavailable", "Search metadata unavailable")
+			return
+		}
+	}
+	filtered := make([]contracts.Candidate, 0, len(results))
+	for _, c := range results {
+		if sourceKind != "" && string(c.Citation.Source.Kind) != sourceKind {
+			continue
+		}
+		if !updatedAfter.IsZero() || !updatedBefore.IsZero() {
+			source, ok := metadata[c.Citation.DocumentID]
+			if !ok || source.UpdatedAt == "" {
+				continue
+			}
+			updated, parseErr := time.Parse(time.RFC3339Nano, source.UpdatedAt)
+			if parseErr != nil || !updatedAfter.IsZero() && updated.Before(updatedAfter) || !updatedBefore.IsZero() && !updated.Before(updatedBefore) {
+				continue
+			}
+		}
+		if len(tags) > 0 {
+			source, ok := metadata[c.Citation.DocumentID]
+			if !ok || !containsPartnerTags(source.Tags, tags) {
+				continue
+			}
+		}
+		filtered = append(filtered, c)
+	}
+	results = filtered
+	if len(results) > count {
+		results = results[:count]
+	}
 	for i, c := range results {
-		if !partnerID(c.Citation.DocumentID) || !partnerID(c.Citation.RevisionID) || !partnerID(c.Citation.BlockID) || c.Rank != i+1 {
+		if !partnerID(c.Citation.DocumentID) || !partnerID(c.Citation.RevisionID) || !partnerID(c.Citation.BlockID) || c.Rank < 1 {
 			fail(503, "dependency_unavailable", "Search unavailable")
 			return
 		}
-		evidence = append(evidence, map[string]any{"citation": map[string]any{"document_id": c.Citation.DocumentID, "revision_id": c.Citation.RevisionID, "block_id": c.Citation.BlockID, "source_anchor": sourceDTO(c.Citation.Source)}, "source_excerpt": c.Text, "rank": c.Rank})
+		item := map[string]any{"citation": map[string]any{"document_id": c.Citation.DocumentID, "revision_id": c.Citation.RevisionID, "block_id": c.Citation.BlockID, "source_anchor": sourceDTO(c.Citation.Source)}, "source_excerpt": c.Text, "rank": i + 1}
+		if source, ok := metadata[c.Citation.DocumentID]; ok {
+			itemMetadata := map[string]any{"title": source.Title, "publication_status": source.PublicationStatus, "publication_epoch": source.PublicationEpoch}
+			if source.UpdatedAt != "" {
+				itemMetadata["updated_at"] = source.UpdatedAt
+			}
+			if len(source.Tags) > 0 {
+				itemMetadata["tags"] = append([]string(nil), source.Tags...)
+			}
+			item["source_metadata"] = itemMetadata
+		}
+		evidence = append(evidence, item)
 	}
 	body := map[string]any{"request_id": requestID, "profile_version": version, "profile_digest": digest, "timings": map[string]any{"total_ms": float64(time.Since(started).Microseconds()) / 1000}, "degraded": []any{}, "evidence": evidence}
 	encoded, err := json.Marshal(body)
@@ -164,6 +259,22 @@ func (h PartnerSearchHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Cache-Control", "no-store")
 	w.Write(encoded)
+}
+
+func containsPartnerTags(actual, required []string) bool {
+	if len(required) == 0 {
+		return true
+	}
+	set := make(map[string]bool, len(actual))
+	for _, tag := range actual {
+		set[tag] = true
+	}
+	for _, tag := range required {
+		if !set[tag] {
+			return false
+		}
+	}
+	return true
 }
 func partnerID(id contracts.ID) bool {
 	return utf8.ValidString(string(id)) && utf8.RuneCountInString(string(id)) >= 1 && utf8.RuneCountInString(string(id)) <= 200

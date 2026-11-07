@@ -38,7 +38,7 @@ def run():
             assert op["x-required-permission"] and op["responses"]
             if method != "get":
                 assert any(p["name"] == "Idempotency-Key" and p["required"] for p in op["parameters"])
-    assert len(ids) == 26
+    assert len(ids) == 30
 
     def validator(name):
         return Draft202012Validator({"$ref": "#/components/schemas/" + name, "components": spec["components"]})
@@ -66,7 +66,7 @@ def run():
     ]
     for name, sample in failures:
         assert not validator(name).is_valid(sample), name
-    print(f"PASS: 26 operations, local refs, {len(schemas)} schemas, required paths/idempotency, 11 requests and 7 rejected DTOs")
+    print(f"PASS: 30 operations, local refs, {len(schemas)} schemas, required paths/idempotency, 11 requests and 7 rejected DTOs")
     print("No full OpenAPI conformance, response semantics, live permissions, uploads, CAS or UI was tested.")
 
 

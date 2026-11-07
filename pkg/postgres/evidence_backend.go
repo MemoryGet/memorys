@@ -11,6 +11,7 @@ import (
 	"github.com/MemoryGet/memorys/pkg/contentverify"
 	"github.com/MemoryGet/memorys/pkg/contracts"
 	"github.com/MemoryGet/memorys/pkg/document"
+	"github.com/MemoryGet/memorys/pkg/indexsnapshot"
 	"github.com/MemoryGet/memorys/pkg/preparation"
 	"github.com/MemoryGet/memorys/pkg/queryread"
 )
@@ -217,7 +218,11 @@ func readPublishedSnapshot(ctx context.Context, repo *queryRepository, fact cont
 		if !ok || !reflect.DeepEqual(prepared.artifact.GenerationSet, fact.GenerationSet) {
 			return empty, ErrRepository
 		}
-		return copyQuery(snapshot)
+		owned, err := indexsnapshot.Copy(snapshot)
+		if err != nil {
+			return empty, queryread.ErrLimit
+		}
+		return owned, nil
 	}
 	var planRaw, artifactRaw []byte
 	if repo.tx.QueryRowContext(ctx, `SELECT i.payload,a.payload FROM akos_withdraw_v1.publication_prepared_artifacts a JOIN akos_withdraw_v1.publication_intents i ON i.id=a.operation_id WHERE a.space_id=$1::text AND a.kb_id=$2::text AND a.generation_set_id=$3::text AND a.generation_id=$4::text`, string(repo.scope.SpaceID), string(fact.KnowledgeBaseID), string(fact.GenerationSet.ID), string(g.ID)).Scan(&planRaw, &artifactRaw) != nil || len(planRaw) > 262144 || len(artifactRaw) > 1<<20 {

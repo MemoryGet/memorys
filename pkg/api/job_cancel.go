@@ -103,5 +103,9 @@ func (h JobCancellationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 		fail(503, "dependency_unavailable", "Job cancellation unavailable")
 		return
 	}
-	_ = json.NewEncoder(w).Encode(map[string]any{"job_id": jobID, "state": "accepted"})
+	state := "accepted"
+	if result.Job.State != "" {
+		state = result.Job.State
+	}
+	_ = json.NewEncoder(w).Encode(map[string]any{"job_id": jobID, "state": state})
 }

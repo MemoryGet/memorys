@@ -16,6 +16,7 @@ import (
 type ConfiguredRuntime struct {
 	plans   *ConfiguredPlans
 	service *SearchService
+	deps    AnswerDependencies
 	closed  atomic.Bool
 }
 type ConfiguredRuntimeConfig struct {
@@ -45,7 +46,7 @@ func NewConfiguredRuntime(c ConfiguredRuntimeConfig) (*ConfiguredRuntime, error)
 		plans.Close()
 		return nil, e
 	}
-	return &ConfiguredRuntime{plans: plans, service: service}, nil
+	return &ConfiguredRuntime{plans: plans, service: service, deps: AnswerDependencies{Search: service, Auth: c.Dependencies.Auth, Authorizer: c.Dependencies.Authorizer, KnowledgeBases: c.Dependencies.KnowledgeBases}}, nil
 }
 func (r *ConfiguredRuntime) Search(ctx context.Context, in SearchInput) ([]contracts.Candidate, error) {
 	if r == nil || r.closed.Load() {
@@ -58,4 +59,15 @@ func (r *ConfiguredRuntime) Close() {
 		return
 	}
 	r.plans.Close()
+}
+
+// NewAnswer binds a host-provided Generator to the same configured search
+// runtime. Closing the runtime invalidates both search and answer assembly.
+func (r *ConfiguredRuntime) NewAnswer(generator contracts.Generator) (*AnswerService, error) {
+	if r == nil || r.closed.Load() {
+		return nil, ErrAnswer
+	}
+	deps := r.deps
+	deps.Generator = generator
+	return NewAnswer(deps)
 }

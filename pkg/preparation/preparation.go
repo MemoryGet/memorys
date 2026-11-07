@@ -158,11 +158,18 @@ func Build(work document.PublicationWork, profile contracts.IndexProfile, chunks
 	texts := map[contracts.ID][]rune{}
 	coverage := map[contracts.ID][]contracts.CharacterRange{}
 	for _, block := range work.Revision.Blocks {
-		if block.Content.Kind != contracts.TextBlock || block.RevisionID != work.Revision.ID || !id(block.ID) || blocks[block.ID].ID != "" || !utf8.ValidString(block.Content.Text) {
+		if block.RevisionID != work.Revision.ID || !id(block.ID) || blocks[block.ID].ID != "" {
+			return empty, noSnapshot, ErrPreparation
+		}
+		text, indexable := contracts.SearchableText(block.Content)
+		if !indexable {
+			continue
+		}
+		if !utf8.ValidString(text) {
 			return empty, noSnapshot, ErrPreparation
 		}
 		blocks[block.ID] = block
-		texts[block.ID] = []rune(block.Content.Text)
+		texts[block.ID] = []rune(text)
 	}
 	setID, generationID := TargetIDs(work.Job.OperationID, work.Lease.AttemptID)
 	snapshot := contracts.IndexSnapshot{Format: indexsnapshot.Format, SpaceID: work.Plan.SpaceID, KnowledgeBaseID: work.Plan.KnowledgeBaseID, Generations: []contracts.IndexDeletionState{{SpaceID: work.Plan.SpaceID, KnowledgeBaseID: work.Plan.KnowledgeBaseID, DocumentID: work.Revision.DocumentID, RevisionID: work.Revision.ID, GenerationID: generationID, BackendEpochID: b.EpochID, RecordCount: len(chunks)}}}
@@ -204,7 +211,8 @@ func Build(work document.PublicationWork, profile contracts.IndexProfile, chunks
 				end = r.End
 			}
 		}
-		if end != utf8.RuneCountInString(block.Content.Text) {
+		text, indexable := contracts.SearchableText(block.Content)
+		if !indexable || end != utf8.RuneCountInString(text) {
 			return empty, noSnapshot, ErrPreparation
 		}
 	}

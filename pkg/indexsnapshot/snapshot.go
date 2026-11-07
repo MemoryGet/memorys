@@ -29,8 +29,8 @@ func Seal(input contracts.IndexSnapshot) (contracts.IndexSnapshot, error) {
 	if err != nil || len(raw) > 4<<20 {
 		return contracts.IndexSnapshot{}, ErrSnapshot
 	}
-	var s contracts.IndexSnapshot
-	if json.Unmarshal(raw, &s) != nil {
+	s, err := copyEncoded(input, raw)
+	if err != nil {
 		return s, ErrSnapshot
 	}
 	if s.Format != Format || !id(s.SpaceID) || !id(s.KnowledgeBaseID) {

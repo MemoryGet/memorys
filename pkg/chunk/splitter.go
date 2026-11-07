@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+
 	"github.com/MemoryGet/memorys/pkg/contracts"
 	"unicode/utf8"
 )
@@ -13,6 +14,13 @@ import (
 var ErrSplit = errors.New("chunk splitting rejected")
 
 type SimpleSplitter struct{}
+
+// ContentText returns the deterministic textual projection used by the
+// keyword index. It keeps structured content attached to its original block;
+// it never invents OCR or transcription text when those fields are absent.
+func ContentText(content contracts.Content) (string, bool) {
+	return contracts.SearchableText(content)
+}
 
 func (SimpleSplitter) Split(ctx context.Context, req contracts.SplitRequest) ([]contracts.Chunk, error) {
 	if ctx == nil || req.RevisionID == "" || req.Policy.MaxCodepoints < 1 || req.Policy.MaxCodepoints > 1000000 || len(req.Blocks) > 10000 || req.Policy.OverlapCodepoints < 0 || req.Policy.OverlapCodepoints >= req.Policy.MaxCodepoints || req.Policy.Strategy != "characters" {
@@ -25,12 +33,16 @@ func (SimpleSplitter) Split(ctx context.Context, req contracts.SplitRequest) ([]
 		if err := ctx.Err(); err != nil {
 			return nil, err
 		}
-		bytes += len(b.Content.Text)
-		if bytes > 16<<20 || b.ID == "" || b.RevisionID != req.RevisionID || seen[b.ID] || b.Content.Kind != contracts.TextBlock || !utf8.ValidString(b.Content.Text) {
+		text, indexable := ContentText(b.Content)
+		bytes += len(text)
+		if bytes > 16<<20 || b.ID == "" || b.RevisionID != req.RevisionID || seen[b.ID] {
 			return nil, ErrSplit
 		}
 		seen[b.ID] = true
-		runes := []rune(b.Content.Text)
+		if !indexable || !utf8.ValidString(text) {
+			continue
+		}
+		runes := []rune(text)
 		for start := 0; start < len(runes); {
 			if err := ctx.Err(); err != nil {
 				return nil, err

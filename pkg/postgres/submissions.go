@@ -36,6 +36,9 @@ func (p Submissions) SubmitDraft(ctx context.Context, command document.Submissio
 	if err == nil {
 		return result, nil
 	}
+	if errors.Is(err, contracts.ErrDraftEditConflict) {
+		return contracts.SubmitResult{}, err
+	}
 	if errors.Is(err, ErrCommitUnknown) {
 		return contracts.SubmitResult{}, errors.Join(ErrCommitUnknown, document.ErrSubmissionUnknown)
 	}
@@ -104,11 +107,17 @@ func (p Submissions) submit(ctx context.Context, command document.SubmissionComm
 	// and payload checksum. Immutable blobs are addressed by platform ID+SHA.
 	var checkedPayload []byte
 	var checkedVersion string
-	checkedErr := p.DB.QueryRowContext(ctx, `SELECT d.payload,d.row_version::text FROM akos_withdraw_v1.draft_heads d JOIN akos_withdraw_v1.documents doc ON doc.space_id=d.space_id AND doc.kb_id=d.kb_id AND doc.id=d.document_id WHERE d.space_id=$1::text AND d.kb_id=$2::text AND d.document_id=$3::text AND d.id=$4::text AND d.state='draft' AND d.row_version=$5::numeric AND NOT doc.deleted`, string(c.Scope.SpaceID), string(c.Scope.KnowledgeBaseIDs[0]), string(command.DocumentID), string(r.DraftID), strconv.FormatUint(r.ExpectedVersion, 10)).Scan(&checkedPayload, &checkedVersion)
+	checkedErr := p.DB.QueryRowContext(ctx, `SELECT d.payload,d.row_version::text FROM akos_withdraw_v1.draft_heads d JOIN akos_withdraw_v1.documents doc ON doc.space_id=d.space_id AND doc.kb_id=d.kb_id AND doc.id=d.document_id WHERE d.space_id=$1::text AND d.kb_id=$2::text AND d.document_id=$3::text AND d.id=$4::text AND d.state='draft' AND NOT doc.deleted`, string(c.Scope.SpaceID), string(c.Scope.KnowledgeBaseIDs[0]), string(command.DocumentID), string(r.DraftID)).Scan(&checkedPayload, &checkedVersion)
 	verified := false
 	if checkedErr == nil {
 		var checked contracts.Draft
-		if json.Unmarshal(checkedPayload, &checked) != nil || checked.ID != r.DraftID || checked.DocumentID != command.DocumentID || checked.State != "draft" || checked.RowVersion != r.ExpectedVersion || checkedVersion != strconv.FormatUint(r.ExpectedVersion, 10) || p.VerifyContent(ctx, cloneScope(c.Scope), checked) != nil || ctx.Err() != nil {
+		if json.Unmarshal(checkedPayload, &checked) != nil || checked.ID != r.DraftID || checked.DocumentID != command.DocumentID || checked.State != "draft" || checkedVersion != strconv.FormatUint(checked.RowVersion, 10) {
+			return result, ErrRepository
+		}
+		if checked.RowVersion != r.ExpectedVersion {
+			return result, contracts.ErrDraftEditConflict
+		}
+		if p.VerifyContent(ctx, cloneScope(c.Scope), checked) != nil || ctx.Err() != nil {
 			return result, ErrRepository
 		}
 		verified = true
@@ -144,8 +153,11 @@ func (p Submissions) submit(ctx context.Context, command document.SubmissionComm
 			return ErrRepository
 		}
 		var draft contracts.Draft
-		if !verified || sha256.Sum256(payload) != checkedDigest || json.Unmarshal(payload, &draft) != nil || draft.ID != r.DraftID || draft.DocumentID != command.DocumentID || strconv.FormatUint(draft.RowVersion, 10) != version || draft.RowVersion != r.ExpectedVersion {
+		if !verified || sha256.Sum256(payload) != checkedDigest || json.Unmarshal(payload, &draft) != nil || draft.ID != r.DraftID || draft.DocumentID != command.DocumentID || strconv.FormatUint(draft.RowVersion, 10) != version {
 			return ErrRepository
+		}
+		if draft.RowVersion != r.ExpectedVersion {
+			return contracts.ErrDraftEditConflict
 		}
 		if draft.BaseRevisionID != nil {
 			var parent string

@@ -143,6 +143,11 @@ func TestPyPDFPinnedProtocolAndFormat(t *testing.T) {
 	if err != nil || result.Version != "pypdf/6.19.0" {
 		t.Fatalf("PDF protocol: %+v %v", result, err)
 	}
+	t.Setenv("AKOS_PROCESS_TEST_OUTPUT", `{"version":"pypdf/6.19.0","markdown":"第一页\n\n第二页","pages":["第一页","第二页"]}`)
+	paged, err := pdf.Convert(ctx, "pdf", []byte("x"))
+	if err != nil || len(paged.Pages) != 2 || paged.Pages[1] != "第二页" {
+		t.Fatalf("PDF page protocol: %+v %v", paged, err)
+	}
 	if _, err := pdf.Convert(ctx, "docx", []byte("x")); err == nil {
 		t.Fatal("Office format admitted")
 	}
@@ -153,5 +158,43 @@ func TestPyPDFPinnedProtocolAndFormat(t *testing.T) {
 	t.Setenv("AKOS_PROCESS_TEST_OUTPUT", `{"version":"pypdf/6.19.0","healthy":true}`)
 	if err := pdf.Health(ctx); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestMarkItDownStructuredOfficeProtocol(t *testing.T) {
+	p := processFixture(t, "output", `{"version":"markitdown/0.1.3","markdown":"段落一\n\n段落二","blocks":[{"text":"段落一","paragraph_path":[1]},{"text":"段落二","paragraph_path":[3]}]}`)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	result, err := p.Convert(ctx, "docx", []byte("x"))
+	if err != nil || len(result.Blocks) != 2 || len(result.Blocks[1].ParagraphPath) != 1 || result.Blocks[1].ParagraphPath[0] != 3 {
+		t.Fatalf("structured protocol: %+v %v", result, err)
+	}
+}
+
+func TestOCRPinnedProtocolAndFormat(t *testing.T) {
+	p := processFixture(t, "output", `{"version":"ocr/tesseract-5","markdown":"识别结果","pages":["识别结果"],"ocr_confidence":[87.5]}`)
+	ocr := OCR{Python: p.Python, Script: p.Script, environment: p.environment}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	result, err := ocr.Convert(ctx, "png", []byte("x"))
+	if err != nil || result.Version != "ocr/tesseract-5" || len(result.Pages) != 1 || len(result.OCRConfidence) != 1 || result.OCRConfidence[0] != 87.5 {
+		t.Fatalf("OCR protocol: %+v %v", result, err)
+	}
+	if _, err := ocr.Convert(ctx, "docx", []byte("x")); err == nil {
+		t.Fatal("unsupported OCR format accepted")
+	}
+}
+
+func TestTranscriptionPinnedProtocolAndFormat(t *testing.T) {
+	p := processFixture(t, "output", `{"version":"transcription/whisper-1","markdown":"第一段\n\n第二段","segments":[{"start_ms":0,"end_ms":1200,"text":"第一段"},{"start_ms":1200,"end_ms":2400,"text":"第二段"}]}`)
+	transcriber := Transcription{Python: p.Python, Script: p.Script, environment: p.environment}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	result, err := transcriber.Convert(ctx, "wav", []byte("x"))
+	if err != nil || result.Version != "transcription/whisper-1" || result.Text != "第一段\n\n第二段" || len(result.AudioSegments) != 2 || result.AudioSegments[1].StartMS != 1200 {
+		t.Fatalf("transcription protocol: %+v %v", result, err)
+	}
+	if _, err := transcriber.Convert(ctx, "docx", []byte("x")); err == nil {
+		t.Fatal("unsupported transcription format accepted")
 	}
 }

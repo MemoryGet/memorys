@@ -51,3 +51,7 @@ SDK固定版本与原先commit核验的 README、go.mod、LICENSE、mcp/server.g
 显式注入CurrentReadService并配置分页后，knowledge_read接收原有ReadRequest.cursor并返回ReadResult.next_cursor；无需修改工具Schema，REST和MCP共用相同签名模块和逐页认证/来源验证。527项输入在PG16共243项原生检查通过，实际REST游标在MCP继续、两页完整/无重复、Schema与双格式、篡改和真实令牌撤销拒绝通过独立复核。签名期间撤权另有应用故障测试，签名完成后才执行最终控制检查。见[读取证据与边界](PARTNER_READ_DESIGN.md)。原件授权仍为fixture，历史、生产密钥/依赖装配、OAuth、其他工具及发送屏障未完成；本轮未重验PG15/18，不关闭完整MCP或产品验收。
 
 2026-10-17已新增[已发布历史版本](HISTORICAL_READ_RUNTIME.md)分支：显式revision_id在应用中申请独立history权限，REST游标可继续MCP读取同一历史快照，不开放主体/授权覆盖参数，也不增加伪实现工具。539项输入在PG16通过250项原生检查，实际旧索引删除后历史原文、双格式及批准未发布/撤销拒绝通过独立复核。原件/治理授权仍为fixture，完整历史生命周期与生产验收保持开放；上一段527/243为历史快照。
+
+2026-10-30运行装配增量：`memorys-server` 启用认证 PostgreSQL 搜索后，会将同一 `localruntime.Search` 同时作为伙伴搜索/当前读取应用和 MCP 网关的依赖；因此当前发布正文的 REST/MCP read 已进入真实服务器装配。ask/feedback、历史读取的生产服务和 OAuth/Grant 互操作仍保持开放，不能把这次装配描述为完整 MCP 验收。
+2026-10-30传输增量：伙伴 feedback DTO/错误映射和 MCP `knowledge_feedback` 可选注册已实现，只有显式注入 `PartnerFeedbackApplication` 才会注册该工具；当前默认服务器没有反馈应用，因此仍安全返回 capability_missing。
+2026-10-30传输增量：伙伴 ask DTO/最终答案与 SSE 事件映射和 MCP `knowledge_ask` 可选注册已实现，问答应用必须自行提供当前证据与最终引用校验；当前默认服务器没有问答应用，因此仍安全返回 capability_missing。

@@ -66,7 +66,7 @@ func init() {
 	register(contracts.Content{}, "Kind:kind Text:text Source:source_anchor Table:table? Image:image? Audio:audio?")
 	register(contracts.SourceAnchor{}, "Kind:kind BlobID:blob_id? RevisionBlockID:revision_block_id? Locator:locator DerivedFrom:derived_from?")
 	register(contracts.OriginalAnchor{}, "BlobID:blob_id Locator:locator")
-	register(contracts.Locator{}, "Precision:precision Page:page? Slide:slide? Worksheet:worksheet? CellRange:cell_range? ParagraphPath:paragraph_path? Characters:characters? Box:box?")
+	register(contracts.Locator{}, "Precision:precision Page:page? Slide:slide? StartMS:start_ms? EndMS:end_ms? Confidence:confidence? Worksheet:worksheet? CellRange:cell_range? ParagraphPath:paragraph_path? Characters:characters? Box:box?")
 	register(contracts.CharacterRange{}, "Start:start End:end")
 	register(contracts.BoundingBox{}, "Left:left Top:top Right:right Bottom:bottom")
 	register(contracts.TableContent{}, "RowCount:row_count ColumnCount:column_count Cells:cells Caption:caption?")

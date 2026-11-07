@@ -120,3 +120,57 @@ func TestStateDirectoryCommitSupportsLongWindowsPath(t *testing.T) {
 		t.Fatal("committed directory is missing")
 	}
 }
+
+func lockedStateFile(t *testing.T) (string, windows.Handle) {
+	t.Helper()
+	root := t.TempDir()
+	if err := writeAtomic(root, "vectors.json", []byte("previous numeric memo")); err != nil {
+		t.Fatal(err)
+	}
+	path, err := windows.UTF16PtrFromString(filepath.Join(root, "vectors.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	handle, err := windows.CreateFile(path, windows.GENERIC_READ, windows.FILE_SHARE_READ|windows.FILE_SHARE_WRITE, nil, windows.OPEN_EXISTING, windows.FILE_ATTRIBUTE_NORMAL, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return root, handle
+}
+
+func TestAtomicStateFileRecoversFromTemporaryWindowsReader(t *testing.T) {
+	root, handle := lockedStateFile(t)
+	released := make(chan struct{})
+	go func() { time.Sleep(80 * time.Millisecond); windows.CloseHandle(handle); close(released) }()
+	err := writeAtomic(root, "vectors.json", []byte("next numeric memo"))
+	<-released
+	if err != nil {
+		t.Fatal("temporary reader prevented atomic file commit", err)
+	}
+	raw, err := os.ReadFile(filepath.Join(root, "vectors.json"))
+	if err != nil || string(raw) != "next numeric memo" {
+		t.Fatal("committed bytes changed", err)
+	}
+	files, err := os.ReadDir(root)
+	if err != nil || len(files) != 1 || files[0].Name() != "vectors.json" {
+		t.Fatal("temporary payload remained after commit", err)
+	}
+}
+
+func TestAtomicStateFileRetainsPreviousBytesOnPersistentWindowsReader(t *testing.T) {
+	root, handle := lockedStateFile(t)
+	defer windows.CloseHandle(handle)
+	started := time.Now()
+	err := writeAtomic(root, "vectors.json", []byte("uncommitted numeric memo"))
+	if !errors.Is(err, errState) || time.Since(started) > 5*time.Second {
+		t.Fatal("persistent reader refusal was not bounded", err)
+	}
+	raw, err := os.ReadFile(filepath.Join(root, "vectors.json"))
+	if err != nil || string(raw) != "previous numeric memo" {
+		t.Fatal("failed file commit changed previous bytes", err)
+	}
+	files, err := os.ReadDir(root)
+	if err != nil || len(files) != 1 || files[0].Name() != "vectors.json" {
+		t.Fatal("failed file commit left temporary payload", err)
+	}
+}

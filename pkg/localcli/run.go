@@ -135,7 +135,7 @@ func Run(ctx context.Context, args []string, w io.Writer) error {
 		if err = s.enableAI(ctx, db); err != nil {
 			return err
 		}
-		return output(w, map[string]any{"state": "ai-enabled", "formats": []string{"txt", "md", "pdf", "docx", "xlsx", "pptx"}, "embedding": s.m.Embedding, "answer_provider": "DeepSeek"})
+		return output(w, map[string]any{"state": "ai-enabled", "formats": []string{"txt", "md", "pdf", "docx", "xlsx", "pptx", "png", "jpg", "jpeg", "wav", "mp3", "m4a"}, "embedding": s.m.Embedding, "answer_provider": "DeepSeek", "ocr_provider": "Tesseract", "transcription_provider": "Whisper"})
 	}
 	if o.command == "init" {
 		if err = s.initialize(ctx, db); err != nil {
@@ -173,6 +173,12 @@ func Run(ctx context.Context, args []string, w io.Writer) error {
 		if err != nil {
 			return err
 		}
+		cleanupProvider := newLocalCleanupProvider(db, s)
+		if err = cleanupProvider.start(ctx); err != nil {
+			cleanupProvider.close()
+			return err
+		}
+		defer cleanupProvider.close()
 		return serveHTTP(ctx, h, o.address, w)
 	}
 	a, err := s.identity(ctx, db, false)
@@ -356,6 +362,10 @@ func doctor(ctx context.Context, root string, w io.Writer) error {
 		defer cancel()
 		p, e := converter()
 		checks["office_parser"] = e == nil && p.Health(c) == nil
+		o, oe := ocrConverter()
+		checks["ocr_parser"] = oe == nil && o.Health(c) == nil
+		t, te := transcriptionConverter()
+		checks["transcription_parser"] = te == nil && t.Health(c) == nil
 		model, e := modelclient.NewOllama(ollamaURL(), *s.m.Embedding)
 		checks["embedding_model"] = e == nil && model.Health(c) == nil
 		if checks["office_parser"] != true || checks["embedding_model"] != true || checks["answer_key_configured"] != true {

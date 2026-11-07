@@ -34,7 +34,7 @@ func validVector(v contracts.Vector, n int) bool {
 }
 
 func Rank(ctx context.Context, request contracts.RequestContext, question string, items []contracts.Candidate, spec contracts.EmbeddingSpec, embedder contracts.Embedder, cached map[string]contracts.Vector, limit int) ([]contracts.Candidate, map[string]contracts.Vector, error) {
-	if ctx == nil || ctx.Err() != nil || strings.TrimSpace(question) == "" || !utf8.ValidString(question) || len(question) > 4096 || len(items) > 512 || embedder == nil || limit < 1 || limit > 10 || spec.Dimension < 16 || spec.Dimension > 4096 || spec.Distance != "cosine" || spec.Normalization != "l2" {
+	if ctx == nil || ctx.Err() != nil || strings.TrimSpace(question) == "" || !utf8.ValidString(question) || len(question) > 4096 || len(items) > 512 || embedder == nil || limit < 1 || limit > 100 || spec.Dimension < 16 || spec.Dimension > 4096 || spec.Distance != "cosine" || spec.Normalization != "l2" {
 		return nil, nil, ErrRanking
 	}
 	texts := []string{question}

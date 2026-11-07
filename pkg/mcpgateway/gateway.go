@@ -34,6 +34,8 @@ type Config struct {
 	Auth           contracts.Authenticator
 	Search         api.PartnerSearchApplication
 	Read           api.CurrentReadApplication
+	Ask            api.PartnerAskApplication
+	Feedback       api.PartnerFeedbackApplication
 	Catalog        []byte
 	AllowedOrigins []string
 	MaxConcurrent  int
@@ -94,7 +96,7 @@ func New(c Config) (*Gateway, error) {
 			return nil, ErrConfiguration
 		}
 		seen[t.Name] = true
-		if t.Name == "knowledge_search" || t.Name == "knowledge_read" && !absent(c.Read) {
+		if t.Name == "knowledge_search" || t.Name == "knowledge_read" && !absent(c.Read) || t.Name == "knowledge_ask" && !absent(c.Ask) || t.Name == "knowledge_feedback" && !absent(c.Feedback) {
 			enabled = append(enabled, *t)
 		}
 	}
@@ -120,6 +122,12 @@ func New(c Config) (*Gateway, error) {
 		if chosen.Name == "knowledge_read" {
 			handler = api.PartnerReadHandler{Service: c.Read, Profile: c.Search}
 			path = "/api/v1/knowledge-os/read"
+		} else if chosen.Name == "knowledge_feedback" {
+			handler = api.PartnerFeedbackHandler{Service: c.Feedback}
+			path = "/api/v1/knowledge-os/feedback"
+		} else if chosen.Name == "knowledge_ask" {
+			handler = api.PartnerAskHandler{Service: c.Ask}
+			path = "/api/v1/knowledge-os/ask"
 		}
 		runtimeTools = append(runtimeTools, runtimeTool{tool: &mcp.Tool{Name: chosen.Name, Description: chosen.Description, InputSchema: chosen.Input, OutputSchema: chosen.Output, Annotations: chosen.Annotations}, input: input, output: output, handler: handler, path: path})
 	}

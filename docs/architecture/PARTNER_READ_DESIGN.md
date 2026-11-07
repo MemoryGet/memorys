@@ -104,3 +104,4 @@ REST与MCP均复用可选分页应用接口，无需修改伙伴Schema。block_i
 新增[历史读取端口、默认实现与验收边界](HISTORICAL_READ_RUNTIME.md)：显式旧revision需同时具备knowledge.read与knowledge.history.read；默认CurrentReadService未装配完整History依赖组仍拒绝历史读取。历史源核对正式发布记录、当前文档与目标批准，正文/来源重读始终携带独立历史授权，签名后再次认证及复核目标批准。当前内容和搜索动作白名单未放宽。
 
 539项源码输入在PG16通过250项原生检查；实际同文档新Revision换版、删除旧索引后历史原文读取、REST到MCP游标继续、批准未发布/缺失版本和撤销历史批准拒绝均取得独立复核。当前读取回归、全量Go/go vet、228项Python与三份OpenAPI通过，临时实例已独立核对清理。本轮仅PG16。历史全生命周期实库矩阵、生产IAM/原件Grant/发送屏障、复杂来源及完整V1验收仍开放。
+伙伴读取之外，Bootstrap 现在提供可注入的 `GET /api/v1/knowledge-os/blobs/{blob_id}/content` 流式原件下载边界。宿主必须实现 `BlobContentApplication`，在打开 Blob 前完成当前身份、Scope 和原件所有权校验；Handler 只接受逻辑 Blob ID，限制大小、媒体类型和响应缓存，不暴露物理路径或公共 URL。

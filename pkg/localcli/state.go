@@ -62,8 +62,9 @@ type manifest struct {
 	KeyFrom, KeyUntil                                            int64
 	ProfileDigest                                                contracts.Digest
 	Ready                                                        bool
-	Features                                                     uint64                   `json:",omitempty"`
-	Embedding                                                    *contracts.EmbeddingSpec `json:",omitempty"`
+	Features                                                     uint64                    `json:",omitempty"`
+	Embedding                                                    *contracts.EmbeddingSpec  `json:",omitempty"`
+	Tags                                                         map[contracts.ID][]string `json:",omitempty"`
 }
 
 type state struct {
@@ -120,10 +121,22 @@ func writeAtomic(root, name string, raw []byte) error {
 	if err = protect(tmp, false); err != nil {
 		return stateFailure("protect state file", err)
 	}
-	if err = os.Rename(tmp, filepath.Join(root, name)); err != nil {
-		return stateFailure("commit state file", err)
+	// A Windows reader can temporarily deny delete sharing on the destination.
+	// Keep the protected temporary file and previous target intact while
+	// retrying only transient OS errors, with the same bounded backoff used
+	// for state-directory commits. Never remove the destination to force it.
+	delay := 10 * time.Millisecond
+	for attempt := 0; ; attempt++ {
+		err = os.Rename(tmp, filepath.Join(root, name))
+		if err == nil {
+			return nil
+		}
+		if attempt >= 7 || !transientStateRename(err) {
+			return stateFailure("commit state file", err)
+		}
+		time.Sleep(delay)
+		delay *= 2
 	}
-	return nil
 }
 
 func commitStateDirectory(stage, target string) error {
@@ -151,7 +164,7 @@ func commitStateDirectory(stage, target string) error {
 		if err == nil {
 			return nil
 		}
-		if attempt >= 7 || !transientStateDirectoryRename(err) {
+		if attempt >= 7 || !transientStateRename(err) {
 			return stateFailure("commit staged state directory", err)
 		}
 		// Windows readers that deny delete sharing can temporarily block a

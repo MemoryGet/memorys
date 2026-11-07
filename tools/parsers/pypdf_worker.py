@@ -1,4 +1,4 @@
-"""Stream-only pypdf 6.19.0 text projection. No OCR, paths or publishing."""
+"""Stream-only pypdf 6.19.0 text projection with verified page text. No OCR or publishing."""
 import base64
 import hashlib
 import importlib.metadata
@@ -62,7 +62,7 @@ def main():
     text = "\n\n".join(parts)
     if not text.strip():
         raise ValueError("no text layer")
-    sys.stdout.buffer.write(json.dumps({"version": "pypdf/6.19.0", "markdown": text}, ensure_ascii=False).encode("utf-8"))
+    sys.stdout.buffer.write(json.dumps({"version": "pypdf/6.19.0", "markdown": text, "pages": parts}, ensure_ascii=False).encode("utf-8"))
 
 
 if __name__ == "__main__":

@@ -16,6 +16,9 @@ type Locator struct {
 	Precision     string
 	Page          *int
 	Slide         *int
+	StartMS       *int64   `json:",omitempty"`
+	EndMS         *int64   `json:",omitempty"`
+	Confidence    *float64 `json:",omitempty"`
 	Worksheet     string
 	CellRange     string
 	ParagraphPath []int

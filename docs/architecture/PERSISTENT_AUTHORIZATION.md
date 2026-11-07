@@ -26,6 +26,10 @@
 
 尚缺角色/用户组和继承策略、管理 API/UI、管理者授权及审计、正式迁移/初始化、RLS、多租户运维、远程准入、持久化 CurrentFacts 配置源及全产品集成。此实现可以由其他策略引擎替换，上层继续调用标准 Authorizer。
 
+管理端成员授权更新已补齐 `PUT /api/v1/knowledge-os/knowledge-bases/{kb_id}/grants/{subject_id}`，成员分页已补齐 `GET /api/v1/knowledge-os/knowledge-bases/{kb_id}/grants`：它们以当前 `kb.manage_access` 授权为前提，在 `expected_policy_version` CAS 下复制并修改不可变 ACL 快照，提交 `access_policy_change_receipts`、`access_policy_change_audit` 和 `access_policy_change_outbox`。`Admin`、`Contributor`、`Viewer`、`none` 的动作集合由服务端固定，主体、发行方和客户端从当前身份目录解析，不接受客户端注入；迁移文件为 `sql/access_grant_management_v1.sql`，迁移会将已有 `revision.approve` 主体提升为初始管理者并补齐管理/读取动作。角色继承、用户组、真实 IAM 发放和 UI 仍需后续完成。
+
+部署时可使用 `memorys-migrate -with-grant-management` 在基础 schema 迁移成功后顺序应用该扩展；两个迁移各自写入版本化 ledger，重复执行保持幂等。
+
 验证结果：485项输入，PG15/16/18各198项原生检查。新增6项授权场景及独立请求/Scope/实际授权行关系复核通过。见[授权证据](evidence/persistent-authorization-review.json)与[总矩阵](evidence/postgres-version-matrix.json)。全量本地回归证据以归档报告为准。
 
 当前事实源增量已接入[数据库实现](POSTGRES_CURRENT_FACTS.md)，当前归档提升至487项输入/每版205项检查。这里的485/198为授权增量当时结果。完整配置编译与装配仍待完成。

@@ -128,3 +128,29 @@ func TestDeepSeekCitationsAndBoundedOutput(t *testing.T) {
 		})
 	}
 }
+
+func TestDeepSeekGenerateStreamValidatesDeltasAndCitations(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var input map[string]any
+		if json.NewDecoder(r.Body).Decode(&input) != nil || input["stream"] != true {
+			t.Error("streaming request not enabled")
+		}
+		w.Header().Set("Content-Type", "text/event-stream")
+		_, _ = w.Write([]byte("data: {\"model\":\"deepseek-flash\",\"choices\":[{\"delta\":{\"content\":\"答案是\"}}]}\n\n"))
+		_, _ = w.Write([]byte("data: {\"model\":\"deepseek-flash\",\"choices\":[{\"delta\":{\"content\":\"蓝鲸。[1]\"}}]}\n\n"))
+		_, _ = w.Write([]byte("data: [DONE]\n\n"))
+	}))
+	defer server.Close()
+	client, err := NewDeepSeek("fixture-private-key", "deepseek-flash", 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	client.endpoint = server.URL
+	deadline := time.Now().Add(time.Second)
+	q := contracts.GenerateRequest{Request: contracts.RequestContext{RequestID: "request", ProfileDigest: contracts.Digest(strings.Repeat("a", 64)), Deadline: deadline}, Scope: contracts.AccessScope{Action: "knowledge.answer", ExpiresAt: deadline}, Question: "口令？", Evidence: []contracts.Evidence{{Citation: contracts.Citation{DocumentID: "doc", RevisionID: "rev", BlockID: "block"}, SourceExcerpt: "口令是蓝鲸", Rank: 1}}, Budget: contracts.ExecutionBudget{Deadline: deadline, MaxOutputTokens: 64}}
+	var events []contracts.AnswerEvent
+	err = client.GenerateStream(context.Background(), q, func(event contracts.AnswerEvent) error { events = append(events, event); return nil })
+	if err != nil || len(events) != 4 || events[0].Kind != "meta" || events[1].Kind != "answer_delta" || events[2].Text != "蓝鲸。[1]" || events[3].Kind != "done" || events[3].Result == nil || len(events[3].Result.Citations) != 1 {
+		t.Fatalf("stream result: %v %#v", err, events)
+	}
+}

@@ -32,10 +32,16 @@ func memoryID(id contracts.ID) bool {
 }
 
 func memoryLocator(l contracts.Locator) bool {
-	if l.Precision != "exact" && l.Precision != "coarse" {
+	if l.Precision != "exact" && l.Precision != "coarse" && l.Precision != "ocr" && l.Precision != "transcript" {
 		return false
 	}
 	if (l.Page != nil && *l.Page < 1) || (l.Slide != nil && *l.Slide < 1) {
+		return false
+	}
+	if (l.StartMS == nil) != (l.EndMS == nil) || l.StartMS != nil && (*l.StartMS < 0 || *l.EndMS < *l.StartMS) {
+		return false
+	}
+	if l.Confidence != nil && (*l.Confidence < 0 || *l.Confidence > 100 || math.IsNaN(*l.Confidence) || math.IsInf(*l.Confidence, 0)) {
 		return false
 	}
 	if !utf8.ValidString(l.Worksheet) || !utf8.ValidString(l.CellRange) || (l.CellRange != "" && l.Worksheet == "") {

@@ -182,7 +182,7 @@ func TestPostgresAIGuards(t *testing.T) {
 			t.Fatal(err)
 		}
 		defer tx.Rollback()
-		for _, query := range []string{`INSERT INTO akos_withdraw_v1.access_policy_snapshots VALUES($1,3,false)`, `INSERT INTO akos_withdraw_v1.access_policy_grants SELECT space_id,3,issuer,subject_id,client_id,kb_id,action FROM akos_withdraw_v1.access_policy_grants WHERE space_id=$1 AND version=2 AND action<>'original.read'`, `UPDATE akos_withdraw_v1.access_policy_snapshots SET sealed=true WHERE space_id=$1 AND version=3`, `UPDATE akos_withdraw_v1.access_policy_heads SET version=3 WHERE space_id=$1`} {
+		for _, query := range []string{`INSERT INTO akos_withdraw_v1.access_policy_snapshots VALUES($1,5,false)`, `INSERT INTO akos_withdraw_v1.access_policy_grants SELECT space_id,5,issuer,subject_id,client_id,kb_id,action FROM akos_withdraw_v1.access_policy_grants WHERE space_id=$1 AND version=4 AND action<>'original.read'`, `UPDATE akos_withdraw_v1.access_policy_snapshots SET sealed=true WHERE space_id=$1 AND version=5`, `UPDATE akos_withdraw_v1.access_policy_heads SET version=5 WHERE space_id=$1`} {
 			if _, err = tx.ExecContext(ctx, query, s.m.Space); err != nil {
 				t.Fatal(err)
 			}

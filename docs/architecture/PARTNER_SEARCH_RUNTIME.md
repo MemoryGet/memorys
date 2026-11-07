@@ -4,11 +4,11 @@
 
 ## 接口与应用边界
 
-正式契约路径为 `POST /api/v1/knowledge-os/search`，由 `PartnerSearchHandler` 调用统一 SearchService。请求仅允许 query、space_id、kb_ids、top_k。身份来自临时 Bearer 凭据，request_id 由服务器生成；客户端不能提供 Principal、AccessScope、发布过滤器、模块标识或配置摘要。
+正式契约路径为 `POST /api/v1/knowledge-os/search`，由 `PartnerSearchHandler` 调用统一 SearchService。请求允许 query、space_id、kb_ids、top_k，以及 source_kind、tags、updated_after、updated_before 四类证据筛选字段。身份来自临时 Bearer 凭据，request_id 由服务器生成；客户端不能提供 Principal、AccessScope、模块标识或配置摘要。
 
 请求按 JSON/UTF-8 和已声明字段解析，拒绝重复字段、字段别名、未知字段、非法类型、超限条数和重复知识库 ID。top_k 接受准确的整数值，包括 1.0；使用精确有理数判定，避免把接近整数的小数舍入成合法参数。请求体上限 1 MiB。
 
-响应按契约输出 evidence、request_id、profile_version、profile_digest、timings、degraded。引用使用平台文档/修订/块/原件定位，供应商分数、内部检索实例和令牌不进入公开响应。当前没有静默降级，失败整体拒绝，因此成功响应 degraded 为空数组。返回 no-store。
+筛选在授权检索完成并取得来源元数据后执行，标签会去空白、转小写并按全部匹配，更新时间按 RFC3339 解析，区间为半开范围 `[updated_after, updated_before)`；筛选后会重新编号返回证据排名。响应按契约输出 evidence、request_id、profile_version、profile_digest、timings、degraded。引用使用平台文档/修订/块/原件定位，供应商分数、内部检索实例和令牌不进入公开响应。当前没有静默降级，失败整体拒绝，因此成功响应 degraded 为空数组。返回 no-store。
 
 ## 知识库列表
 
@@ -35,3 +35,6 @@ Schema 通过不表示所有有效取值和运行能力已全覆盖。当前应�
 其余伙伴 read/ask/feedback 接口、MCP、Vue、成熟混合检索和固定 Recall/性能验收仍待完成。
 
 当前归档：505项输入，PG15/16/18各229项检查，全量Go/go vet、228项Python及三份OpenAPI检查通过。见[伙伴搜索运行证据](evidence/partner-search-runtime-review.json)。
+
+2026-10-30运行装配增量：服务器在认证 PostgreSQL 搜索启用时也挂载当前发布正文 `POST /api/v1/knowledge-os/read`，与搜索共享认证器、数据库和配置快照；REST/MCP 读取仍受应用级当前发布和内容验证控制。ask/feedback、多库成熟检索和生产 IAM 仍待独立服务装配与验收。
+2026-10-30传输增量：新增 `POST /api/v1/knowledge-os/feedback` 的严格 JSON/Bearer/幂等传输层，要求 citation 与 target_request_id 二选一，并拒绝不完整来源定位；业务反馈应用仍由生产装配器提供。

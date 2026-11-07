@@ -124,6 +124,64 @@ func TestCandidateServiceUnknownCommitRetriesExactPreparedOutput(t *testing.T) {
 	}
 }
 
+func TestCandidateServicePreparedCandidateSurvivesDurableRoundTrip(t *testing.T) {
+	ctx, command, service, parses, commits := serviceFixture(t)
+	prepared, err := service.Prepare(ctx, command)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := service.EncodePreparedCandidate(prepared)
+	if err != nil || len(raw) == 0 {
+		t.Fatalf("encode prepared candidate: %v", err)
+	}
+	restored, err := service.DecodePreparedCandidate(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := service.Commit(ctx, restored); err != nil || *parses != 1 || *commits != 1 {
+		t.Fatalf("durable candidate was reparsed or rejected: %v parses=%d commits=%d", err, *parses, *commits)
+	}
+	tampered := append([]byte(nil), raw...)
+	tampered[len(tampered)-2] ^= 1
+	if _, err := service.DecodePreparedCandidate(tampered); err == nil {
+		t.Fatal("tampered prepared candidate accepted")
+	}
+}
+
+func TestFilePreparedCandidateStorePersistsIdempotentlyAndRejectsConflict(t *testing.T) {
+	ctx, command, service, parses, commits := serviceFixture(t)
+	prepared, err := service.Prepare(ctx, command)
+	if err != nil {
+		t.Fatal(err)
+	}
+	store, err := ingestion.NewFilePreparedCandidateStore(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := service.SavePreparedCandidate(ctx, store, prepared); err != nil {
+		t.Fatalf("first save failed: %v", err)
+	}
+	if err := service.SavePreparedCandidate(ctx, store, prepared); err != nil {
+		t.Fatalf("idempotent save failed: %v", err)
+	}
+	restored, err := service.LoadPreparedCandidate(ctx, store, command.CandidateID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := service.Commit(ctx, restored); err != nil || *parses != 1 || *commits != 1 {
+		t.Fatalf("stored candidate was not reusable: %v parses=%d commits=%d", err, *parses, *commits)
+	}
+	if err := store.Put(ctx, command.CandidateID, []byte("different")); !errors.Is(err, ingestion.ErrPreparedCandidateConflict) {
+		t.Fatalf("conflicting candidate accepted: %v", err)
+	}
+	if err := store.Delete(ctx, command.CandidateID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := service.LoadPreparedCandidate(ctx, store, command.CandidateID); err == nil {
+		t.Fatal("deleted candidate remained readable")
+	}
+}
+
 func TestCandidateServiceRejectsInvalidReceiptAndClassifiesKnownRejection(t *testing.T) {
 	for _, known := range []bool{false, true} {
 		ctx, command, service, _, _ := serviceFixture(t)

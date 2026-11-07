@@ -82,6 +82,15 @@ func locatorDTO(l contracts.Locator) map[string]any {
 	if l.Slide != nil {
 		result["slide"] = *l.Slide
 	}
+	if l.StartMS != nil {
+		result["start_ms"] = *l.StartMS
+	}
+	if l.EndMS != nil {
+		result["end_ms"] = *l.EndMS
+	}
+	if l.Confidence != nil {
+		result["confidence"] = *l.Confidence
+	}
 	if l.Worksheet != "" {
 		result["worksheet"] = l.Worksheet
 	}
@@ -92,7 +101,8 @@ func locatorDTO(l contracts.Locator) map[string]any {
 		result["paragraph_path"] = l.ParagraphPath
 	}
 	if l.Characters != nil {
-		result["char_range"] = []int{l.Characters.Start, l.Characters.End}
+		result["char_start"] = l.Characters.Start
+		result["char_end"] = l.Characters.End
 	}
 	if l.Box != nil {
 		result["bbox"] = []float64{l.Box.Left, l.Box.Top, l.Box.Right, l.Box.Bottom}

@@ -8,7 +8,7 @@ Commit重新授权并将冻结的完整候选交给CandidateRepository。仓储�
 
 平台错误区分ErrCandidateRejected（确定没有提交效果）和ErrCandidateCommitUnknown（需要核对）。仓储返回未分类的网络/超时错误或不匹配的成功回执时，服务按提交结果未知处理。未知优先于拒绝，不向上层转发供应商细节。调用方必须保留同一个PreparedCandidate进行Commit重试，不能重新调用Prepare或分配新CandidateID，否则解析非确定性可能导致同ID不同内容冲突。
 
-PreparedCandidate当前是进程内不透明值，不包含跨重启恢复协议。长时间失败后原请求/scope过期，需要通过受控恢复入口刷新授权并核对原候选，这一入口尚未实现；不能延长旧凭据或绕过期限。生产API不能把它当成已完成的持久任务系统。
+PreparedCandidate现在可通过 `CandidateService.EncodePreparedCandidate` 持久化为带格式和 SHA-256 封装的有界记录，再用 `DecodePreparedCandidate` 恢复同一解析输出；新增 `FilePreparedCandidateStore` 提供私有目录、原子写入、同候选幂等、冲突拒绝和删除实现。恢复不会延长原请求/scope期限，Commit 仍必须重新授权并由仓储执行 CAS。该接口提供跨重启候选重试的安全编码边界，但完整持久任务租约、恢复入口和后台调度仍需上层实现，生产API不能把编码接口单独当成完整任务系统。
 
 验证包括解析前拒绝、解析后撤权、宿主配置/主体匹配、scope期限截断、解析器和回调修改隔离、未知提交不重新解析且保持原输出、成功回执错误和确定拒绝分类。真实本地文件/Markdown解析与本服务串联，候选仓储和权限是fixture。成熟Office/PDF独立解析探针、真实PG事务、当前IAM、HTTP/MCP和完整流水线配置归一化仍须分别完成验收。
 

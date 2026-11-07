@@ -83,3 +83,5 @@ python docs/architecture/check_postgres_wsl.py --major 18 --port 55434
 后续进展：[关键词索引准备](INDEX_PREPARATION.md)已使用ReadOwned，增加prepare_index/inspect_index两种宿主授权动作，和读取一样要求精确有效租约；默认复合适配器以同一数据库事务锁保护整个写入，另开事务检查实际持久投影。该项的108项矩阵更新了运行记录，不改变本文原有96项阶段记录的范围。任务完成、持续队列和最终发布仍未实现。
 
 后续已实现[准备任务完成](PREPARATION_COMPLETION.md)，新增complete宿主授权动作；首次完成要求精确当前租约，历史成功回执允许在执行租约到期后由当前获准主体对账，明确区分历史结果与当前执行权。当前多版本矩阵更新至每版122项；持续队列、取消/重试、最终发布及完整TaskRepository仍待贯通。
+
+2026-10-30运行增量：`pkg/preparation.Runner.RunOnce` 已提供单次有界 Worker 步骤，`Runner.Run` 进一步提供可取消的轮询、无任务退避和错误回调，串联持久 Claim、租约绑定的 ReadOwned、索引准备和 Completion。新增 `postgres.PublicationQueue.Next` 从 queued task head 做有界发现并生成稳定幂等 claim/request ID，并新增 SDK 无关的 `RedisPublicationSource`（LPop/RPush 端口）可直接接入 Redis list；准备或完成失败不会伪造失败回执，任务保留由租约过期/fencing 接管。

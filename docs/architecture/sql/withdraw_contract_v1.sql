@@ -298,9 +298,45 @@ CREATE TABLE draft_heads(
  space_id platform_id NOT NULL,kb_id platform_id NOT NULL,document_id platform_id NOT NULL,id platform_id NOT NULL,
  row_version uint64_value NOT NULL CHECK(row_version>0),state text NOT NULL CHECK(state IN('draft','submitted')),
  payload jsonb NOT NULL CHECK(jsonb_typeof(payload)='object' AND octet_length(payload::text)<=8388608),
- PRIMARY KEY(space_id,kb_id,document_id,id),UNIQUE(id),
+ PRIMARY KEY(space_id,kb_id,document_id,id),UNIQUE(id),UNIQUE(space_id,kb_id,id),
  FOREIGN KEY(space_id,kb_id,document_id) REFERENCES documents(space_id,kb_id,id),
  CHECK(coalesce(payload->>'ID'=id AND payload->>'DocumentID'=document_id AND payload->>'State'=state AND (payload->>'RowVersion')::numeric=row_version,false))
+);
+-- Human draft edits use their own idempotency/effect records. A submitted
+-- draft remains immutable; editable rows advance by row-version CAS.
+CREATE TABLE draft_edit_receipts(
+ space_id platform_id NOT NULL,kb_id platform_id NOT NULL,document_id platform_id NOT NULL,draft_id platform_id NOT NULL,
+ actor_id platform_id NOT NULL,command_key platform_id NOT NULL,request_digest sha256_value NOT NULL,receipt jsonb NOT NULL CHECK(jsonb_typeof(receipt)='object'),
+ PRIMARY KEY(space_id,actor_id,command_key),UNIQUE(space_id,kb_id,document_id,draft_id,actor_id,command_key),
+ FOREIGN KEY(space_id,kb_id,document_id,draft_id) REFERENCES draft_heads(space_id,kb_id,document_id,id)
+);
+CREATE TABLE draft_edit_audit(
+ space_id platform_id NOT NULL,kb_id platform_id NOT NULL,draft_id platform_id NOT NULL,row_version uint64_value NOT NULL,
+ actor_id platform_id NOT NULL,request_id platform_id NOT NULL,action text NOT NULL CHECK(action='document.edit'),actor jsonb NOT NULL,
+ occurred_at timestamptz NOT NULL DEFAULT transaction_timestamp(),PRIMARY KEY(space_id,kb_id,draft_id,row_version),
+ FOREIGN KEY(space_id,kb_id,draft_id) REFERENCES draft_heads(space_id,kb_id,id),
+ CHECK(jsonb_typeof(actor)='object')
+);
+CREATE TABLE draft_edit_outbox(
+ space_id platform_id NOT NULL,kb_id platform_id NOT NULL,draft_id platform_id NOT NULL,row_version uint64_value NOT NULL,
+ event_type text NOT NULL CHECK(event_type='draft.edited'),payload jsonb NOT NULL CHECK(jsonb_typeof(payload)='object'),
+ PRIMARY KEY(space_id,kb_id,draft_id,row_version),
+ FOREIGN KEY(space_id,kb_id,draft_id,row_version) REFERENCES draft_edit_audit(space_id,kb_id,draft_id,row_version)
+);
+CREATE TABLE draft_create_receipts(
+ space_id platform_id NOT NULL,kb_id platform_id NOT NULL,document_id platform_id NOT NULL,draft_id platform_id NOT NULL,
+ actor_id platform_id NOT NULL,command_key platform_id NOT NULL,receipt jsonb NOT NULL CHECK(jsonb_typeof(receipt)='object'),
+ PRIMARY KEY(space_id,actor_id,command_key),UNIQUE(draft_id),
+ FOREIGN KEY(space_id,kb_id,document_id,draft_id) REFERENCES draft_heads(space_id,kb_id,document_id,id)
+);
+CREATE TABLE draft_create_audit(
+ space_id platform_id NOT NULL,kb_id platform_id NOT NULL,document_id platform_id NOT NULL,draft_id platform_id NOT NULL,actor_id platform_id NOT NULL,request_id platform_id NOT NULL,
+ action text NOT NULL CHECK(action='draft.created'),occurred_at timestamptz NOT NULL DEFAULT transaction_timestamp(),PRIMARY KEY(space_id,kb_id,draft_id),
+ FOREIGN KEY(space_id,kb_id,document_id,draft_id) REFERENCES draft_heads(space_id,kb_id,document_id,id)
+);
+CREATE TABLE draft_create_outbox(
+ space_id platform_id NOT NULL,kb_id platform_id NOT NULL,draft_id platform_id NOT NULL,event_type text NOT NULL CHECK(event_type='draft.created'),payload jsonb NOT NULL CHECK(jsonb_typeof(payload)='object'),
+ PRIMARY KEY(space_id,kb_id,draft_id),FOREIGN KEY(space_id,kb_id,draft_id) REFERENCES draft_create_audit(space_id,kb_id,draft_id)
 );
 CREATE TABLE draft_candidates(
  space_id platform_id NOT NULL,kb_id platform_id NOT NULL,document_id platform_id NOT NULL,draft_id platform_id NOT NULL,id platform_id NOT NULL,

@@ -28,6 +28,9 @@ func TestSemanticRankingUsesVectorsAndRejectsDimension(t *testing.T) {
 	if err != nil || ranked[0].ChunkID != "b" || ranked[0].Score != 1 || len(cache) != 2 {
 		t.Fatal("vector ranking differs", err)
 	}
+	if ranked, _, err = Rank(context.Background(), request, "who handles outages", items, spec, embed, nil, 100); err != nil || len(ranked) != len(items) {
+		t.Fatal("candidate budget of 100 was rejected", err)
+	}
 	bad := embedFunc(func(_ context.Context, q contracts.EmbedRequest) (contracts.EmbedResult, error) {
 		return contracts.EmbedResult{Spec: q.Spec, Vectors: []contracts.Vector{{1}, a, b}}, nil
 	})

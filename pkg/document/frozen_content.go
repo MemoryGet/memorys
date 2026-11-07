@@ -122,7 +122,7 @@ func frozenUTF8(v reflect.Value) bool {
 }
 
 func (b frozenBuilder) locator(l contracts.Locator) (map[string]any, error) {
-	if l.Precision != "exact" && l.Precision != "coarse" {
+	if l.Precision != "exact" && l.Precision != "coarse" && l.Precision != "ocr" && l.Precision != "transcript" {
 		return nil, ErrFrozenContent
 	}
 	r := map[string]any{"precision": l.Precision}

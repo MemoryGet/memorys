@@ -10,6 +10,7 @@ import (
 
 	"github.com/MemoryGet/memorys/pkg/contracts"
 	"github.com/MemoryGet/memorys/pkg/modelclient"
+	"github.com/MemoryGet/memorys/pkg/parser"
 	"github.com/MemoryGet/memorys/pkg/parserprocess"
 )
 
@@ -19,24 +20,97 @@ func ollamaURL() string {
 	}
 	return "http://127.0.0.1:11434"
 }
-func converter() (parserprocess.MarkItDown, error) {
+func parserPaths() (string, string, error) {
 	python := os.Getenv("MEMORYS_PARSER_PYTHON")
 	if python == "" {
 		python = filepath.Join(".local", "markitdown-env", "Scripts", "python.exe")
 	}
-	worker := os.Getenv("MEMORYS_PARSER_WORKER")
-	if worker == "" {
-		worker = filepath.Join("tools", "parsers", "markitdown_worker.py")
-	}
 	python, err := filepath.Abs(python)
 	if err != nil {
-		return parserprocess.MarkItDown{}, errState
+		return "", "", errState
+	}
+	worker := filepath.Join("tools", "parsers", "markitdown_worker.py")
+	if configured := os.Getenv("MEMORYS_PARSER_WORKER"); configured != "" {
+		worker = configured
 	}
 	worker, err = filepath.Abs(worker)
 	if err != nil {
-		return parserprocess.MarkItDown{}, errState
+		return "", "", errState
+	}
+	return python, worker, nil
+}
+
+func converter() (parserprocess.MarkItDown, error) {
+	python, worker, err := parserPaths()
+	if err != nil {
+		return parserprocess.MarkItDown{}, err
 	}
 	return parserprocess.MarkItDown{Python: python, Script: worker}, nil
+}
+
+func pdfConverter() (parserprocess.PyPDF, error) {
+	python, _, err := parserPaths()
+	if err != nil {
+		return parserprocess.PyPDF{}, err
+	}
+	worker := os.Getenv("MEMORYS_PDF_PARSER_WORKER")
+	if worker == "" {
+		worker = filepath.Join("tools", "parsers", "pypdf_worker.py")
+	}
+	worker, err = filepath.Abs(worker)
+	if err != nil {
+		return parserprocess.PyPDF{}, errState
+	}
+	return parserprocess.PyPDF{Python: python, Script: worker}, nil
+}
+
+func ocrConverter() (parserprocess.OCR, error) {
+	python, _, err := parserPaths()
+	if err != nil {
+		return parserprocess.OCR{}, err
+	}
+	worker := os.Getenv("MEMORYS_OCR_WORKER")
+	if worker == "" {
+		worker = filepath.Join("tools", "parsers", "ocr_worker.py")
+	}
+	worker, err = filepath.Abs(worker)
+	if err != nil {
+		return parserprocess.OCR{}, errState
+	}
+	return parserprocess.OCR{Python: python, Script: worker}, nil
+}
+
+func transcriptionConverter() (parserprocess.Transcription, error) {
+	python, _, err := parserPaths()
+	if err != nil {
+		return parserprocess.Transcription{}, err
+	}
+	worker := os.Getenv("MEMORYS_TRANSCRIPTION_WORKER")
+	if worker == "" {
+		worker = filepath.Join("tools", "parsers", "transcribe_worker.py")
+	}
+	worker, err = filepath.Abs(worker)
+	if err != nil {
+		return parserprocess.Transcription{}, errState
+	}
+	return parserprocess.Transcription{Python: python, Script: worker}, nil
+}
+
+// originalConverter selects a page-aware PDF converter when it is healthy.
+// The MarkItDown fallback keeps existing installations usable when pypdf is
+// not present; exact drafts are never silently verified by the coarse path.
+func originalConverter(ctx context.Context, format string, preferExact bool) (parser.OfficeConverter, string, error) {
+	if format == "pdf" && preferExact {
+		pdf, err := pdfConverter()
+		if err == nil && pdf.Health(ctx) == nil {
+			return pdf, "pypdf/6.19.0", nil
+		}
+	}
+	mark, err := converter()
+	if err != nil {
+		return nil, "", err
+	}
+	return mark, "markitdown/0.1.3", nil
 }
 
 // enableAI explicitly advances the sealed local policy. A DB-committed,
@@ -93,11 +167,13 @@ func (s *state) upgradeAI(ctx context.Context, db *sql.DB, spec contracts.Embedd
 	if tx.QueryRowContext(ctx, "SELECT version FROM akos_withdraw_v1.access_policy_heads WHERE space_id=$1 FOR UPDATE", s.m.Space).Scan(&version) != nil {
 		return errDatabase
 	}
-	if version == 1 {
+	// Base local ACL is version 3 (it includes withdrawal and document delete).
+	// Enabling optional parsing/answering creates the sealed feature snapshot at v4.
+	if version == 3 {
 		if s.validateDB(ctx, tx) != nil {
 			return errDatabase
 		}
-		if _, err = tx.ExecContext(ctx, "INSERT INTO akos_withdraw_v1.access_policy_snapshots VALUES($1,2,false)", s.m.Space); err != nil {
+		if _, err = tx.ExecContext(ctx, "INSERT INTO akos_withdraw_v1.access_policy_snapshots VALUES($1,4,false)", s.m.Space); err != nil {
 			return errDatabase
 		}
 		for _, r := range upgraded.grants() {
@@ -105,13 +181,13 @@ func (s *state) upgradeAI(ctx context.Context, db *sql.DB, spec contracts.Embedd
 				return errDatabase
 			}
 		}
-		if _, err = tx.ExecContext(ctx, "UPDATE akos_withdraw_v1.access_policy_snapshots SET sealed=true WHERE space_id=$1 AND version=2", s.m.Space); err != nil {
+		if _, err = tx.ExecContext(ctx, "UPDATE akos_withdraw_v1.access_policy_snapshots SET sealed=true WHERE space_id=$1 AND version=4", s.m.Space); err != nil {
 			return errDatabase
 		}
-		if _, err = tx.ExecContext(ctx, "UPDATE akos_withdraw_v1.access_policy_heads SET version=2 WHERE space_id=$1 AND version=1", s.m.Space); err != nil {
+		if _, err = tx.ExecContext(ctx, "UPDATE akos_withdraw_v1.access_policy_heads SET version=4 WHERE space_id=$1 AND version=3", s.m.Space); err != nil {
 			return errDatabase
 		}
-	} else if version != 2 {
+	} else if version != 4 {
 		return errDatabase
 	}
 	if upgraded.validateDB(ctx, tx) != nil {

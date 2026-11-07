@@ -25,6 +25,9 @@ def run():
 
     refs(spec)
     schemas = spec["components"]["schemas"]
+    evidence_schema = schemas["Evidence"]
+    assert evidence_schema["properties"]["source_metadata"] == {"$ref": "#/components/schemas/SourceMetadata"}
+    assert schemas["SourceMetadata"]["required"] == ["title", "publication_status", "publication_epoch"]
     for schema in schemas.values():
         Draft202012Validator.check_schema(schema)
 
@@ -39,7 +42,9 @@ def run():
         "ReadRequest": {"document_id": "doc-1"},
         "AskRequest": {"question": "产品怎么使用", "space_id": "space-1", "stream": False},
         "FeedbackRequest": {"space_id": "space-1", "citation": citation, "kind": "incorrect", "comment": "请核对", "idempotency_key": "key-1"},
-        "SearchResult": dict(trace, evidence=[{"citation": citation, "source_excerpt": "说明", "rank": 1}]),
+        "SearchResult": dict(trace, evidence=[{"citation": citation, "source_excerpt": "说明", "rank": 1,
+                                                "source_metadata": {"title": "产品说明", "publication_status": "published",
+                                                                     "publication_epoch": 3}}]),
         "ReadResult": dict(trace, document_id="doc-1", revision_id="rev-1", blocks=[], citations=[]),
         "AskResult": dict(trace, answer="证据不足", citations=[], status="insufficient_evidence"),
         "FeedbackResult": {"request_id": "req-1", "feedback_id": "feedback-1", "state": "received"},
@@ -65,6 +70,8 @@ def run():
         ("SearchRequest", dict(samples["SearchRequest"], user_id="spoofed")),
         ("SearchRequest", dict(samples["SearchRequest"], top_k=101)),
         ("SearchRequest", dict(samples["SearchRequest"], kb_ids=None)),
+        ("SearchRequest", dict(samples["SearchRequest"], source_kind="secret")),
+        ("SearchRequest", dict(samples["SearchRequest"], updated_after=1)),
         ("FeedbackRequest", dict(samples["FeedbackRequest"], target_request_id="req-1")),
         ("FeedbackRequest", {k: v for k, v in samples["FeedbackRequest"].items() if k != "citation"}),
         ("AskResult", dict(samples["AskResult"], backend_id="private")),

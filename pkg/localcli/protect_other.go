@@ -12,7 +12,7 @@ func protect(path string, directory bool) error {
 	return os.Chmod(path, mode)
 }
 
-func transientStateDirectoryRename(error) bool { return false }
+func transientStateRename(error) bool { return false }
 func renameStateDirectory(stage, target string) error {
 	return os.Rename(stage, target)
 }

@@ -1,3 +1,53 @@
+2026-10-30最新增量：检索证据核对面板补充最终排名与相关分数，和已有检索路径、版本、发布状态、更新时间、标签及原文定位一起展示，便于解释混合召回/重排结果。Dashboard 构建通过。
+
+2026-10-30最新增量：来源反馈新增“创建修订草稿”操作：对引用不准确、缺少来源或内容过期反馈，服务端在当前授权下复制当前文档文本为新草稿，将 `proposal_draft_id` 回写反馈；后续仍必须按原有编辑、提交审核、批准和发布流程处理，不直接改发布版本。Dashboard 可直接打开新草稿。全量 Go 测试和 Dashboard 构建通过。
+
+2026-10-30最新增量：反馈评测新增本地评测集草稿持久化：`POST/GET /local/api/evaluation-sets` 与单集读取会保存创建时的筛选条件和反馈快照，支持按当前 Dashboard 文档/版本/标签/时间范围一键保存，避免后续反馈状态变化导致评测样本漂移。localcli 单测、全量 Go 回归和 Dashboard 构建通过。
+
+2026-10-30最新增量：检索证据卡片对带音频转写时间段的原件引用新增播放器，加载后定位到 `start_ms`，播放到 `end_ms` 自动暂停；播放器仍使用当前发布版本的原件读取 URL，不绕过授权。Dashboard 构建通过。
+
+2026-10-30最新增量：反馈和评测接口新增按文档、版本、标签筛选，筛选在本地会话授权边界内执行；Dashboard 反馈面板可按这些范围生成覆盖数、帮助率和问题率报告，导出接口同步支持版本/标签条件。localcli 单测、全量 Go 回归和 Dashboard 构建通过。
+
+2026-10-30最新增量：本地工作台新增受会话保护的 `GET /local/api/tags` 标签统计，按当前知识库的未删除文档返回标签使用次数；Dashboard 用统计结果提供标签输入建议，标签筛选仍在服务端执行。localcli 单测和 Dashboard 构建通过。
+
+2026-10-30最新增量：本地文档列表新增服务端标签筛选，支持逗号分隔/重复参数的归一化；筛选条件写入分页游标，服务端跨底层页扫描到足够匹配项，避免标签过滤造成分页漏项。Dashboard 增加标签输入与应用操作，localcli 回归测试和前端构建通过。
+
+2026-10-30最新增量：Dashboard 任务暂停、取消、重试失败时不再静默吞错，现展示安全错误和冲突/权限恢复提示；成功操作仍按当前时间筛选刷新任务列表。前端构建通过。
+
+2026-10-30最新增量：反馈评测面板新增起止日期筛选，反馈列表和评测报告共享半开 RFC3339 时间范围；新增反馈时间过滤回归测试，localcli 单测与 Dashboard 构建通过。
+
+2026-10-30最新增量：本地流式和 JSON 知识问答现在接收并执行来源类型、发布状态、标签和更新时间筛选；候选在语义排序/模型调用前按当前文档事实、发布历史和标签裁剪，筛选后无证据继续返回拒答状态，答案引用只来自筛选后的候选。新增筛选解析测试，全量 Go/vet、契约检查和 Dashboard 构建通过。
+
+2026-10-30最新增量：本地任务中心任务快照增加创建时间，`/local/api/jobs` 支持 `created_after`/`created_before` 严格时间范围过滤；解析任务使用本地持久时间，发布/删除任务分别使用启动审计和发布历史时间，Dashboard 增加日期筛选和任务创建时间展示。localcli 单测和 Dashboard 构建通过。
+
+2026-10-30最新增量：伙伴搜索继续补齐标签筛选，新增严格 `tags` 数组校验（去空白、去重、数量和长度上限），来源元数据返回标签并按全部标签匹配；同步更新 OpenAPI/MCP Schema 和测试。标签缺失或元数据不可用时过滤默认拒绝，避免越权扩大结果。
+
+2026-10-30最新增量：管理任务列表新增 `created_after`/`created_before` RFC3339 时间筛选，解析、发布和删除任务分别按权威创建/启动/历史时间在 PostgreSQL 侧过滤；分页游标绑定类型、状态、文档和时间条件，避免换条件复用旧游标。`paused` 状态同时加入管理 API 和本地任务筛选。相关 API/运行时单测、管理契约生成检查和架构依赖检查通过。
+
+2026-10-30最新增量：伙伴搜索 API 与本地检索筛选能力对齐，新增 `source_kind`、`updated_after`、`updated_before` 字段；请求仍严格拒绝未知字段和非法时间，筛选后重排证据排名并同步更新 OpenAPI/MCP 契约。伙伴定向测试、全量 Go 测试、go vet、伙伴契约检查和 Dashboard 构建通过；完整 OpenAPI 校验仍缺少宿主 `openapi_spec_validator` 依赖。
+
+2026-10-30最新增量：检索证据的“打开原件”链接统一保留定位片段，支持 PDF 页码、Office 幻灯片/工作表/单元格/段落和音频起止时间参数；异步任务列表新增“已暂停”筛选；Dashboard 生产构建通过。
+
+2026-10-30最新增量：`memorys-local` 初始化会按已安装任务表自动应用 `publication_tasks_v2` 和 `parse_tasks_v3` 暂停迁移；纯文本数据库不执行不存在的解析表迁移，Dashboard 暂停按钮不再依赖手工迁移步骤。
+
+2026-10-30最新增量：本地 Dashboard 异步任务列表接入暂停/恢复操作和 `paused` 状态展示；解析任务支持运行中安全暂停并保留输入文件，发布任务通过同一 CAS 控制接口写入暂停状态，Vite 生产构建和 localcli 回归通过。
+
+2026-10-30最新增量：发布任务控制新增持久化 `paused` 状态和 `POST /publication-jobs/{id}/pause`，暂停清除 publication lease、推进 fencing 并写入 superseded receipt/audit/outbox；发布重试现允许从 paused 创建新的 queued publication job。新增 `publication_tasks_v2.sql` 和 `-with-publication-pause` 迁移开关，管理契约更新为 30 个操作。
+
+2026-10-30最新增量：解析任务控制新增持久化 `paused` 状态和管理 API `POST /parse-jobs/{id}/pause`；暂停使用当前 Job 版本 CAS，清理运行租约并推进 fencing，记录审计/outbox，重试可从 paused 恢复为 queued；新增 `parse_tasks_v3.sql` 和 `-with-parse-pause` 迁移开关。管理契约更新为 29 个操作。
+
+2026-10-30最新增量：发布准备 Worker 接入服务器可选装配。`publicationassembly` 在显式启用并提供 Worker Bearer Token、space/KB/worker 身份后，将 PostgreSQL publication queue、租约/fencing、chunk splitter、真实索引准备和 completion 回执接入 `preparation.Service` 生命周期；任务读取、Worker 权限和原发布者权限分别重新核验。
+
+2026-10-30最新增量：解析 Worker 增加全局分区队列模式（`MEMORYS_PARSE_ALL=1`），可跨空间/知识库领取 queued 或过期任务；租约回写携带原始分区，候选授权按任务 Scope 复核，避免跨租户提交。默认仍是显式单分区模式。
+
+2026-10-30最新增量：服务器新增可选的真实解析 Worker 装配：独立 `parseassembly` 层在显式启用并提供空间、知识库、Worker 身份、Blob 根目录和解析器配置后，先健康探测 Markdown/Office/PDF/OCR/音频工具，再将持久 parse task、候选事务仓储和当前授权复核接入同一后台生命周期；未配置或工具不健康时保持 fail-closed，不伪造 Worker。
+
+2026-10-30最新增量：修正管理上传任务的 MIME→解析格式映射，DOCX/XLSX/PPTX/PDF、图片、音频和 Markdown 现在进入解析器要求的规范格式，避免 Office 上传后因 MIME 子类型错误被拒绝；新增映射回归测试。
+
+2026-10-30最新增量：Bootstrap新增可注入解析 Worker 生命周期，宿主可把持久解析任务队列和 `ingestion.ParseWorker` 接入统一启动、停止、就绪与错误隔离；上传接口仍只负责入队，解析执行不再需要绕过服务器生命周期。`go test ./...`、`go vet ./...` 通过。
+
+2026-10-30最新增量：伙伴搜索结果补充可选来源元数据（标题、发布状态、发布epoch、更新时间），本地搜索与管理仪表盘展示来源标题；XLSX解析按工作表输出结构化表格块和精确单元格锚点，并加强伙伴OpenAPI `$ref` 结构回归检查。前端Vite构建、Go全量测试、go vet、管理/伙伴契约检查通过；真实PostgreSQL/Redis/IAM和完整OpenAPI验证环境仍待补齐。
+
 2026-10-18最新增量：严格BuildLock构造路径现在要求assembler实现`ProductionHealthAssembler`，在启动HTTP/Runner前检查真实DB、IAM和模块健康；检查失败会关闭资源并拒绝启动。当前本地630项门禁通过。
 
 2026-10-18最新增量：严格BuildLock构造路径新增`CoversRuntimeModules`，在调用assembler前核对实际kernel模块目录与锁定provider/release集合精确一致，拒绝缺失、额外或重复模块；本地630项门禁通过。
@@ -448,4 +498,86 @@ flowchart TB
 2026-10-16最新进展：新增[AuthenticatedControl](architecture/AUTHENTICATED_CURRENT_CONTROL.md)，绑定已准备操作并通过标准Authenticator、Authorizer及CurrentFactsSource逐次重新认证、授权和读取当前配置/审核规则；不复用旧Principal作为认证结果。凭据副本、认证后清除、关闭后拒绝、日志/JSON脱敏、范围/资源/请求绑定和提供者错误隔离已验证；后端期间撤销凭据会在最终重新认证时阻止继续授权。实库CheckCurrent正向链路已使用该编排，认证/授权提供者仍为fixture，规则/索引/正文/原件实际读取。
 
 同一479项输入与同一探针在三版PG各通过184项检查，独立样本确认认证和授权各两次并保留fixture身份标记；Go全量测试/vet、228项Python、三份OpenAPI及成熟组件回归均通过，PG测试资源清理已核对。下一步接入实际身份与策略/配置来源及统一应用服务；生产IAM/RLS、Grant账本、模块部署、最终模型/API/MCP输出、Recall/性能与迁移回退继续开放。
+2026-10-30：伙伴任务 API 新增 PostgreSQL 解析任务的状态、取消和重试路由（`/api/v1/knowledge-os/parse-jobs/{id}`）。读取器从任务绑定命令解析文档/知识库并重新申请 `document.create`，控制按 row version 调用持久仓储；解析重试回到 queued，未装配时仍安全返回 capability_missing。
+2026-10-30：新增 SDK 无关的 Redis 解析任务触发器。Redis 只携带有界 `task_id`，PostgreSQL 继续负责 queued/running/failed、租约和 fencing；Redis 无消息时自动回退 PostgreSQL queued 扫描，避免通知丢失造成任务饥饿。解析队列单测通过，真实 Redis/PG 联合 Worker 仍待验收。
+2026-10-30：PostgreSQL 解析任务新增 fenced `failed` 回写；Worker 仅在结构/准备阶段失败时写入安全错误，提交或完成返回未知错误时保留租约等待接管，避免把不确定副作用伪装成失败。迁移、队列适配和 Worker 单测通过，真实崩溃/未知提交恢复仍待 PostgreSQL 生命周期验收。
+2026-10-30：本地任务中心新增严格服务端筛选，支持 `kind`、`state`、`document_id`，拒绝重复、未知和非法筛选值；发布、删除清理和解析任务仍共用同一授权快照与 SSE 完整快照协议。
+2026-10-30：新增[上传并入队解析 HTTP 边界](architecture/UPLOAD_PARSE_RUNTIME.md)。`UploadParseHandler` 由可信准备器提供文档/草稿/候选/Job 绑定，multipart 文件经 `UploadParseService` 写入 Blob 后创建 queued parse task，任务创建失败补偿删除原件；Bootstrap 支持显式挂载，未装配继续安全返回 503。
+2026-10-30：新增[SDK 无关对象存储适配器](architecture/OBJECT_STORAGE_ADAPTER.md)。`ObjectBlobStore` 通过最小 `PutObject/GetObject/DeleteObject` 端口接入 S3/MinIO/Azure 等实现，复用 Scope 授权、命名空间隔离、大小/SHA-256/EOF 校验和稳定幂等 Blob ID；真实云对象存储客户端、网络重试、版本删除与故障恢复验收仍待宿主装配。
 2026-10-18当前稳定窗口更新：加入FactoryRegistry及Profile→kernel可替换工厂解析后的625项源码快照已通过PG16.15 WSL完整探针，临时实例停止与资源清理完成；fixture身份/部署仍使`production_acceptance=false`。见[当前PG证据](architecture/evidence/current-postgres16-wsl.json)。
+2026-10-30：任务中心前端补齐解析任务的失败重试和 queued/running 取消动作，并对尚未生成文档 ID 的任务显示待解析绑定提示；Dashboard Vite 生产构建通过。
+2026-10-30：伙伴 API 新增发布准备任务状态查询 `/api/v1/knowledge-os/publication-jobs/{id}`；读取器通过 publication intent 解析文档/知识库绑定后重新申请 `publication.publish`，不会把 worker lease 当作用户权限。发布取消/重试仍需保留发布意图、审批和后端代际校验。
+2026-10-30：发布准备任务新增伙伴取消路由 `/api/v1/knowledge-os/publication-jobs/{id}/cancel`。取消通过 PostgreSQL fencing、superseded receipt、audit/outbox 和 row-version CAS 原子落库；发布重试仍不直接重置任务行，需后续重建新的发布意图。
+2026-10-30：发布失败重试新增伙伴路由 `/api/v1/knowledge-os/publication-jobs/{id}/retry`。重试从失败任务的 publication intent 读取 revision/approval/epoch，重新申请 `publication.start` 并创建新 Job，旧 Job 保持 failed；响应同时返回 `previous_job_id` 和新 `job_id`。
+2026-10-30：本地任务中心筛选新增 `error_code`，可按解析/依赖/权限等安全失败原因码筛选，仍在授权后的任务快照上执行。
+2026-10-30：伙伴 API 为删除、解析和发布 Job 新增 `/events` SSE 快照流，支持 `Last-Event-ID` 续号；每次轮询重新调用任务应用，权限撤销或读取失败即关闭，不把事件 ID 当作授权游标。
+2026-10-30：本地反馈评测新增 `GET /local/api/evaluation`，支持状态、类型和 RFC3339 时间范围筛选，返回样本数、判断率、helpful/issue 比率以及唯一查询/文档/版本覆盖，不返回原始问题或评论。
+2026-10-30：Dashboard 状态页接入评测汇总，反馈面板现在显示 helpful/issue 比率及问题、文档、版本覆盖范围；生产构建通过。
+2026-10-30：本地 runtime 不再拒绝 `EnableRerank` 配置，默认接入有界 `knowledge.LexicalReranker`；它只重排已授权候选并保留引用，模型实现可替换同一 Reranker 端口。
+2026-10-30：本地检索证据补齐原件锚点透传与历史版本原件读取。`webCitation` 保留 `derived_from` 的 Blob/定位信息；新增 `/local/api/original/{document}/{revision}/{blob}`，服务端仅接受已发布版本、重新校验 revision payload、文档归属和 `original.read` 权限后流式打开或下载原件。Dashboard 证据卡片增加打开/下载原件入口，保留页码、幻灯片、工作表、单元格和段落定位；局部/全量 Go、vet 和 Dashboard 构建通过。
+2026-10-30：本地状态接口加入会话过期时间（只读 `session_expires_at`），Dashboard 运行状态页在剩余十分钟内提示刷新，过期后提示重新建立会话；不返回 Cookie 或签名材料。局部 Go 回归和 Dashboard 构建通过。
+2026-10-30：音频转写补齐 segment 时间定位。Whisper worker 改为读取受限 JSON segment（起止秒转毫秒），解析器按 segment 生成文本块并绑定 `transcript` 字符范围与 `start_ms/end_ms`；module wire、伙伴 OpenAPI/MCP DTO、反馈输入和本地证据卡片同步支持时间段显示。全量 Go、vet、架构测试和 MCP 契约生成检查通过。
+2026-10-30：OCR 解析补齐每页置信度。Tesseract worker 从 TSV 词级结果计算有界平均置信度，解析器绑定 `ocr` 块的 `confidence`（0-100）；伙伴 REST/MCP、反馈 DTO、module wire 和本地证据卡片同步透传显示。旧 worker 响应可省略该字段，Go 全量、vet、OpenAPI、MCP 和 Dashboard 构建通过。
+2026-10-30：管理 API 新增审核决定传输边界 `/api/v1/knowledge-os/revisions/{revision_id}/approval-decisions`。严格校验 Bearer、revision 路径、JSON 字段、`approve/reject/revoke` 决定、原因长度和 profile digest；可信应用负责文档归属、审核授权、CAS 与持久事务，Bootstrap 未注入 Review 服务时继续返回 `capability_missing`。审核 handler 单测、Go 回归和 Bootstrap 回归通过。
+2026-10-30：审核应用已由 `localruntime.Search` 实际装配。它认证令牌、按 revision 解析文档/知识库、重新申请 `revision.approve` 及文档资源授权、读取当前 review policy version，并调用 `postgres.Reviews` 的事务/CAS、幂等 receipt、audit/outbox；`memorys-server` 在 PostgreSQL 搜索启用时注入该应用。真实 PostgreSQL 审核端到端矩阵和其它管理读写 API仍待验收。
+2026-10-30：管理审核记录读取新增 `GET /api/v1/knowledge-os/knowledge-bases/{kb_id}/approval-requests`。localruntime 按当前认证主体扫描可见空间，重新申请 `revision.approve` 授权后按 ID 游标分页返回提交人、状态、版本、内容摘要和策略版本；游标绑定空间、知识库和主体，Bootstrap/服务器已装配，未找到可见空间返回空页。
+2026-10-30：本地 runtime 新增启动期 `Search.WithReranker` 注入点，宿主可以用模型实现替换词项重排器；注入仍受同一候选引用和当前性校验保护。
+2026-10-30：伙伴 API 新增受宿主授权的 Blob 流式下载边界 `/api/v1/knowledge-os/blobs/{blob_id}/content`；只接受逻辑 Blob ID，限制大小和媒体类型，不暴露物理路径，支持大文件有界流式传输。
+2026-10-30最新增量：本地工作台新增批量标签管理接口 `POST /local/api/tags/batch` 与列表操作。一次最多更新100篇文档，先逐文档检查 `document.create` 授权和未删除状态，再以单次 manifest 写入提交；添加/移除标签互斥、大小写归一化、重复文档和标签上限均有明确拒绝。前端勾选文档后可批量添加或移除标签；新增稳定集合合并单元测试，Go局部回归和Dashboard构建通过。标签建议、统计、服务端过滤与游标联动仍开放。
+2026-10-30：管理端新增草稿读取 `GET /api/v1/knowledge-os/drafts/{draft_id}`。localruntime 按草稿实际空间/知识库归属重新认证并申请当前 `document.create` 编辑授权，Viewer 不会因普通知识读取权限看到未发布草稿；返回带草稿版本和块版本的结构化编辑模型。Bootstrap 与 `memorys-server` 已装配，缺少应用服务时安全返回 `capability_missing`。草稿编辑 PATCH、文档/版本历史管理读写和真实 PostgreSQL 端到端矩阵仍待继续。
+2026-10-30：管理端新增草稿完整块替换 `PATCH /api/v1/knowledge-os/drafts/{draft_id}`。请求严格解析结构化块、以草稿/块版本执行 CAS，变更块递增块版本；PostgreSQL 事务写入 `draft_heads`、幂等 receipt、audit 和 outbox，冲突返回409，submitted 草稿保持不可变。localruntime 使用 `document.create` 编辑授权并在事务前后重核身份/策略；真实 PostgreSQL 端到端和前端编辑器仍待验收。
+2026-10-30：审核工作台新增冻结版本读取 `GET /api/v1/knowledge-os/revisions/{revision_id}`。localruntime 从 revision_contents 读取冻结载荷，按审核资源重新申请 `revision.approve` 并复核主体/策略；API 重建结构化块并校验 content_hash、blocks_hash 与 freeze 格式，避免未经验证的正文进入审核端。真实 PostgreSQL 审核端到端和历史分页仍待验收。
+2026-10-30：管理端新增草稿提交 `POST /api/v1/knowledge-os/drafts/{draft_id}/submit`。localruntime 按文档资源申请 `document.submit`，读取当前审核策略并调用 PostgreSQL 提交事务；冻结正文、Revision、ApprovalRequest、submitted 草稿、幂等 receipt、audit/outbox 继续由同一 CAS 事务完成，版本变化返回409，领域校验失败返回422。
+2026-10-30：管理端新增发布准备 `POST /api/v1/knowledge-os/documents/{id}/publications`。localruntime 解析文档真实空间/知识库，申请 `publication.start`，并复用 PostgreSQL 的批准内容、审核策略、后端代际和发布 intent/queued job 事务；接口返回 preparing 操作与任务，不把 queued 当成已发布。
+2026-10-30：管理端新增发布撤回 `POST /api/v1/knowledge-os/documents/{id}/withdraw`。localruntime 重新申请 `publication.withdraw`，复用 withdrawal 的当前发布快照、清理计划、历史记录、CAS、audit/outbox 和幂等命令；撤回成功递增 publication_epoch 并清空当前发布指针。
+2026-10-30：管理端新增文档发布历史 `GET /api/v1/knowledge-os/documents/{id}/history`。列表按文档资源申请独立 `publication.history.read`，游标绑定主体/空间/知识库/文档，公开字段仅包含历史动作、版本、原因和时间，不泄露内部清理目标与绑定细节。
+2026-10-30：管理端新增知识库文档目录 `GET /api/v1/knowledge-os/knowledge-bases/{kb_id}/documents`。localruntime 从真实 documents 表读取发布代际、版本、活动 revision/generation 和删除状态，先按主体发现可见空间再对返回文档集合重新申请 `knowledge.read`；游标绑定主体/空间/知识库，未发现可见空间返回空页。
+2026-10-30：管理端新增草稿重新解析 `POST /api/v1/knowledge-os/drafts/{draft_id}/parse`。localruntime 从草稿真实原件 Blob 创建确定性 parse job/candidate ID，按 `document.parse` 重新授权并写入 PostgreSQL parse task；相同草稿、主体和幂等键可重取原 queued job，任务继续复用状态、取消和重试接口。
+2026-10-30：管理端新增从文档创建草稿 `POST /api/v1/knowledge-os/documents/{id}/drafts`。localruntime 按文档版本 CAS 和 `document.create` 资源授权创建确定性草稿；可选复制指定冻结 Revision 的块、Blob 和来源锚点，空草稿也可随后通过原件解析任务填充。
+2026-10-30：管理端新增发布操作读取 `GET /api/v1/knowledge-os/publication-operations/{id}`。localruntime 通过发布 intent 的真实文档归属读取 receipt，按 `publication.publish` 资源权限重新授权后返回 preparing/ready/committed/failed 等操作状态，不把任务 ID 当作操作权限。
+2026-10-30：文档领域新增结构化草稿比较 `document.CompareDrafts`。按稳定块 ID 区分 added/removed/changed/unchanged，检测顺序、内容和块版本变化，为管理端冲突提示与版本差异视图提供无副作用基础能力。
+2026-10-30：管理端新增草稿原件替换 `POST /api/v1/knowledge-os/drafts/{draft_id}/source`。multipart 文件经过大小、媒体类型、SHA-256 和幂等校验后写入可注入 BlobStore；草稿以版本 CAS 更新原件绑定并清空旧解析块，随后创建新的 parse job。未配置 BlobStore 时安全返回 capability_missing。
+2026-10-30：管理端新增空间知识库列表 `GET /api/v1/knowledge-os/spaces/{space_id}/knowledge-bases`。localruntime 通过当前主体的显式授权发现知识库，并读取 review policy 与 publication backend head 的真实版本；游标绑定空间和主体，缺失配置不会伪造可发布状态。
+2026-10-30：管理端新增草稿版本比较 `GET /api/v1/knowledge-os/drafts/{draft_id}/compare?from_version=N`。它从编辑 receipt 恢复历史快照，对比当前草稿并返回按块 ID 的 added/removed/changed/unchanged 结果，权限仍绑定草稿所属文档的 `document.create`。
+2026-10-30：管理端新增批量审核决定 `POST /api/v1/knowledge-os/revisions:batch-approval-decisions`。单次最多100项，逐项复用现有审核应用的主体认证、revision 归属、CAS、幂等、audit/outbox 和失败隔离，响应返回每项 committed/failed/invalid_argument 明细。
+2026-10-30：管理端新增批量发布准备 `POST /api/v1/knowledge-os/publication-operations:batch-start`。单次最多100项，逐项绑定文档、revision、approval 和期望代际，复用发布准备的审核/后端代际校验与幂等任务创建，失败项可独立重试。
+2026-10-30：新增批量上传解析 `POST /api/documents/batch-upload`。每个文件都经宿主可信准备回调绑定身份、文档、草稿、候选和任务；请求最多100个文件并受有界 multipart 大小限制，响应逐项返回 queued 或错误结果；补充部分成功和文件大小冲突回归测试。
+2026-10-30：本地工作台新增真正的批量解析入口 `POST /local/api/import/batch`，一次请求最多20个文件；每个文件独立落盘、创建解析任务、执行解析并返回候选结果或失败原因，前端多选上传改为使用该入口，保留单文件接口兼容性。
+2026-10-30：伙伴管理端新增反馈分页读取 `GET /api/v1/knowledge-os/knowledge-bases/{kb_id}/feedback`。localruntime 从真实 `feedback_records` 读取文档/版本/块反馈，按当前主体重新申请 `kb.manage_feedback`，游标绑定主体、空间和知识库并在返回前复核策略版本；Bootstrap 与 `memorys-server` 已装配，缺少应用服务时安全返回 `capability_missing`。
+2026-10-30：新增知识库成员授权更新 `PUT /api/v1/knowledge-os/knowledge-bases/{kb_id}/grants/{subject_id}`。授权更新复制当前 ACL 快照、按 `expected_policy_version` CAS 修改目标主体角色（Admin/Contributor/Viewer/none）、封存并切换新策略版本；receipt、audit、outbox 与策略更新同事务提交，重复幂等键可重放，冲突返回409。迁移 `access_grant_management_v1.sql` 同时把已有 `revision.approve` 主体提升为初始管理者并补齐 `kb.manage_access`、`kb.manage_feedback`、`knowledge.read`，未装配或缺迁移时保持 fail-closed。
+2026-10-30：补充知识库成员分页 `GET /api/v1/knowledge-os/knowledge-bases/{kb_id}/grants`。仅返回当前策略中同一发行方/客户端的启用用户，按 `kb.manage_access` 授权、主体/空间/知识库绑定游标，并在返回前复核策略版本；管理 OpenAPI 更新为27项操作。
+2026-10-30：新增统一异步任务列表 `GET /api/v1/knowledge-os/jobs`。localruntime 合并解析、发布和删除任务，支持 kind/state/document_id/page_size/cursor 筛选；每个任务都按真实文档重新申请 `resource.view_job`，返回前不暴露内部绑定字段，管理 OpenAPI 更新为28项操作。
+2026-10-30：`memorys-migrate` 新增 `-with-grant-management` 选项，可在基础迁移成功后原子应用 ACL 成员管理扩展和默认管理员提升，减少部署时漏应用第二条迁移的风险。
+2026-10-30：管理端新增文档元数据读取 `GET /api/v1/knowledge-os/documents/{id}`。localruntime 根据文档真实空间/知识库读取发布代际、当前 revision/generation 和删除状态，并在返回前两次申请 `knowledge.read` 文档资源授权；与 DELETE 同路径按 HTTP 方法分流。
+2026-10-30：Bootstrap 新增 `GET /metrics` Prometheus 文本指标，提供进程运行时长、goroutine、堆内存、堆对象和 GC 周期；只输出运行时数值，不包含凭据、请求内容或用户数据。
+2026-10-30：补齐反馈闭环的管理命令 `POST /api/v1/knowledge-os/feedback/{id}/proposals`。服务会重新认证并校验 `kb.manage_feedback`/`document.create`，从反馈引用的冻结版本复制新的可编辑草稿，在同一事务写入草稿创建记录、反馈建议记录、审计和 outbox；幂等键冲突拒绝，建议不会自动审核或发布。新增 `feedback_proposals_v1.sql` 增量迁移及 `memorys-migrate -with-feedback-proposals`，严格 JSON/Bearer/幂等传输和 fail-closed 组合根路由均有测试。当前仍需真实 PostgreSQL 执行迁移并跑跨进程验收。
+2026-10-30：补齐管理端 multipart 文档上传应用 `POST /api/v1/knowledge-os/knowledge-bases/{kb_id}/documents`。请求经 Bearer/幂等/大小/摘要校验后，由 PostgreSQL runtime 认证并检查 `document.create`、`document.parse`，保存原件、文档、源草稿和草稿审计/outbox，并排队解析任务；新增 `document_metadata_v1.sql` 保存标题，服务器可通过 `MEMORYS_BLOB_ROOT` 绑定本地 BlobStore。上传不会直接发布，解析结果仍需编辑、审核和发布。当前仍需真实 PostgreSQL 执行迁移、配置 BlobStore 并验证跨进程任务恢复。
+2026-10-30：新增管理端知识库创建 `POST /api/v1/knowledge-os/spaces/{space_id}/knowledge-bases`。创建事务认证当前管理员、生成确定性 KB ID，复制并封存下一版 ACL，初始化审核策略、发布后端、查询 Profile 绑定，写入名称 metadata、幂等 receipt、审计和 outbox；服务器已接入组合根。需先应用 `knowledge_base_management_v1.sql`，当前仍需真实 PostgreSQL 验证策略头、配置头和跨进程幂等恢复。
+2026-10-30：增强 XLSX 来源结构：解析器现在按工作表把已验证的单元格聚合为 `TableContent`，保留 0-based 行列、worksheet、cell range、逐单元格来源锚点和 exact 定位；原有文本/Office/PDF/OCR/音频路径保持不变。新增结构化 XLSX 解析回归测试，表格内容会继续进入统一候选/冻结格式。
+2026-10-30：检索结果新增可选 `source_metadata`：当前发布文档的标题、`published/deleted` 状态、publication epoch 和最近发布/撤回时间由服务端事实源装饰，伙伴 Search REST 与 OpenAPI 已同步；客户端不再自行推断版本状态。无 metadata 迁移的旧数据库仍回退文档 ID，保持搜索兼容。
+2026-11-02最新增量：将未完成的正式验收拆成 M1–M7 七个可独立结束的微任务，分别固定输入、时限、产物和通过条件，避免长轮次中断后只能得到一个未完成总结果。M1 验收工具回归已完成：回答捕获、资源边界和原始记录审计三组离线回归全部通过；该结果只证明审计工具，不增加正式性能验收分数。详见 [验收微任务拆分](architecture/ACCEPTANCE_MICROTASKS.md)。
+2026-11-02最新增量：M2 回答证据微任务已完成准备步骤，捕获驱动、独立审计器和证据哈希已通过自测并封存；真实六次回答仍等待下一轮新正式运行，不把历史响应拼入当前验收。
+2026-11-02最新增量：M3 两小时稳定性先执行 60 秒前置检查，墙钟稳定但 CPU 峰值 29.7% 超过 25% 门槛，已安全停止在启动前，未消耗长测时间；待主机负载下降后只重做该前置检查。
+2026-11-02最新增量：M3 已用当前源码完成迁移、500 份文档导入/发布和固定快照准备，关键词预热通过；语义预热 HTTP 400，长测暂不启动。期间修复 `draft_heads` 复合唯一键、迁移摘要校验和新建文本草稿确定性校验；内置 Go 全量测试与 `go vet` 通过。下一步只诊断语义模型预热。
+2026-11-02最新增量：语义 400 已定位为候选预算 100 触发语义排序旧上限 10；排序上限已扩展到 100 并补回归测试。32 份短预热的关键词/语义均返回 200，M3 两小时稳定性已启动，产物位于 `.local/performance/2026-11-02-m3-soak-22`。
+2026-11-03最新增量：M3 两小时微任务完成，7200/7200 请求成功，P95 916.51ms；原始记录和资源独立审计均通过。当前只增加两小时微任务证据，不把它误报为完整 39 项验收。
+2026-11-03最新增量：M4 八小时任务前置检查未通过，墙钟稳定但 CPU 峰值 51% 超过 25% 门槛，已在启动前停止；等待主机负载恢复后只重做 60 秒前置检查。
+2026-11-03最新增量：M2 六次回答证据微任务完成，六份真实回答原始字节、引用、摘录和请求摘要独立审计通过；产物位于 `.local/performance/2026-11-03-m2-answers-02`。
+2026-11-03最新增量：M4 前置检查重试通过（CPU 峰值 13.5%，墙钟偏差约 0.001ms），八小时稳定性阶段已启动，当前阶段为 `soak-500-1rps-28800s`。
+2026-11-03最新增量：M4 八小时稳定性轮次已结束；28800 次请求中 28799 成功、1 次 keyword HTTP 400（序列 16292），P95 1653.56ms、P99 1818.71ms，运行结论为 `microtask_inconclusive`，自有资源清理完成。
+2026-11-03最新增量：M5 原始记录独立审计通过，计数/序列/延迟/引用绑定/摘要一致；M6 资源审计发现测量区间最大墙钟与单调时钟偏差 2551.92ms，RSS、句柄、连接和采样间隔预算通过但整体资源门槛失败。
+2026-11-03最新增量：M4/M5/M6 证据已封存，清单为 `.local/performance/2026-11-03-m4-soak-01/FINAL_SEAL.json`，15 份产物摘要复核一致；M7 最终通过条件仍未满足。
+2026-11-03最新增量：复核原门槛后确认 1/28800 HTTP 错误未超过 0.1% 上限，keyword/semantic 请求门槛均通过；M4 无结论的确定原因是时钟偏差超过 250ms。HTTP 400 与 +2.552s 时钟跳变时间相近，因果尚未确定。新的 60 秒主机前置检查通过，300 秒 keyword 隔离探针正在执行，不计入八小时验收。
+2026-11-03最新增量：Windows 系统日志确认 13:06:27 实际校时 +2552ms；300 秒 keyword 探针完成，300/300 成功、P95 1201.61ms，原始审计通过且无时钟告警，清理完成。独立时钟守卫已用 M4 真实跳变样本验证受控停止及证据保留，后续仅重做新的 M4，不改变原门槛、不自动重启。详细诊断见 `.local/performance/2026-11-03-m4-soak-01/failure-diagnosis.json`。
+2026-11-03 19:08最新增量：新的连续 60 秒前置检查通过（CPU 峰值 12%、时钟偏差小于 0.001ms），M4 新轮 `.local/performance/2026-11-03-m4-soak-02` 已启动并接入独立时钟守卫，当前正在准备固定资料。旧轮、短探针和新轮分别保存；新轮结束后必须重做对应原始与资源审计，M7 最终通过条件仍开放。
+2026-11-03最新增量：M7 预审确认回答证据、两小时轮次与新八小时轮次的 945 项源码、应用二进制及前端产物一致；M2 证据摘要复核通过。M3 原始 12 份产物摘要、原始请求审计及资源复核通过，进程退出和目录清理已确认；对其旧报告未保存终态的问题，单独记录 `M3_TERMINAL_REVIEW.json`，保持原报告不变。预审产物位于 `.local/acceptance/2026-11-03-m2-m7`，最终通过仍待新 M4 及其审计。
+2026-11-03 19:14:58最新增量：新 M4 完成固定资料和预热，已进入八小时、500 文档、1rps 混合检索测量；控制进程和时钟守卫均正常。不中断时预计于 2026-11-04 03:15 左右结束，仍需完成该轮原始记录、资源与清理审计后才可最终封存。
+2026-11-03最新增量：将时钟守卫的动态心跳迁至独立审计目录，避免测量结束后心跳继续写入造成封存摘要失效；仅替换观察进程，测量 PID 11276 和创建时间保持一致。新时钟守卫 PID 5320、终态复核进程 PID 28716 均已接入；退出后将顺序完成本轮原始审计、资源审计与封存，观察超时不自动重启。拒绝失败审计/未完成清理及进程退出后再审计的隔离验证通过，实际 M4 与后续审计仍待完成。
+2026-11-03最新增量：最终 M2–M7 核验入口已准备，覆盖源码/二进制/前端一致性、回答证据、两段原工况、完整时钟日志、独立审计、清理及封存摘要。对当前仍在运行的新 M4 真实数据执行后返回 pending，明确列出未完成项，不提前关闭目标；核验结果保存为独立审计目录的 `COMPLETION_REVIEW.json`。
+2026-11-03 19:37最新增量：恢复终态观察的 Windows 报告访问冲突：已用真实共享锁复现 PermissionError，并通过报告读取与心跳原子替换重试、时钟停止和终态审计生命周期回归。旧退出记录保留，新时钟守卫 PID 8088、终态观察 PID 10644 接入同一 M4；测量 PID 11276 和创建时间未变，全部历史采样重新检查无时钟告警，实际测量继续。有效观察路径记录在 PRESEAL_REVIEW.json，不把观察流程错误改写成测量失败或重启测量。
+2026-11-03最新增量：M4 中途只读快照核对 4937 条请求，当前前缀 P95 1574.76ms；单一应用 PID、最大采样间隔 5.61s、时钟偏差 0.269ms、最大连接 5，未发现已不可恢复的原门槛问题。快照及完整行游标摘要保存在独立审计目录的 `M4_MIDRUN_REVIEW.json`，明确不计为完整通过，八小时测量与终态资源审计继续等待。
+2026-11-03最新增量：新 M4 保留两次 HTTP 429 原始记录（序列 12076 keyword、12095 semantic），没有请求重试。12539 条前缀复核为 12537 成功、2 次拒绝，P95 1575.39ms，未超过原错误率/延迟门槛；资源采样前缀仍在原预算内。继续同一测量进程，完整八小时、最终资源窗口与独立审计仍待完成，不把运行中复核当成完整通过。
+2026-11-03最新增量：补齐 M7 的进程清理身份凭据：当前 M4 的 17 个自有应用/模型/数据库进程已记录 PID 与创建时间，最终必须独立核实退出。另从 M2/M3 不可变资源采样核对 194/168 个历史 PID，排除复用后没有发现旧自有进程存活；结果与资源摘要保存于 `M2_M3_CLEANUP_REVIEW.json`。该补强不提前关闭正在运行的 M4 或其清理验收。
+
+2026-11-04最新增量：M2–M7 微任务全部通过并封存。独立新轮 M4 完成八小时共 28800 条，28794 次成功、6 次 429（0.02083%）、零正确性错误，P95 1617.25ms；关键词和语义均通过原门槛。新轮原始记录与资源审计通过，全部自有进程已退出，临时目录已移除。最终核验 734 项通过，记录于 `.local/acceptance/2026-11-03-m2-m7/COMPLETION_REVIEW.json`，逐项结果见 [验收微任务](architecture/ACCEPTANCE_MICROTASKS.md#最终验收记录)。首轮无结论数据与短探针未计入通过；完整性能矩阵及生产验收不在本次范围内。
+

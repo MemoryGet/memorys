@@ -285,7 +285,9 @@
         "precision": {
           "enum": [
             "exact",
-            "coarse"
+            "coarse",
+            "ocr",
+            "transcript"
           ]
         },
         "page": {
@@ -320,6 +322,14 @@
           "type": "integer",
           "minimum": 0
         },
+        "start_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "end_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
         "bbox": {
           "$ref": "#/$defs/BoundingBox"
         }
@@ -330,6 +340,12 @@
         ],
         "char_end": [
           "char_start"
+        ],
+        "end_ms": [
+          "start_ms"
+        ],
+        "start_ms": [
+          "end_ms"
         ],
         "cell_range": [
           "worksheet"

@@ -1,10 +1,13 @@
 package architecture_test
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"go/build"
 	"go/parser"
 	"go/token"
 	"io/fs"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strconv"
@@ -33,12 +36,14 @@ var localDependencies = map[string][]string{
 	"cmd/architecture-pg-repositories": {"pkg/contracts", "pkg/postgres", "pkg/withdrawal", "pkg/cleanup", "pkg/adapters", "pkg/index", "pkg/kernel", "pkg/document", "pkg/ingestion", "pkg/parser", "pkg/storage", "pkg/preparation", "pkg/chunk", "pkg/modulewire", "pkg/queryread", "pkg/publicationprojection", "pkg/contentverify", "pkg/identitytoken", "pkg/configprofile", "pkg/profileassembly", "pkg/api", "pkg/knowledge", "pkg/fusion", "pkg/mcpgateway", "pkg/localruntime"},
 	"pkg/cleanup":                      {"pkg/contracts", "pkg/canonical"},
 	"pkg/withdrawal":                   {"pkg/contracts", "pkg/canonical"},
-	"pkg/postgres":                     {"pkg/cleanup", "pkg/contracts", "pkg/indexsnapshot", "pkg/document", "pkg/preparation", "pkg/queryread", "pkg/publicationprojection", "pkg/contentverify", "pkg/identitytoken", "pkg/configprofile"},
+	"pkg/postgres":                     {"pkg/cleanup", "pkg/contracts", "pkg/indexsnapshot", "pkg/document", "pkg/preparation", "pkg/queryread", "pkg/publicationprojection", "pkg/contentverify", "pkg/identitytoken", "pkg/configprofile", "pkg/ingestion"},
 	"pkg/indexsnapshot":                {"pkg/contracts", "pkg/canonical"},
 	"pkg/adapters":                     {"pkg/canonical", "pkg/chunk", "pkg/contracts", "pkg/kernel", "pkg/parser", "pkg/cleanup", "pkg/index", "pkg/contentverify"},
-	"cmd/memorys-server":               {"pkg/api", "pkg/bootstrap", "pkg/configprofile", "pkg/identitytoken", "pkg/localruntime", "pkg/postgres"},
-	"pkg/localruntime":                 {"pkg/clockhealth", "pkg/configprofile", "pkg/contracts", "pkg/knowledge", "pkg/postgres", "pkg/publicationprojection", "pkg/queryread", "pkg/identitytoken", "pkg/contentverify"},
-	"pkg/localcli":                     {"pkg/bootstrap", "pkg/localruntime", "pkg/contracts", "pkg/document", "pkg/configprofile", "pkg/identitytoken", "pkg/postgres", "pkg/preparation", "pkg/chunk", "pkg/adapters", "pkg/contentverify", "pkg/parser", "pkg/parserprocess", "pkg/storage", "pkg/knowledge", "pkg/modelclient", "pkg/semantic", "pkg/modulewire"},
+	"cmd/memorys-server":               {"pkg/api", "pkg/bootstrap", "pkg/configprofile", "pkg/identitytoken", "pkg/localruntime", "pkg/postgres", "pkg/mcpgateway", "pkg/modelclient", "pkg/parseassembly", "pkg/publicationassembly"},
+	"pkg/publicationassembly":          {"pkg/contracts", "pkg/localruntime", "pkg/preparation"},
+	"pkg/parseassembly":                {"pkg/contracts", "pkg/ingestion", "pkg/localruntime", "pkg/parser", "pkg/parserprocess"},
+	"pkg/localruntime":                 {"pkg/clockhealth", "pkg/configprofile", "pkg/contracts", "pkg/knowledge", "pkg/postgres", "pkg/publicationprojection", "pkg/queryread", "pkg/identitytoken", "pkg/contentverify", "pkg/document", "pkg/withdrawal", "pkg/ingestion", "pkg/storage", "pkg/chunk", "pkg/preparation"},
+	"pkg/localcli":                     {"pkg/bootstrap", "pkg/localruntime", "pkg/contracts", "pkg/document", "pkg/configprofile", "pkg/identitytoken", "pkg/postgres", "pkg/preparation", "pkg/chunk", "pkg/adapters", "pkg/cleanup", "pkg/withdrawal", "pkg/contentverify", "pkg/parser", "pkg/parserprocess", "pkg/storage", "pkg/knowledge", "pkg/modelclient", "pkg/semantic", "pkg/fusion", "pkg/modulewire", "pkg/migration"},
 	"pkg/modelclient":                  {"pkg/contracts", "pkg/canonical"},
 	"pkg/semantic":                     {"pkg/contracts"},
 	"cmd/memorys-local":                {"pkg/localcli"},
@@ -129,6 +134,17 @@ func allowedImport(owner, dependency string) bool {
 	return err == nil && p.Goroot
 }
 
+// Unsafe remains forbidden by default. This exception permits only the exact
+// reviewed Windows QoS wrapper in the local executable. Standard CRLF/LF
+// checkout differences are normalized; content changes need another review.
+func reviewedWindowsQoSImport(owner, filename, source, dependency string) bool {
+	if owner != "cmd/memorys-local" || filepath.Base(filename) != "qos_windows.go" || dependency != "unsafe" {
+		return false
+	}
+	digest := sha256.Sum256([]byte(strings.ReplaceAll(source, "\r\n", "\n")))
+	return hex.EncodeToString(digest[:]) == "b0b7a5114a5001465bd1b2503296048630b0de2107ba6a33ce7cedce65705d2f"
+}
+
 func sourceViolations(owner, filename, source string) ([]string, error) {
 	f, err := parser.ParseFile(token.NewFileSet(), filename, source, parser.ImportsOnly)
 	if err != nil {
@@ -143,7 +159,7 @@ func sourceViolations(owner, filename, source string) ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
-		if !allowedImport(owner, path) {
+		if !allowedImport(owner, path) && !reviewedWindowsQoSImport(owner, filename, source, path) {
 			bad = append(bad, "forbidden import: "+path)
 		}
 	}
@@ -170,23 +186,19 @@ func TestProductionDependencyBoundaries(t *testing.T) {
 				return err
 			}
 			owner = filepath.ToSlash(owner)
-			f, err := parser.ParseFile(token.NewFileSet(), path, nil, parser.ImportsOnly)
+			raw, err := os.ReadFile(path)
+			if err != nil {
+				return err
+			}
+			bad, err := sourceViolations(owner, path, string(raw))
 			if err != nil {
 				return err
 			}
 			files++
-			if _, ok := localDependencies[owner]; !ok {
-				t.Errorf("%s: unregistered package %s", path, owner)
+			for _, violation := range bad {
+				t.Errorf("%s: %s", path, violation)
 			}
-			for _, im := range f.Imports {
-				dependency, err := strconv.Unquote(im.Path.Value)
-				if err != nil {
-					return err
-				}
-				if !allowedImport(owner, dependency) {
-					t.Errorf("%s: %s cannot import %s", path, owner, dependency)
-				}
-			}
+
 			return nil
 		})
 		if err != nil {
@@ -231,5 +243,39 @@ func TestDependencyGateAllowsPortsAndIsolatedSDK(t *testing.T) {
 		if err != nil || len(bad) != 0 {
 			t.Fatalf("valid boundary rejected: %s: %v, %v", tc.owner, bad, err)
 		}
+	}
+}
+
+// Exercise the exception with the reviewed bytes, then mutate its owner,
+// filename, body and import. No unrelated native operation becomes admissible.
+func TestWindowsQoSExceptionIsExactAndLocal(t *testing.T) {
+	const source = "package main\n\nimport (\n\t\"runtime\"\n\t\"syscall\"\n\t\"unsafe\"\n)\n\n// requestWebHighQoS affects only this process. Windows may still choose its\n// processors; failure leaves the OS-managed default and does not prevent start.\nfunc requestWebHighQoS() bool {\n\tproc := syscall.NewLazyDLL(\"kernel32.dll\").NewProc(\"SetProcessInformation\")\n\tif proc.Find() != nil {\n\t\treturn false\n\t}\n\t// PROCESS_POWER_THROTTLING_STATE: disable execution-speed throttling.\n\tstate := struct{ version, controlMask, stateMask uint32 }{1, 1, 0}\n\tresult, _, _ := proc.Call(^uintptr(0), 4, uintptr(unsafe.Pointer(&state)), unsafe.Sizeof(state))\n\truntime.KeepAlive(&state)\n\treturn result != 0\n}\n"
+	for _, tc := range []struct {
+		name, owner, filename, body, dependency string
+		want                                    bool
+	}{
+		{"reviewed", "cmd/memorys-local", "qos_windows.go", source, "unsafe", true},
+		{"windows-line-endings", "cmd/memorys-local", "qos_windows.go", strings.ReplaceAll(source, "\n", "\r\n"), "unsafe", true},
+		{"other-file", "cmd/memorys-local", "other_windows.go", source, "unsafe", false},
+		{"other-package", "pkg/localcli", "qos_windows.go", source, "unsafe", false},
+		{"changed-body", "cmd/memorys-local", "qos_windows.go", source + "\n// change", "unsafe", false},
+		{"other-native-import", "cmd/memorys-local", "qos_windows.go", source, "C", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := reviewedWindowsQoSImport(tc.owner, tc.filename, tc.body, tc.dependency); got != tc.want {
+				t.Fatalf("native boundary got %v, want %v", got, tc.want)
+			}
+		})
+	}
+	if allowedImport("cmd/memorys-local", "unsafe") {
+		t.Fatal("unsafe was allowed without its reviewed source boundary")
+	}
+	bad, err := sourceViolations("cmd/memorys-local", "qos_windows.go", source)
+	if err != nil || len(bad) != 0 {
+		t.Fatalf("reviewed source rejected: %v, %v", bad, err)
+	}
+	bad, err = sourceViolations("cmd/memorys-local", "qos_windows.go", source+"\n// change")
+	if err != nil || len(bad) == 0 {
+		t.Fatalf("changed source accepted: %v, %v", bad, err)
 	}
 }

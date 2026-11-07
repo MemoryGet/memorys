@@ -90,6 +90,14 @@ type Candidate struct {
 	FusionOrigins   []FusionOrigin
 }
 
+type SearchSourceMetadata struct {
+	Title             string
+	UpdatedAt         string
+	PublicationStatus string
+	PublicationEpoch  uint64
+	Tags              []string
+}
+
 // FusionOrigin records one route's contribution, independent of vendor score.
 type FusionOrigin struct {
 	RouteID       ID

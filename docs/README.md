@@ -53,7 +53,7 @@
 | 3.3.4 | [KB迁移状态机](architecture/MIGRATION_STATE.md) | 切换/重启/恢复写入、取消与回退、租约和窗口守卫 |
 | 3.3.5 | [原件复制与映射](architecture/BLOB_COPY.md) | 权威文件库存、流式字节核验、稳定BlobRef与物理映射切换 |
 | 3.4 | [管理界面契约](architecture/MANAGEMENT_INTERFACE.md) | 管理页面、命令API、权限、异步与冲突体验 |
-| 3.4.1 | [管理OpenAPI草案](architecture/openapi/management.v1.json) | 26项管理命令/查询、类型化DTO与乐观锁输入 |
+| 3.4.1 | [管理OpenAPI草案](architecture/openapi/management.v1.json) | 28项管理命令/查询、类型化DTO与乐观锁输入 |
 | 3.5 | [伙伴OpenAPI草案](architecture/openapi/partner.v1.json) | 四项伙伴接口DTO、认证、引用、反馈与流事件 |
 | 3.6 | [标准内容格式](architecture/CONTENT_FORMAT.md) | 表格/图片/音频载荷、检索投影和来源坐标 |
 | 3.6.1 | [冻结编码与哈希](architecture/FROZEN_CONTENT.md) | 精确字节规则、冻结字段、两级哈希及跨语言金标 |

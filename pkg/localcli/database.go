@@ -10,11 +10,12 @@ import (
 
 	"github.com/MemoryGet/memorys/pkg/contracts"
 	"github.com/MemoryGet/memorys/pkg/document"
+	"github.com/MemoryGet/memorys/pkg/migration"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-const schemaChecksum = "b05b91c4acc02b8c5fce0d9ba7e94e3f15dcf9d87a13a2cea0b2659d0b7ca450"
-const localACLCheck = `SELECT EXISTS(SELECT 1 FROM akos_withdraw_v1.access_policy_heads h JOIN akos_withdraw_v1.access_policy_snapshots s USING(space_id,version) WHERE h.space_id=$1 AND h.version=1 AND s.sealed) AND (SELECT count(*) FROM akos_withdraw_v1.access_policy_grants WHERE space_id=$1 AND version=1)=7`
+const schemaChecksum = "1d0556f2598df5f302135f8bada7f9a934e898a6594eefebce0acdf2f145b39a"
+const localACLCheck = `SELECT EXISTS(SELECT 1 FROM akos_withdraw_v1.access_policy_heads h JOIN akos_withdraw_v1.access_policy_snapshots s USING(space_id,version) WHERE h.space_id=$1 AND h.version=3 AND s.sealed) AND (SELECT count(*) FROM akos_withdraw_v1.access_policy_grants WHERE space_id=$1 AND version=3)=13`
 
 var errDatabase = errors.New("database unavailable or configuration conflicts; check migration ledger, runtime backup and doctor")
 
@@ -70,7 +71,10 @@ func (s *state) rows() []configRow {
 }
 
 func ownerActions() []string {
-	return []string{"document.create", "document.submit", "revision.approve", "publication.start", "publication.publish", "knowledge.search"}
+	return []string{"document.create", "document.submit", "revision.approve", "publication.start", "publication.publish", "publication.withdraw", "document.delete", "knowledge.search", "publication.cleanup.read", "publication.cleanup.control"}
+}
+func workerActions() []string {
+	return []string{"publication.prepare", "publication.cleanup.execute", "index.delete"}
 }
 func (s *state) grants() []configRow {
 	var rows []configRow
@@ -81,7 +85,7 @@ func (s *state) grants() []configRow {
 	for _, pair := range []struct {
 		subject contracts.ID
 		actions []string
-	}{{s.m.Owner, actions}, {s.m.Worker, []string{"publication.prepare"}}} {
+	}{{s.m.Owner, actions}, {s.m.Worker, workerActions()}} {
 		for _, a := range pair.actions {
 			rows = append(rows, configRow{fmt.Sprintf("INSERT INTO akos_withdraw_v1.access_policy_grants VALUES($1,%d,$2,$3,$4,$5,$6)", s.aclVersion()), fmt.Sprintf("SELECT EXISTS(SELECT 1 FROM akos_withdraw_v1.access_policy_grants WHERE space_id=$1 AND version=%d AND issuer=$2 AND subject_id=$3 AND client_id=$4 AND kb_id=$5 AND action=$6)", s.aclVersion()), []any{s.m.Space, s.m.Issuer, pair.subject, s.m.Client, s.m.KB, a}})
 		}
@@ -90,15 +94,47 @@ func (s *state) grants() []configRow {
 }
 func (s *state) aclVersion() uint64 {
 	if s.m.Features == 1 {
-		return 2
+		return 4
 	}
-	return 1
+	return 3
 }
 func (s *state) aclCheck() string {
 	if s.m.Features == 0 {
 		return localACLCheck
 	}
-	return `SELECT EXISTS(SELECT 1 FROM akos_withdraw_v1.access_policy_heads h JOIN akos_withdraw_v1.access_policy_snapshots s USING(space_id,version) WHERE h.space_id=$1 AND h.version=2 AND s.sealed) AND (SELECT count(*) FROM akos_withdraw_v1.access_policy_grants WHERE space_id=$1 AND version=2)=11`
+	return `SELECT EXISTS(SELECT 1 FROM akos_withdraw_v1.access_policy_heads h JOIN akos_withdraw_v1.access_policy_snapshots s USING(space_id,version) WHERE h.space_id=$1 AND h.version=4 AND s.sealed) AND (SELECT count(*) FROM akos_withdraw_v1.access_policy_grants WHERE space_id=$1 AND version=4)=17`
+}
+
+func (s *state) migrateACL(ctx context.Context, tx *sql.Tx) error {
+	var current uint64
+	if err := tx.QueryRowContext(ctx, `SELECT version FROM akos_withdraw_v1.access_policy_heads WHERE space_id=$1 FOR UPDATE`, s.m.Space).Scan(&current); err != nil {
+		return errDatabase
+	}
+	target := s.aclVersion()
+	if current >= target {
+		return nil
+	}
+	if _, err := tx.ExecContext(ctx, `INSERT INTO akos_withdraw_v1.access_policy_snapshots(space_id,version,sealed) VALUES($1,$2,false) ON CONFLICT(space_id,version) DO NOTHING`, s.m.Space, target); err != nil {
+		return errDatabase
+	}
+	if _, err := tx.ExecContext(ctx, `INSERT INTO akos_withdraw_v1.access_policy_grants(space_id,version,issuer,subject_id,client_id,kb_id,action) SELECT space_id,$2,issuer,subject_id,client_id,kb_id,action FROM akos_withdraw_v1.access_policy_grants WHERE space_id=$1 AND version=$3 ON CONFLICT DO NOTHING`, s.m.Space, target, current); err != nil {
+		return errDatabase
+	}
+	// Re-assert the complete local grant set at the target version. This keeps
+	// upgrades from older snapshots correct when optional AI grants are present,
+	// while the unique key makes the copy idempotent.
+	for _, grant := range s.grants() {
+		if _, err := tx.ExecContext(ctx, grant.insert, grant.args...); err != nil {
+			return errDatabase
+		}
+	}
+	if _, err := tx.ExecContext(ctx, `UPDATE akos_withdraw_v1.access_policy_snapshots SET sealed=true WHERE space_id=$1 AND version=$2`, s.m.Space, target); err != nil {
+		return errDatabase
+	}
+	if _, err := tx.ExecContext(ctx, `UPDATE akos_withdraw_v1.access_policy_heads SET version=$2 WHERE space_id=$1 AND version=$3`, s.m.Space, target, current); err != nil {
+		return errDatabase
+	}
+	return nil
 }
 
 func checkSchema(ctx context.Context, q queryer) error {
@@ -130,6 +166,9 @@ func (s *state) initialize(ctx context.Context, db *sql.DB) error {
 	if checkSchema(ctx, db) != nil {
 		return errors.New("apply the verified withdraw_contract_v1 migration first with memorys-migrate")
 	}
+	if err := applyPauseMigrations(ctx, db); err != nil {
+		return err
+	}
 	tx, err := db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
 	if err != nil {
 		return errDatabase
@@ -154,7 +193,8 @@ func (s *state) initialize(ctx context.Context, db *sql.DB) error {
 				return errDatabase
 			}
 		}
-		if _, err = tx.ExecContext(ctx, "INSERT INTO akos_withdraw_v1.access_policy_snapshots VALUES($1,1,false)", s.m.Space); err != nil {
+		target := s.aclVersion()
+		if _, err = tx.ExecContext(ctx, "INSERT INTO akos_withdraw_v1.access_policy_snapshots VALUES($1,$2,false)", s.m.Space, target); err != nil {
 			return errDatabase
 		}
 		for _, r := range s.grants() {
@@ -162,12 +202,14 @@ func (s *state) initialize(ctx context.Context, db *sql.DB) error {
 				return errDatabase
 			}
 		}
-		if _, err = tx.ExecContext(ctx, "UPDATE akos_withdraw_v1.access_policy_snapshots SET sealed=true WHERE space_id=$1 AND version=1", s.m.Space); err != nil {
+		if _, err = tx.ExecContext(ctx, "UPDATE akos_withdraw_v1.access_policy_snapshots SET sealed=true WHERE space_id=$1 AND version=$2", s.m.Space, target); err != nil {
 			return errDatabase
 		}
-		if _, err = tx.ExecContext(ctx, "INSERT INTO akos_withdraw_v1.access_policy_heads VALUES($1,1)", s.m.Space); err != nil {
+		if _, err = tx.ExecContext(ctx, "INSERT INTO akos_withdraw_v1.access_policy_heads VALUES($1,$2)", s.m.Space, target); err != nil {
 			return errDatabase
 		}
+	} else if err = s.migrateACL(ctx, tx); err != nil {
+		return err
 	}
 	if err = s.validateDB(ctx, tx); err != nil {
 		return err
@@ -178,6 +220,38 @@ func (s *state) initialize(ctx context.Context, db *sql.DB) error {
 	s.m.Ready = true
 	if writeAtomic(s.root, "manifest.json", encode(s.m)) != nil {
 		return errState
+	}
+	return nil
+}
+
+// applyPauseMigrations upgrades only task tables that are already installed.
+// This keeps a plain text-only local database compatible while making the
+// pause controls usable automatically after AI/management task migrations.
+func applyPauseMigrations(ctx context.Context, db *sql.DB) error {
+	if ctx == nil || db == nil {
+		return errDatabase
+	}
+	migrations := []struct {
+		version, file, relation string
+	}{
+		{"publication_tasks_v2", "docs/architecture/sql/publication_tasks_v2.sql", "akos_withdraw_v1.publication_task_heads"},
+		{"parse_tasks_v3", "docs/architecture/sql/parse_tasks_v3.sql", "akos_withdraw_v1.parse_task_heads"},
+	}
+	for _, item := range migrations {
+		var installed bool
+		if err := db.QueryRowContext(ctx, `SELECT to_regclass($1) IS NOT NULL`, item.relation).Scan(&installed); err != nil {
+			return errDatabase
+		}
+		if !installed {
+			continue
+		}
+		source, err := os.ReadFile(item.file)
+		if err != nil {
+			return errDatabase
+		}
+		if _, err := migration.Apply(ctx, db, item.version, source); err != nil {
+			return errDatabase
+		}
 	}
 	return nil
 }

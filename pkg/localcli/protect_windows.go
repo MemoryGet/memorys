@@ -29,7 +29,7 @@ func protect(path string, directory bool) error {
 	return windows.SetNamedSecurityInfo(path, windows.SE_FILE_OBJECT, windows.DACL_SECURITY_INFORMATION|windows.PROTECTED_DACL_SECURITY_INFORMATION, nil, nil, acl, nil)
 }
 
-func transientStateDirectoryRename(err error) bool {
+func transientStateRename(err error) bool {
 	return errors.Is(err, windows.ERROR_ACCESS_DENIED) || errors.Is(err, windows.ERROR_SHARING_VIOLATION) || errors.Is(err, windows.ERROR_LOCK_VIOLATION)
 }
 

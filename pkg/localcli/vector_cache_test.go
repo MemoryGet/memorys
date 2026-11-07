@@ -118,7 +118,7 @@ func TestVectorCacheConcurrentOwnership(t *testing.T) {
 			owned := map[string]contracts.Vector{fmt.Sprintf("writer-%d", n): append(contracts.Vector(nil), base...)}
 			for i := 0; i < 8; i++ {
 				if err := s.writeVectors(owned); err != nil {
-					errors <- "concurrent optional cache write failed"
+					errors <- fmt.Sprintf("concurrent optional cache write failed: %v", err)
 					return
 				}
 				got := s.readVectors()

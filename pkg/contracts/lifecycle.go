@@ -2,8 +2,11 @@ package contracts
 
 import (
 	"context"
+	"errors"
 	"time"
 )
+
+var ErrFeedbackConflict = errors.New("feedback idempotency conflict")
 
 type Document struct {
 	ID                    ID
@@ -130,6 +133,11 @@ type PublicationOperation struct {
 	ActorID         ID
 }
 
+type PublicationStartResult struct {
+	Operation PublicationOperation
+	Job       Job
+}
+
 type WithdrawRequest struct {
 	Command       CommandContext
 	DocumentID    ID
@@ -161,6 +169,34 @@ type FeedbackResult struct {
 	FeedbackID ID
 	State      string
 	DraftID    *ID
+}
+
+// FeedbackTarget is resolved from a citation or request before a feedback
+// record is persisted. KnowledgeBaseID is never accepted from transport input.
+type FeedbackTarget struct {
+	SpaceID, KnowledgeBaseID, DocumentID, RevisionID, BlockID ID
+}
+
+type FeedbackRecord struct {
+	Request         FeedbackRequest
+	Principal       Principal
+	Target          FeedbackTarget
+	RequestID       ID
+	TargetRequestID *ID
+	IdempotencyKey  string
+}
+
+// FeedbackStore owns durable idempotency, audit and outbox effects. It must
+// return the prior result for an identical key and reject a digest conflict.
+type FeedbackStore interface {
+	Submit(context.Context, FeedbackRecord) (FeedbackResult, error)
+}
+
+// FeedbackTargetResolver resolves server-owned citation/request targets. It
+// must recheck current ownership and publication metadata in its own read view.
+type FeedbackTargetResolver interface {
+	ResolveCitation(context.Context, ID, Citation) (FeedbackTarget, error)
+	ResolveRequest(context.Context, ID, ID) (FeedbackTarget, error)
 }
 
 // Feedback records suggestions only. It has no approve/publish method.

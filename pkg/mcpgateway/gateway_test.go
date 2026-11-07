@@ -152,6 +152,18 @@ func (f application) Search(c context.Context, in knowledge.SearchInput) ([]cont
 func (application) ProfileIdentity() (uint64, contracts.Digest, error) {
 	return 1, contracts.Digest(strings.Repeat("a", 64)), nil
 }
+
+type feedbackApp func(context.Context, api.PartnerFeedbackInput) (contracts.FeedbackResult, error)
+
+func (f feedbackApp) SubmitFeedback(c context.Context, in api.PartnerFeedbackInput) (contracts.FeedbackResult, error) {
+	return f(c, in)
+}
+
+type askApp func(context.Context, api.PartnerAskInput, contracts.AnswerSink) error
+
+func (f askApp) Ask(c context.Context, in api.PartnerAskInput, sink contracts.AnswerSink) error {
+	return f(c, in, sink)
+}
 func config(t *testing.T, app api.PartnerSearchApplication) mcpgateway.Config {
 	t.Helper()
 	raw, err := os.ReadFile("../../docs/architecture/mcp/tools.v1.json")
@@ -222,6 +234,50 @@ func TestSDKInitializationListAndSearchResults(t *testing.T) {
 	b, _ := json.Marshal(result.Result.Structured)
 	if string(a) != string(b) || !strings.Contains(string(a), "source-alice") {
 		t.Fatal("structured/text identity lost", w.Body.String())
+	}
+}
+
+func TestOptionalFeedbackToolUsesPartnerTransport(t *testing.T) {
+	c := config(t, application(sampleApplication))
+	c.Feedback = feedbackApp(func(_ context.Context, in api.PartnerFeedbackInput) (contracts.FeedbackResult, error) {
+		if in.SpaceID != "space" || in.Citation == nil || in.Kind != "helpful" {
+			t.Fatal("feedback arguments were not mapped")
+		}
+		return contracts.FeedbackResult{FeedbackID: "feedback-1", State: "received"}, nil
+	})
+	g, err := mcpgateway.New(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	w := rpc(g, "alice", "tools/list", map[string]any{}, mcpgateway.ProtocolVersion)
+	if w.Code != 200 || !strings.Contains(w.Body.String(), "knowledge_feedback") {
+		t.Fatalf("feedback tool not registered: %d %s", w.Code, w.Body.String())
+	}
+	w = rpc(g, "alice", "tools/call", map[string]any{"name": "knowledge_feedback", "arguments": map[string]any{
+		"space_id": "space", "kind": "helpful", "comment": "可核对", "idempotency_key": "key-1",
+		"citation": map[string]any{"document_id": "doc", "revision_id": "rev", "block_id": "block", "source_anchor": map[string]any{"kind": "revision", "revision_block_id": "block", "locator": map[string]any{"precision": "coarse"}}},
+	}}, mcpgateway.ProtocolVersion)
+	if w.Code != 200 || strings.Contains(w.Body.String(), `"isError":true`) || !strings.Contains(w.Body.String(), "feedback-1") {
+		t.Fatalf("feedback call failed: %d %s", w.Code, w.Body.String())
+	}
+}
+
+func TestOptionalAskToolUsesPartnerTransport(t *testing.T) {
+	c := config(t, application(sampleApplication))
+	c.Ask = askApp(func(_ context.Context, in api.PartnerAskInput, sink contracts.AnswerSink) error {
+		return sink(contracts.AnswerEvent{Kind: "done", Result: &contracts.AnswerResult{RequestID: in.Request.RequestID, Answer: "答案 [1]", Citations: []contracts.Citation{{DocumentID: "doc", RevisionID: "rev", BlockID: "block", Source: contracts.SourceAnchor{Kind: "revision", RevisionBlockID: "block", Locator: contracts.Locator{Precision: "coarse"}}}}, Status: "answered", ProfileVersion: 1, ProfileDigest: contracts.Digest(strings.Repeat("a", 64)), TimingsMS: map[string]float64{}, Degraded: []contracts.Degradation{}}})
+	})
+	g, err := mcpgateway.New(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	w := rpc(g, "alice", "tools/list", map[string]any{}, mcpgateway.ProtocolVersion)
+	if w.Code != 200 || !strings.Contains(w.Body.String(), "knowledge_ask") {
+		t.Fatalf("ask tool not registered: %d %s", w.Code, w.Body.String())
+	}
+	w = rpc(g, "alice", "tools/call", map[string]any{"name": "knowledge_ask", "arguments": map[string]any{"question": "问题", "space_id": "space"}}, mcpgateway.ProtocolVersion)
+	if w.Code != 200 || strings.Contains(w.Body.String(), `"isError":true`) || !strings.Contains(w.Body.String(), "答案 [1]") {
+		t.Fatalf("ask call failed: %d %s", w.Code, w.Body.String())
 	}
 }
 func TestGatewayRejectsAuthenticationVersionOriginAndUnknownArguments(t *testing.T) {

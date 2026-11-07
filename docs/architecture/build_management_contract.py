@@ -47,9 +47,10 @@ def schemas():
     result["ApprovalRequest"] = obj({"id": ID, "revision_id": ID, "document_id": ID, "submitted_by": ID, "submitted_at": DATE,
                                      "state": {"enum": ["submitted", "approved", "rejected", "revoked"]}, "row_version": EPOCH,
                                      "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "policy_version": VERSION})
-    result["Job"] = obj({"id": ID, "space_id": ID, "resource_id": ID, "state": {"enum": ["queued", "running", "completed", "failed", "cancelled"]},
+    result["Job"] = obj({"id": ID, "space_id": ID, "resource_id": ID, "state": {"enum": ["queued", "running", "paused", "completed", "failed", "cancelled"]},
                          "stage": NONEMPTY, "attempt": EPOCH, "row_version": VERSION, "progress": {"type": "number", "minimum": 0, "maximum": 1}, "error": ref("Error")},
                         ["id", "space_id", "resource_id", "state", "stage", "attempt", "row_version", "progress"])
+    result["Job"]["properties"]["kind"] = {"enum": ["parse", "publication", "deletion"]}
     result["PublicationOperation"] = obj({"operation_id": ID, "document_id": ID, "revision_id": ID, "approval_id": ID, "expected_epoch": EPOCH,
                                           "state": {"enum": ["preparing", "ready", "committed", "failed", "superseded"]}, "generation_set_id": NULL_ID, "job_id": ID},
                                          ["operation_id", "document_id", "revision_id", "approval_id", "expected_epoch", "state", "generation_set_id"])
@@ -73,19 +74,22 @@ def schemas():
         "JobCommand": {"expected_job_version": VERSION}, "ProposeDraft": {"comment": NONEMPTY},
     }
     result.update({name: obj(fields) for name, fields in requests.items()})
-    result["JobCommandResult"] = obj({"job_id": ID, "state": {"enum": ["accepted", "already_terminal", "not_cancellable"]}})
-    result["UploadAccepted"] = obj({"document": ref("Document"), "draft": ref("Draft"), "job": ref("Job")})
+    result["JobCommandResult"] = obj({"job_id": ID, "state": {"enum": ["accepted", "paused", "already_terminal", "not_cancellable"]}})
+    result["UploadAccepted"] = obj({"request_id": ID, "document": ref("Document"), "draft": ref("Draft"), "job": ref("Job"), "blob": ref("BlobRef")}, ["request_id", "document", "draft", "job", "blob"])
     result["Submission"] = obj({"revision": ref("Revision"), "approval_request_id": ID})
     result["WithdrawResult"] = obj({"document_id": ID, "publication_epoch": EPOCH, "history_id": ID})
     result["DeleteAccepted"] = obj({"document_id": ID, "job_id": ID, "publication_epoch": EPOCH})
     result["GrantResult"] = obj({"kb_id": ID, "subject_id": ID, "role": {"enum": ["Admin", "Contributor", "Viewer", "none"]}, "policy_version": VERSION})
-    result["ProposalAccepted"] = obj({"feedback_id": ID, "job_id": ID})
+    result["GrantPage"] = obj({"items": {"type": "array", "items": ref("Grant")}, "next_cursor": NONEMPTY}, ["items"])
+    result["JobPage"] = obj({"items": {"type": "array", "items": ref("Job")}, "next_cursor": NONEMPTY}, ["items"])
+    result["ProposalAccepted"] = obj({"proposal_id": ID, "feedback_id": ID, "draft_id": ID, "state": {"const": "proposed"}, "created_at": DATE, "request_id": ID}, ["proposal_id", "feedback_id", "draft_id", "state", "created_at", "request_id"])
     return result
 
 
 ROUTES = [
     ("get", "/spaces/{space_id}/knowledge-bases", "list_knowledge_bases", None, "KnowledgeBasePage", "200", "space.read"),
     ("post", "/spaces/{space_id}/knowledge-bases", "create_knowledge_base", "CreateKB", "KnowledgeBase", "201", "space.manage"),
+    ("get", "/knowledge-bases/{kb_id}/grants", "list_kb_grants", None, "GrantPage", "200", "kb.manage_access"),
     ("put", "/knowledge-bases/{kb_id}/grants/{subject_id}", "set_kb_grant", "SetGrant", "GrantResult", "200", "kb.manage_access"),
     ("post", "/knowledge-bases/{kb_id}/documents", "upload_document", "multipart-upload", "UploadAccepted", "202", "kb.edit"),
     ("get", "/knowledge-bases/{kb_id}/documents", "list_documents", None, "DocumentPage", "200", "kb.read"),
@@ -105,9 +109,12 @@ ROUTES = [
     ("get", "/documents/{id}/history", "list_document_history", None, "PublicationHistoryPage", "200", "kb.read_history"),
     ("get", "/blobs/{blob_id}/content", "download_original", None, "binary", "200", "kb.download_original"),
     ("get", "/jobs/{id}", "get_job", None, "Job", "200", "resource.view_job"),
+    ("get", "/jobs", "list_jobs", None, "JobPage", "200", "resource.view_job"),
     ("get", "/publication-operations/{id}", "get_publication_operation", None, "PublicationOperation", "200", "kb.publish"),
     ("post", "/jobs/{id}/cancel", "cancel_job", "JobCommand", "JobCommandResult", "200", "resource.manage_job"),
     ("post", "/jobs/{id}/retry", "retry_job", "JobCommand", "JobCommandResult", "202", "resource.manage_job"),
+    ("post", "/parse-jobs/{id}/pause", "pause_parse_job", "JobCommand", "JobCommandResult", "200", "resource.manage_job"),
+    ("post", "/publication-jobs/{id}/pause", "pause_publication_job", "JobCommand", "JobCommandResult", "200", "resource.manage_job"),
     ("get", "/knowledge-bases/{kb_id}/feedback", "list_feedback", None, "FeedbackPage", "200", "kb.manage_feedback"),
     ("post", "/feedback/{id}/proposals", "create_feedback_proposal", "ProposeDraft", "ProposalAccepted", "202", "kb.manage_feedback"),
 ]
@@ -123,6 +130,14 @@ def operation(route):
     if response.endswith("Page"):
         parameters.extend([{"name": "cursor", "in": "query", "schema": {"type": "string", "minLength": 1, "maxLength": 4096}},
                            {"name": "page_size", "in": "query", "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 20}}])
+    if method == "get" and path == "/jobs":
+        parameters.extend([
+            {"name": "kind", "in": "query", "schema": {"type": "string", "enum": ["parse", "publication", "deletion"]}},
+            {"name": "state", "in": "query", "schema": {"type": "string", "enum": ["queued", "running", "paused", "completed", "failed", "cancelled"]}},
+            {"name": "document_id", "in": "query", "schema": ID},
+            {"name": "created_after", "in": "query", "schema": {"type": "string", "format": "date-time"}},
+            {"name": "created_before", "in": "query", "schema": {"type": "string", "format": "date-time"}},
+        ])
     content = {"application/octet-stream": {"schema": {"type": "string", "format": "binary"}}} if response == "binary" else {"application/json": {"schema": ref(response)}}
     result = {"operationId": name, "x-required-permission": permission, "parameters": parameters,
               "description": "Permission is enforced by the application service, not by this annotation. Resource ownership, CAS, publication and delegation checks remain mandatory.",

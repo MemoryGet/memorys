@@ -78,7 +78,13 @@ func Apply(ctx context.Context, db *sql.DB, version string, source []byte) (Resu
 		return Result{}, err
 	}
 	if schemaExists {
-		return Result{}, ErrUntrackedSchema
+		// The first withdraw contract owns schema creation. Later versioned
+		// migrations may extend that schema only when its ledger entry is
+		// already present; an untracked schema still fails closed.
+		var baseChecksum string
+		if err = tx.QueryRowContext(ctx, `SELECT checksum FROM public.memorys_schema_migrations WHERE version='withdraw_contract_v1'`).Scan(&baseChecksum); err != nil || baseChecksum == "" {
+			return Result{}, ErrUntrackedSchema
+		}
 	}
 	if _, err = tx.ExecContext(ctx, body); err != nil {
 		return Result{}, err

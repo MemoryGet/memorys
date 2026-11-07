@@ -61,6 +61,30 @@ func TestNativeHostRejectsUnsupportedRoutes(t *testing.T) {
 	}
 }
 
+func TestAuthenticatorAccessorPreservesBoundProvider(t *testing.T) {
+	auth := &testAuthenticator{}
+	db := &sql.DB{}
+	db.SetMaxOpenConns(2)
+	s, err := NewSearch(db, auth, testProfile(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if s.Authenticator() != auth {
+		t.Fatal("search did not preserve its bound authenticator")
+	}
+	var nilSearch *Search
+	if nilSearch.Authenticator() != nil {
+		t.Fatal("nil search returned an authenticator")
+	}
+}
+
+func TestReadCurrentRejectsNilRuntimeBeforeDatabaseAccess(t *testing.T) {
+	var s *Search
+	if _, err := s.ReadCurrent(context.Background(), knowledge.CurrentReadInput{DocumentID: "doc"}); !errors.Is(err, knowledge.ErrRead) {
+		t.Fatal("nil runtime was not rejected")
+	}
+}
+
 func TestSQLBoundaryReauthenticatesAndRejectsPolicyOrActorChanges(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()

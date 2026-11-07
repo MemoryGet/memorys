@@ -22,9 +22,9 @@
 
 | 操作 | 方法与路径 | 关键输入 | 返回与权限 |
 |---|---|---|---|
-| KB 列表/创建 | GET/POST /spaces/{space_id}/knowledge-bases | 游标或名称 | 列表按主体过滤；创建需要空间管理权限 |
+| KB 列表/创建 | GET/POST /spaces/{space_id}/knowledge-bases | 游标或名称 | 列表按主体过滤；创建需要当前空间管理员授权并原子初始化策略、发布后端和查询 Profile |
 | KB 授权变更 | PUT /knowledge-bases/{kb_id}/grants/{subject_id} | role、expected_policy_version、幂等键 | 新 policy_version；Owner/Admin，限制授予范围 |
-| 文档上传 | POST /knowledge-bases/{kb_id}/documents | multipart 原件、title、幂等键 | 202 Document/Draft/Job；Contributor及以上 |
+| 文档上传 | POST /knowledge-bases/{kb_id}/documents | multipart 原件、title、幂等键 | 202 Document/Draft/Job；Contributor及以上；需原件 BlobStore 和 metadata 迁移 |
 | 文档列表/目录读取 | GET /knowledge-bases/{kb_id}/documents、GET /documents/{id} | 游标或 ID | 目录元信息按查看/编辑权限过滤，不携带无权访问的草稿内容 |
 | 新建编辑草稿 | POST /documents/{id}/drafts | base_revision_id、expected_document_version、幂等键 | Draft；不修改原 Revision |
 | 草稿读取/编辑 | GET/PATCH /drafts/{draft_id} | 编辑传 expected_version、明确 Block 变更 | 新 row_version；冲突409；编辑权限必需 |
@@ -38,9 +38,9 @@
 | 历史/原件 | GET /documents/{id}/history、GET /blobs/{blob_id}/content | 游标或 BlobRef | 分别校验历史/原件权限；原件通过授权代理返回 |
 | 任务/发布操作 | GET /jobs/{id}、GET /publication-operations/{id} | ID | 进度和安全诊断；按所属资源鉴权 |
 | 任务取消/重试 | POST /jobs/{id}/cancel、POST /jobs/{id}/retry | expected_job_version、幂等键 | 明确 accepted/already_terminal/not_cancellable；重复不新增副作用 |
-| 反馈列表/处理 | GET /knowledge-bases/{kb_id}/feedback、POST /feedback/{id}/proposals | 游标或意见和幂等键 | 合法反馈/建议 Draft；不提供自动发布路径 |
+| 反馈列表/处理 | GET /knowledge-bases/{kb_id}/feedback、POST /feedback/{id}/proposals | 游标或意见和幂等键 | 合法反馈/建议 Draft；建议复制冻结版本并保持草稿态，不提供自动发布路径 |
 
-上表是管理接口设计清单。任务重试路由已接入组合根并在缺少应用能力时 fail-closed；其它管理页面和多数命令仍属于契约/局部实现。正式 OpenAPI 必须为请求、响应、分页、错误和示例生成完整 schema。伙伴四工具仍使用统一应用服务，不能通过同一服务 Key 自动获得全部管理权限。
+上表是管理接口设计清单。文档上传和反馈建议路由已接入组合根并在缺少应用能力时 fail-closed；上传原件、文档、源草稿、解析任务和草稿审计/outbox 按生命周期顺序写入，反馈建议按冻结版本创建新草稿，仍需单独提交审核和发布。其它管理页面和多数命令仍属于契约/局部实现。正式 OpenAPI 必须为请求、响应、分页、错误和示例生成完整 schema。伙伴四工具仍使用统一应用服务，不能通过同一服务 Key 自动获得全部管理权限。
 
 对应的 [管理OpenAPI草案](openapi/management.v1.json) 已覆盖26项操作。机器定义从 `build_management_contract.py` 生成，公共Block/Blob/来源/错误类型从伙伴OpenAPI复用；执行时加 `--check` 可检查生成文件是否过期。管理写命令统一使用必需的Idempotency-Key请求头；反馈伙伴工具继续使用body.idempotency_key。删除的expected_document_version放在query参数中，不要求DELETE请求体。
 
